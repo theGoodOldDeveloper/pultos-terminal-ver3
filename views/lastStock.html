@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="hu">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Utólsó leltározás adatai</title>
+    <link href="bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-admin.css">
+</head>
+
+<body>
+    <div class="container text-center">
+        <div class="card bg-danger text-white">
+            <h4 class="card-body">U T Ó L S Ó L E L T Á R O Z Á S A D A T A I</h4>
+        </div>
+        <br>
+        <form action="/admin" method="get">
+            <button type="submit" class="btn btn-primary mr-4 btn-lg">⚡ Vissza a menühöz ⚡ </button>
+        </form><br>
+
+        <h1>Utólsó leltározás adatai</h1>
+        <div id="adatok"></div>
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>NÉV</th>
+                    <th>KISZERELÉS</th>
+                    <th>GYÜJTŐ</th>
+                    <th>LELTÁROZOTT KÉSZLET</th>
+                </tr>
+            </thead>
+            <tbody id="leltarData">
+            </tbody>
+        </table>
+
+
+
+    </div>
+    <script src="jquery.slim.min.js"></script>
+    <script src="popper.min.js"></script>
+    <script src="bootstrap.bundle.min.js"></script>
+    <script src="lastStock.js"></script>
+</body>
+
+</html>

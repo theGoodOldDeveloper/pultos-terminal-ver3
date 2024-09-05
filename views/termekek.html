@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="hu">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Termekek</title>
+    <link href="bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-admin.css">
+</head>
+
+<body>
+    <div class="container ">
+        <div class="container ">
+            <div class="card bg-danger text-white">
+                <h4 class="card-body text-center">* U J * T E R M É K *</h4>
+            </div>
+            <br>
+            <div class="container text-center">
+                <form action="/admin" method="get">
+                    <button type="submit" class="btn btn-primary mr-4 btn-lg ">⚡ Vissza a menühöz ⚡ </button>
+                </form>
+            </div>
+
+            <!-- HACK:HACK:HACK:HACK: innen az uj termek HACK:HACK:HACK:HACK: -->
+
+            <form id="totalForm">
+                <div class="shadow p-2 mb-1 bg-white rounded">
+                    <label for="nev">Termék neve:</label>
+                    <input type="text" id="nev" name="nev" required><br>
+                </div>
+                <div class="shadow p-2 mb-1 bg-white rounded">
+                    <label for="beszar">Beszerzési ár :</label>
+                    <input type="number" id="beszar" name="beszar"><br>
+                </div>
+                <div class="shadow p-2 mb-1 bg-white rounded">
+                    <label for="elar">Eladási ár :</label>
+                    <input type="number" id="elar" name="elar"><br>
+                </div>
+                <div class="shadow p-2 mb-1 bg-white rounded">Leltározandó:<br>
+
+                    <input type="radio" id="leltarozando" name="leltarozando" size="1" value="i" checked>
+                    <label for="leltarozando">IGEN</label><br>
+                    <input type="radio" id="leltarozando" name="leltarozando" size="1" value="n">
+                    <label for="leltarozando">NEM</label><br>
+
+                </div>
+                <div class="shadow p-2 mb-1 bg-white rounded">
+                    <label for="kritikus">Kritikus mennyiség :</label>
+                    <input type="number" id="kritikus" name="kritikus"><br>
+                </div>
+                <div class="shadow p-2 mb-1 bg-white rounded">
+                    <label for="gyujto">Gyüjtő mennyiség :</label>
+                    <input type="number" id="gyujto" name="gyujto"><br>
+                </div>
+                <div class="shadow p-2 mb-1 bg-white rounded">
+                    <label for="jelenlegiKeszlet">Az új termék induló készlete :</label>
+                    <input type="number" id="jelenlegiKeszlet" name="jelenlegiKeszlet"><br>
+                </div>
+                <div class="shadow p-2 mb-1 bg-white rounded ">
+                    <label for="urtartalom">A termék beszerzési űrtartalma vagy darab esetén 1 <span
+                            style="background-color:chartreuse ;">
+                            ! CSAK KIMÉRT termék esetén LITERBEN ! </span> / MINDEN MÁS esetben 1 :</label><br>
+                    <input type="number" id="urtartalom" name="urtartalom"><br>
+                </div>
+                <div class="shadow p-3 mb-5 bg-white rounded">
+                    <fieldset>
+                        <legend>A termék milyen kiszerelésű?</legend>
+                        <div id="kiszerelesSelect"></div>
+                    </fieldset>
+                </div>
+                <div class="shadow p-3 mb-5 bg-white rounded">
+                    <fieldset>
+                        <legend>A termék melyik csoportba tartozik?</legend>
+                        <div id="csoportSelect"></div>
+                    </fieldset>
+                </div>
+            </form>
+            <div class="container text-center">
+                <button id="newdata" class="btn btn-danger mr-4 btn-lg">Ujadat hozzáadása </button><br><br>
+            </div>
+
+            <!-- Kimért termékek és a kimért mennyiség PÁROSÍTÁSA INFO: Modal INFO: -->
+            <div class="modal" id="createXkimeres">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+
+                        <!-- Modal Header -->
+                        <div class="modal-header">
+                            <h4 class="modal-title">Kimérési egységek hozzárendelése a termékhez</h4>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+
+                        <!-- Modal body -->
+                        <div class="modal-body">
+                            <div id="azonosito"></div>
+                            <p>=================================</p>
+                            <div id="modalKineresNev"></div>
+                        </div>
+
+                        <!-- Modal footer -->
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-danger" data-dismiss="modal" onclick=""
+                                id="mDataSend">Close</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- HACK:HACK:HACK:HACK: eddig az uj termek HACK:HACK:HACK:HACK: -->
+
+            <!-- FIXME:FIXME:FIXME:FIXME:FIXME: -->
+
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Neve</th>
+                        <th>Beszerzési ár</th>
+                    </tr>
+                </thead>
+                <tbody id="termekek">
+                </tbody>
+            </table>
+            <div id="adatok"></div>
+
+            <!-- BUG:BUG:BUG:BUG:BUG:BUG:BUG: -->
+            <!-- The Modal -->
+            <div class="modal" id="myModal">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+
+                        <!-- Modal Header -->
+                        <div class="modal-header">
+                            <h4 class="modal-title">Mi legyen a termék neve?</h4>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+
+                        <!-- Modal body -->
+                        <div class="modal-body">
+                            <form>
+                                <label for="newNev">Új név:</label><br>
+                                <input type="text" id="newNev" name="newNev"><br>
+                            </form>
+                        </div>
+
+                        <!-- Modal footer -->
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-danger" data-dismiss="modal"
+                                onclick="updatetermekek()">Felülírom !!!</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- BUG:BUG:BUG:BUG:BUG:BUG:BUG: -->
+            <!-- FIXME:FIXME:FIXME:FIXME:FIXME: -->
+
+        </div>
+        <script src="jquery.slim.min.js"></script>
+        <script src="popper.min.js"></script>
+        <script src="bootstrap.bundle.min.js"></script>
+        <!-- <script src="admin.js"></script> -->
+        <script src="termekek.js"></script><!-- BUG:BUG: BUG: BUG:BUG:-->
+</body>
+
+</html>

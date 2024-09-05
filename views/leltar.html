@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="hu">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leltár</title>
+    <link href="bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="leltar.css">
+    <link rel="stylesheet" href="css/main.css" />
+    <style>
+        h1 {
+            margin-top: 100px;
+            text-align: center;
+            color: #fff;
+        }
+
+        .lead {
+            margin: 30px auto;
+            text-align: center;
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid text-center" id="container">
+        <h1>Belépéshez kérem a PIN kódod</h1>
+        <div id="pinpad">
+            <form action="" method="GET" id="pswForm" name="myForm">
+                <input type="password" id="password" /></br>
+                <input type="button" value="1" id="1" class="pinButton calc" />
+                <input type="button" value="2" id="2" class="pinButton calc" />
+                <input type="button" value="3" id="3" class="pinButton calc" /><br>
+                <input type="button" value="4" id="4" class="pinButton calc" />
+                <input type="button" value="5" id="5" class="pinButton calc" />
+                <input type="button" value="6" id="6" class="pinButton calc" /><br>
+                <input type="button" value="7" id="7" class="pinButton calc" />
+                <input type="button" value="8" id="8" class="pinButton calc" />
+                <input type="button" value="9" id="9" class="pinButton calc" /><br>
+                <input type="button" value="clear" id="clear" class="pinButton clear" />
+                <input type="button" value="0" id="0 " class="pinButton calc" />
+                <input type="submit" value="enter" id="enter" class="pinButton enter" />
+            </form>
+        </div>
+    </div>
+    <script src="jquery.slim.min.js"></script>
+    <script src="popper.min.js"></script>
+    <script src="bootstrap.bundle.min.js"></script>
+    <script src="leltar.js"></script>
+</body>
+
+</html>
+<!-- <br><br><br><br><br><br><br>
+        <button onclick="openFullscreen();" class="btn btn-secondary btn-lg"
+            style="width: 100%; padding: 33px; font-size: 33px;">Átváltás
+            Teljes
+            kérernyőre!</button>
+        <button onclick="closeFullscreen();">Close Fullscreen</button> -->

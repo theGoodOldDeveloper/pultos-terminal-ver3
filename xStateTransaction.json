@@ -1,0 +1,172 @@
+[
+  {
+    "id": 57937,
+    "trnumber": "2024.2.28.15.10.20.299",
+    "trdate": "2024. 02. 28. 15:10:20",
+    "trfizetesmod": "o",
+    "megjegyzes": "workTime",
+    "pultos": 0,
+    "kibeosszeg": 0,
+    "kibeosszegbeszar": 0
+  },
+  {
+    "id": 57938,
+    "trnumber": "2024.2.28.15.10.40.65",
+    "trdate": "2024. 02. 28. 15:10:40",
+    "trfizetesmod": "f",
+    "megjegyzes": "workTime",
+    "pultos": 0,
+    "kibeosszeg": 0,
+    "kibeosszegbeszar": 0
+  },
+  {
+    "id": 57939,
+    "trnumber": "2024.2.28.19.3.1.154",
+    "trdate": "2024. 02. 28. 19:03:01",
+    "trfizetesmod": "o",
+    "megjegyzes": "workTime",
+    "pultos": 3,
+    "kibeosszeg": 0,
+    "kibeosszegbeszar": 0
+  },
+  {
+    "id": 57940,
+    "trnumber": "2024.2.28.19.3.23.588",
+    "trdate": "2024. 02. 28. 19:03:23",
+    "trfizetesmod": "k",
+    "megjegyzes": "*",
+    "pultos": 3,
+    "kibeosszeg": 1800,
+    "kibeosszegbeszar": 1074
+  },
+  {
+    "id": 57941,
+    "trnumber": "2024.2.28.19.3.27.896",
+    "trdate": "2024. 02. 28. 19:03:27",
+    "trfizetesmod": "f",
+    "megjegyzes": "workTime",
+    "pultos": 3,
+    "kibeosszeg": 0,
+    "kibeosszegbeszar": 0
+  },
+  {
+    "id": 57942,
+    "trnumber": "2024.2.28.19.51.4.510",
+    "trdate": "2024. 02. 28. 19:51:04",
+    "trfizetesmod": "o",
+    "megjegyzes": "workTime",
+    "pultos": 1,
+    "kibeosszeg": 0,
+    "kibeosszegbeszar": 0
+  },
+  {
+    "id": 57943,
+    "trnumber": "2024.2.28.19.53.40.262",
+    "trdate": "2024. 02. 28. 19:53:40",
+    "trfizetesmod": "k",
+    "megjegyzes": "*",
+    "pultos": 1,
+    "kibeosszeg": 930,
+    "kibeosszegbeszar": 166
+  },
+  {
+    "id": 57944,
+    "trnumber": "2024.2.28.19.53.46.816",
+    "trdate": "2024. 02. 28. 19:53:46",
+    "trfizetesmod": "f",
+    "megjegyzes": "workTime",
+    "pultos": 1,
+    "kibeosszeg": 0,
+    "kibeosszegbeszar": 0
+  },
+  {
+    "id": 57945,
+    "trnumber": "2024.2.28.20.2.19.556",
+    "trdate": "2024. 02. 28. 20:02:19",
+    "trfizetesmod": "o",
+    "megjegyzes": "workTime",
+    "pultos": 2,
+    "kibeosszeg": 0,
+    "kibeosszegbeszar": 0
+  },
+  {
+    "id": 57946,
+    "trnumber": "2024.2.28.20.3.48.501",
+    "trdate": "2024. 02. 28. 20:02:22",
+    "trfizetesmod": "k",
+    "megjegyzes": "*",
+    "pultos": 2,
+    "kibeosszeg": 1600,
+    "kibeosszegbeszar": 644
+  },
+  {
+    "id": 57947,
+    "trnumber": "2024.2.28.20.5.9.862",
+    "trdate": "2024. 02. 28. 20:05:09",
+    "trfizetesmod": "f",
+    "megjegyzes": "workTime",
+    "pultos": 2,
+    "kibeosszeg": 0,
+    "kibeosszegbeszar": 0
+  },
+  {
+    "id": 57948,
+    "trnumber": "2024.2.28.20.10.59.113",
+    "trdate": "2024. 02. 28. 20:10:59",
+    "trfizetesmod": "o",
+    "megjegyzes": "workTime",
+    "pultos": 0,
+    "kibeosszeg": 0,
+    "kibeosszegbeszar": 0
+  },
+  {
+    "id": 57949,
+    "trnumber": "2024.2.28.20.13.6.680",
+    "trdate": "2024. 02. 28. 20:13:06",
+    "trfizetesmod": "f",
+    "megjegyzes": "workTime",
+    "pultos": 0,
+    "kibeosszeg": 0,
+    "kibeosszegbeszar": 0
+  },
+  {
+    "id": 57950,
+    "trnumber": "2024.2.28.21.5.54.525",
+    "trdate": "2024. 02. 28. 21:05:54",
+    "trfizetesmod": "o",
+    "megjegyzes": "workTime",
+    "pultos": 0,
+    "kibeosszeg": 0,
+    "kibeosszegbeszar": 0
+  },
+  {
+    "id": 57951,
+    "trnumber": "2024.2.28.22.45.31.365",
+    "trdate": "2024. 02. 28. 22:45:31",
+    "trfizetesmod": "f",
+    "megjegyzes": "workTime",
+    "pultos": 0,
+    "kibeosszeg": 0,
+    "kibeosszegbeszar": 0
+  },
+  {
+    "id": 57952,
+    "trnumber": "2024.2.28.22.45.35.34",
+    "trdate": "2024. 02. 28. 22:45:35",
+    "trfizetesmod": "o",
+    "megjegyzes": "workTime",
+    "pultos": 3,
+    "kibeosszeg": 0,
+    "kibeosszegbeszar": 0
+  },
+  {
+    "id": 57953,
+    "trnumber": "2024.2.28.22.46.3.945",
+    "trdate": "2024. 02. 28. 22:46:03",
+    "trfizetesmod": "b",
+    "megjegyzes": "DODOKACSA",
+    "pultos": 3,
+    "kibeosszeg": -21000,
+    "kibeosszegbeszar": 0
+  }
+]

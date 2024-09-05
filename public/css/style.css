@@ -1,0 +1,117 @@
+/* HACK:HACK:HACK:HACK:HACK:HACK:HACK:HACK: */
+div.fixed {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    width: 100%;
+    border: 3px solid #73AD21;
+  }
+
+.app_page1 {
+    margin: 0;
+    overflow: hidden;
+    height: 100%;
+}
+
+@media (min-width: 768px) {
+    #left {
+        position: absolute;
+        top: 0%;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        overflow-y: scroll;
+    }
+
+    /* #middle {
+        position: absolute;
+        top: 0px;
+        bottom: 0;
+        left: 15%;
+        width: 15%;
+        overflow-y: scroll;
+    } */
+
+    #right {
+        position: absolute;
+        top: 0%;
+        bottom: 0;
+        right: 0;
+        overflow-y: scroll;
+        width: 100%;
+    }
+}
+
+#left {
+    background-color: hwb(47 83% 0%);
+    /* text-align: center; */
+    height: 100%;
+}
+
+/* #createContent {
+    padding: 0%
+}
+#createTabs {
+    padding: 0%
+} */
+/* #middle {
+    background-color: lightgreen;
+    text-align: center;
+    height: 100%;
+} */
+
+#right {
+    height: 100%;
+    /* background-color: #cedba5; */
+    background-color: #8d9b62;
+    /* text-align: center; */
+}
+
+/* h4 {
+    padding: 10px 0;
+}
+
+.tool-card {
+    border: 2px solid black;
+    padding: 10px 10px;
+    margin: 10px 0;
+} */
+
+/* HACK:HACK:HACK:HACK:HACK:HACK:HACK:HACK: */
+
+div.absolute {
+    position: absolute;
+    top: 87%;
+    right: 1%;
+    /* width: 20%;
+    height: 7%;
+    border: 3px solid #73AD21; */
+}
+
+/* HACK:HACK:HACK:HACK:HACK:HACK:HACK:HACK: */
+
+/* BUG: ha a felső sor button nagyságát növelni akarod, növelni kell a
+munkaterület felső kitakart sávját is!!! */
+button {
+    font-size: 1.5rem;
+}
+#summa {
+    font-size: 1.7rem;
+}
+
+/* div.absoluteJobb {
+    position: absolute;
+    top: 7%;
+    right: 1%;
+    width: 24%;
+    height: 79%;
+    border: 3px solid #73ad21;
+}
+div.absoluteBal {
+    position: absolute;
+    top: 7%;
+    left: 1%;
+    width: 73%;
+    height: 86%;
+    border: 3px solid #b9288e;
+} */

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="hu">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pultos psw setup</title>
+    <link href="bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- INFO: felső fix sav INFO: -->
+    <div class="container-fluid">
+        <nav class="fixed-top navbar navbar-expand-sm bg-light navbar-dark d-flex justify-content-around">
+            <div>
+                <form action="/alapanyagok">
+                    <button type="submit" class="btn btn-info ">Alapanyagok</button>
+                </form>
+            </div>
+            <div>
+                <!-- <form action="/termekek" method="get"> -->
+                <form action="/termekek-adatlap" method="get">
+                    <button type="submit" class="btn btn-info ">Termék adatok
+                    </button>
+                </form>
+            </div>
+            <div>
+                <form action="/todo" method="get">
+                    <button type="submit" class="btn btn-info">Teendők</button>
+                </form>
+            </div>
+            <div>
+                <form action="/statistics" method="get">
+                    <button type="submit" class="btn btn-info">Statisztikák</button>
+                </form>
+            </div>
+            <div>
+                <form action="/forgalom" method="get">
+                    <button type="submit" class="btn btn-info ">Forgalom</button>
+                </form>
+            </div>
+            <div>
+                <form action="/visibleOrder" method="get">
+
+                    <button class="btn btn-dark " id="visibleOrder">Sorrend változtatás</button>
+                </form>
+            </div>
+            <div>
+                <form action="/admin" method="get">
+                    <button type="submit" class="btn btn-danger ">Pultos admin</button>
+                </form>
+            </div>
+            <div>
+                <form action="/" method="get">
+                    <button type="submit" class="btn btn-danger ">Kilépés</button>
+                </form>
+            </div>
+        </nav>
+        <br><br><br><br>
+        <div id="adatok"></div>
+    </div>
+    <!-- INFO: felső fix sav INFO: -->
+
+    <div class="container">
+        <div class="card bg-danger text-white">
+            <h4 class="card-body text-center">AZ ADNINISTRÁTOR JELSZAVÁVAL CSAK ÓVATOSAN 🤔</h4>
+            <h4 class="text-center">HA ELFELEJTED A JELSZÓT, KIZÁROD MAGAD A FELÜLETRŐL!!!</h4>
+        </div>
+        <br>
+        <!-- <div class="container text-center">
+            <form action="/admin" method="get">
+                <button type="submit" class="btn btn-primary mr-4 btn-lg ">⚡ Vissza a menühöz ⚡ </button>
+            </form>
+            <br>
+        </div> -->
+        <div class="card bg-light text-dark text-center m-2 p-3 display-4">PULTOSOK KARBANTARTÁSA</div>
+        <div id="pultosokList"></div>
+    </div>
+
+
+
+    <script src="jquery.slim.min.js"></script>
+    <script src="popper.min.js"></script>
+    <script src="bootstrap.bundle.min.js"></script>
+    <script src="pultosok-admin.js"></script>
+</body>
+
+</html>

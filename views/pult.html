@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="hu">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pult</title>
+    <link href="bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<!-- <body style="height: 75% ; width: 80px;0%"> -->
+
+<body>
+    <div class="app_page1">
+        <div class="row">
+
+            <div class="col-sm-9 " id="left">
+                <div class="container m-1">
+                    <!-- Nav tabs -->
+                    <ul class="nav nav-tabs bg-warning " id="createTabs">
+                    </ul>
+
+                    <!-- Tab panes -->
+                    <div class="tab-content text-center m-0" id="createContent">
+                    </div>
+                </div>
+                <!-- BUG: BALL -->
+                <!-- <button onclick="openFullscreen();" id="hideFullScreen" style="position: absolute;
+                    top: 10%;
+                    right: 10%;
+                    width: 800px;
+                    height: 500px;
+                    border: 3px solid #ad2196;">KATTINTS IDE!!!<br>TELJES KÉPERNYŐRE VÁLTÁS</button> -->
+                <!-- BUG: BALL -->
+            </div>
+            <div class="col-sm-3" id="right">
+
+                <!-- BUG: JOBB -->
+                <div id="pultos">
+                    <div id="pult"></div>
+                </div>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+            </div><!-- BUG: -->
+        </div>
+
+        <div class="absolute">
+            <!-- NOTE: also sav START -->
+
+            <div class="fixed-bottom bg-danger text-white p-1 ">
+
+                <div class="d-flex justify-content-between">
+
+                    <h5 id="localStorageName"></h5>
+                    <button type="button" class="btn btn-success mr-4  kilepes">Kilépés!</button>
+                    <h6 id="datum"></h6>
+                    <button type="button" class="btn btn-light" id="other">Egyéb</button>
+                    <button type="button" class="btn btn-dark kpKivet ">Kasszából kivét</button>
+                    <button type="button" class="btn btn-warning mr-4 kosarak">KOSARAK</button>
+                    <button type="button" class="btn btn-warning mr-4  kosarBt"
+                        onclick="naTegyukEgyUjKosarba()">Kosárba</button>
+                    <button type="button" class="btn btn-secondary mr-4 " id="trCardTarol" onclick="trCard()">Kártya</button>
+                    <button type="button" class="btn btn-primary mr-4  " onclick="trKp()">** Kp **</button>
+                    <button type="button" class="btn btn-success mr-4 " onclick="trKp2()">* Kp 2 *</button>
+                    <span id="summa" style="width: 17%; font-size: 30px; text-align: right; ">Mindösszesen</span>
+                    <!-- NOTE: also sav END -->
+
+                </div>
+            </div>
+            <!-- HACK: *  * HACK: -->
+            <!-- <div class="toast" id="toast" role="alert" aria-live="assertive" aria-atomic="true" style="position: fixed;
+            left: 66%;
+            top: 82%;">
+                <div class="toast-header">
+                    <img src="..." class="rounded mr-2" alt="...">
+                    <strong class="mr-auto">Napi mindösszesen</strong>
+                    <small>11 mins ago</small>
+                    <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="toast-body">
+                    <h2 id="kp2DaySumMessage"></h2>
+                </div>
+            </div> -->
+            <!-- HACK: *  * HACK: -->
+
+            <!-- The HACK: kosarakModal -->
+            <div class="modal" id="kosarakModal">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+
+                        <!-- Modal Header -->
+                        <div class="modal-header">
+                            <h4 class="modal-title">Melyik kosár tartalmát töltsem vissza a pultra?</h4>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+
+                        <!-- Modal body -->
+                        <div class="modal-body">
+                            <div id="kosarakFelsorolasa" style="color: black;"></div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <!-- The HACK: kosarakModal -->
+
+            <!-- The Modal -->
+            <div class="modal" id="myModalKivet">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+
+                        <!-- Modal Header -->
+                        <div class="modal-header">
+                            <h4 class="modal-title">Beszállítók kifizetése.</h4>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+
+                        <!-- Modal body -->
+                        <div class="modal-body">
+                            <form action="/action_page.php">
+                                <label for="kifName">Kinek:</label><br>
+                                <input type="text" id="kifName" name="kifName"><br>
+                                <label for="kifOssz">Mennyit:</label><br>
+                                <input type="number" id="kifOssz" name="kifOssz"><br><br>
+                                <label for="kifMegj">Megjegyzés:</label><br>
+                                <textarea name="kifMegj" rows="10" cols="30"></textarea>
+                                <br><br>
+                            </form>
+                        </div>
+
+                        <!-- Modal footer -->
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- The HACK: kosarMegnevezes -->
+            <div class="modal" id="kosarMegnevezesModal">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+
+                        <!-- Modal Header -->
+                        <div class="modal-header">
+                            <h4 class="modal-title">Mi legyen a neve a kosárnak_</h4>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+
+                        <!-- Modal body -->
+                        <div class="modal-body">
+                            <label for="kosarMegnevezes">Kosárnév :</label><br>
+                            <input type="text" id="kosarMegnevezesId" name="kosarMegnevezes">
+                            <div>
+                                <div id="keyboardTemplateKosar"></div>
+                            </div>
+                        </div>
+
+                        <!-- Modal footer -->
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-success" data-dismiss="modal" id=""
+                                onclick="kosarNevSzerintiTarolas()">Close</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <!-- The HACK: kosarMegnevezes -->
+            <div class="modal" id="hitelMegnevezesModal">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+
+                        <!-- Modal Header -->
+                        <div class="modal-header">
+                            <h4 class="modal-title">Kinek megy a hitel</h4>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+
+                        <!-- Modal body -->
+                        <div class="modal-body">
+                            <label for="hitelMegnevezes">Név :</label><br>
+                            <input type="text" id="hitelMegnevezesId" name="hitelMegnevezes">
+                            <div>
+                                <div>
+                                    <div id="keyboardTemplateHitel"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Modal footer -->
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-danger" data-dismiss="modal" id=""
+                                onclick="trHitel()">Close</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- The kivetMegnevezes -->
+            <div class="modal" id="kivetMegnevezesModal">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+
+                        <!-- Modal Header -->
+                        <div class="modal-header">
+                            <h4 class="modal-title">Kinek megy a kivet</h4>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+
+                        <!-- Modal body -->
+                        <div class="modal-body">
+                            <label for="kivetMegnevezes">Név :</label><br>
+                            <input type="text" id="kivetMegnevezesId" name="kivetMegnevezes">
+                            <div>
+                                <div>
+                                    <div id="keyboardTemplateKivet"></div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Modal footer -->
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-success" data-dismiss="modal" id=""
+                                onclick="kivetOsszegNumber()">Close</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- The hitelRendezesModal -->
+            <div class="modal" id="hitelRendezesModal">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+
+                        <!-- Modal Header -->
+                        <div class="modal-header">
+                            <h4 class="modal-title">Hetelek rendezése:</h4>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+
+                        <!-- Modal body -->
+                        <div class="modal-body" id="hitelList">
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- The fizetoHitelesModModal -->
+            <div class="modal" id="fizetoHitelesModModal">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+
+                        <!-- Modal Header -->
+                        <div class="modal-header">
+                            <h4 class="modal-title">Hogyan rendezi? :</h4>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+                    </div> -->
+
+                    <!-- Modal footer -->
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="hitelFizetesKp()">**
+                            Kp
+                            **</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal"
+                            onclick="hitelFizetesCard()">Kártya</button>
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Mégse</button>
+                    </div>
+
+                </div>
+            </div>
+
+
+        </div>
+
+        <!-- The Modal -->
+        <div class="modal" id="osszegModal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+
+                    <!-- Modal Header -->
+                    <div class="modal-header">
+                        <h4 class="modal-title">Mennyit ?</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+
+                    <!-- Modal body -->
+                    <div class="modal-body">
+                        <form action="" method="GET" id="pswForm" name="myForm">
+                            <input type="number" id="osszegKivetId" /></br>
+                            <input type="button" value="1" id="1" class="m-2 btn-lg btn btn-primary pinButton calc" />
+                            <input type="button" value="2" id="2" class="m-2 btn-lg btn btn-primary pinButton calc" />
+                            <input type="button" value="3" id="3"
+                                class="m-2 btn-lg btn btn-primary pinButton calc" /><br>
+                            <input type="button" value="4" id="4" class="m-2 btn-lg btn btn-primary pinButton calc" />
+                            <input type="button" value="5" id="5" class="m-2 btn-lg btn btn-primary pinButton calc" />
+                            <input type="button" value="6" id="6"
+                                class="m-2 btn-lg btn btn-primary pinButton calc" /><br>
+                            <input type="button" value="7" id="7" class="m-2 btn-lg btn btn-primary pinButton calc" />
+                            <input type="button" value="8" id="8" class="m-2 btn-lg btn btn-primary pinButton calc" />
+                            <input type="button" value="9" id="9"
+                                class="m-2 btn-lg btn btn-primary pinButton calc" /><br>
+                            <input type="button" value="C" id="clear"
+                                class="m-2 btn-lg btn btn-danger pinButton clear" />
+                            <input type="button" value="0" id="0" class="m-2 btn-lg btn btn-primary pinButton calc" />
+                        </form>
+                    </div>
+
+                    <!-- Modal footer -->
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-dismiss="modal"
+                            onclick="trKivet()">Close</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <div class="modal fade" id="visszajaroModal" role="dialog">
+            <div class="modal-dialog ">
+                <div class="modal-content">
+                    <div class="modal-header bg-info ">
+                        <h1 class="modal-title" id="backReturnHead"></h1>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body" id="cimletFelsorolas">
+                    </div>
+                    <div class="modal-footer bg-info text-white">
+                        <button type="button" class="btn btn-danger btn-lg" data-dismiss="modal">BEZÁR</button>
+                    </div>
+                    <!-- <div class="modal-footer bg-info text-white">
+                        <button type="button" class="btn btn-danger btn-lg" data-dismiss="modal"
+                            onclick="reset()">BEZÁR</button>
+                    </div> -->
+                </div>
+            </div>
+        </div>
+        <!-- class="btn btn-primary" -->
+
+        <!-- NOTE: The Modal Saldo -->
+        <div class="modal fade" id="saldoMessageSend">
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="saldoMessageSendTarget"></h4>
+                        <button type="button" class="close" data-dismiss="modal">×</button>
+                    </div>
+                    <div class="modal-body" id="saldoMessageSendComplete">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="responseKP2DaySUM">
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">KP2 mai mindösszesen:</h4>
+                    </div>
+                    <div class="modal-body">
+                        <h3 id="responseKP2DaySUMvalue"></h3>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="alarmOtherScreenModal">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header bg-danger">
+                        <h4 class="modal-title">VAN MÉG DOLGOD':</h4>
+                    </div>
+                    <div class="modal-body">
+                        <h3>Üsd be a másik redszerbe !!!</h3>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+
+    </div>
+
+    <!-- NOTE: The Modal Dialog Alert -->
+    <div class="modal" id="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header alert alert-secondary">
+                    <h4 class="modal-title" id="messageHead"></h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <!-- Modal body -->
+                <div class="modal-body alert alert-danger">
+                    <h3 id="message"></h3>
+                </div>
+                <!-- Modal footer -->
+                <div class="modal-footer alert alert-secondary">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal" id="sendData">Rendben</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="jquery.slim.min.js"></script>
+    <script src="popper.min.js"></script>
+    <script src="bootstrap.bundle.min.js"></script>
+    <script src="pult.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leltározás 😊</title>
+    <link href="bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <!-- <h1 id="eltunik">Kapja be a harapos lonak a fa....at!!!!!!!!!!!!!!!!!!!!!</h1> -->
+    <!-- <h1 id="megjelenik">VOALAAAA es lass csodat!!!!!!!!!!!!!!!!!!!!!</h1> -->
+    <div class="container-fluid text-center" id="openContainer">
+        <br><br><br><br><br><br><br>
+        <button onclick="openFullscreen();" class="btn btn-secondary btn-lg"
+            style="width: 100%; padding: 33px; font-size: 33px;">Átváltás
+            Teljes
+            kérernyőre!</button>
+    </div>
+    <div class="container-fluid" id="container">
+        <div class="d-flex justify-content-center">
+            <button class="btn btn-danger btn-lg text-center m-4 p-4 btn-lg" id="leltarFeldolgozas">LELTÁR
+                FELDOLGOZÁSA</button>
+            <button class="btn btn-success btn-lg text-center m-4 p-4 btn-lg" id="kilepes">KILEPES</button>
+        </div>
+        <h5 class="card text-center" id="leltarPultos"></h5>
+        <h4 class="card text-center" id="alapanyagNev"></h4>
+        <br><br>
+        <div class="d-flex justify-content-around">
+            <button class="btn btn-info btn-lg m-2 p-2 btn-lg" id="leptetHatra">Előző</button>
+            <button class="btn btn-info btn-lg m-2 p-2 btn-lg" id="leptetElore">Következő</button>
+        </div>
+        <div class="text-center" id="leltarAdatok">
+            <br>
+            <h5 class="gyujto">MENNYI (rekesz, karton ...):</h5>
+            <input type="number" class="gyujto" id="leltarozottREKESZ" name="leltarozottREKESZ" maxlength="11"
+                size="11"><br><br>
+
+            <h5 id="dbORliter"></h5>
+            <!-- <input type="number" id="leltarozottDB" name="leltarozottDB" maxlength="11" size="11"><br><br> -->
+            <input type="number" id="csLeltarozottDB" name="csLeltarozottDB" maxlength="11" size="11"><br><br>
+            <h5 class="pult">Bontott üveg (liter) </h5>
+            <input type="number" class="pult" id="leltarozottPULT" name="leltarozottPULT" maxlength="11"
+                size="11"><br><br>
+            <h5 class="">Pultban van</h5>
+            <input type="number" class="" id="pultbanvan" name="pultbanvan" maxlength="11" size="11"><br><br>
+
+        </div>
+
+    </div>
+    <script src="jquery.slim.min.js"></script>
+    <script src="popper.min.js"></script>
+    <script src="bootstrap.bundle.min.js"></script>
+    <script src="leltarozas.js"></script>
+</body>
+
+</html>

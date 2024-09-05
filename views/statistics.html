@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="hu">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Statisztikák</title>
+    <link href="bootstrap.min.css" rel="stylesheet" />
+  </head>
+
+  <body>
+    <!-- INFO: felső fix sav INFO: -->
+    <div class="container-fluid">
+      <nav
+        class="fixed-top navbar navbar-expand-sm bg-light navbar-dark d-flex justify-content-around"
+      >
+        <div>
+          <form action="/alapanyagok">
+            <button type="submit" class="btn btn-info">Alapanyagok</button>
+          </form>
+        </div>
+        <div>
+          <!-- <form action="/termekek" method="get"> -->
+          <form action="/termekek-adatlap" method="get">
+            <button type="submit" class="btn btn-info">Termék adatok</button>
+          </form>
+        </div>
+        <div>
+          <form action="/todo" method="get">
+            <button type="submit" class="btn btn-info">Teendők</button>
+          </form>
+        </div>
+        <div>
+          <form action="/admin" method="get">
+            <button type="submit" class="btn btn-danger">Statisztikák</button>
+          </form>
+        </div>
+        <div>
+          <form action="/forgalom" method="get">
+            <button type="submit" class="btn btn-info">Forgalom</button>
+          </form>
+        </div>
+        <div>
+          <form action="/visibleOrder" method="get">
+            <button class="btn btn-dark" id="visibleOrder">
+              Sorrend változtatás
+            </button>
+          </form>
+        </div>
+        <div>
+          <form action="/pultosokadmin" method="get">
+            <button type="submit" class="btn btn-dark">Pultos admin</button>
+          </form>
+        </div>
+        <div>
+          <form action="/" method="get">
+            <button type="submit" class="btn btn-danger">Kilépés</button>
+          </form>
+        </div>
+      </nav>
+      <br /><br /><br /><br />
+      <div id="adatok"></div>
+    </div>
+    <!-- INFO: felső fix sav INFO: -->
+
+    <div class="container-fluid">
+      <div class="text-center">
+        <div class="card bg-danger text-white">
+          <h4 class="card-body">S T A T I S Z T I K Á K</h4>
+        </div>
+        <br />
+      </div>
+      <div>
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Időszak</th>
+              <th class="text-right">Kp 1</th>
+              <th class="text-right">Kp 2</th>
+              <th class="text-right">Kártya</th>
+              <th class="text-right">Mindösszesen</th>
+              <th class="text-right">Kivét</th>
+              <th class="text-right">Nettó</th>
+              <th class="text-right">Haszon</th>
+            </tr>
+          </thead>
+          <tbody id="fullStatisticRow"></tbody>
+        </table>
+      </div>
+      <div class="card text-center p-2 bg-light m-5">
+        <h2>H I T E L E K</h2>
+        <div class="text-center" id="hitel"></div>
+      </div>
+      <br /><br />
+    </div>
+    <div>
+      <div class="container">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Pultos név</th>
+              <th>Pultos kód</th>
+              <th class="text-right">Ledolgozott órák</th>
+              <th class="text-right">Mindösszesen</th>
+              <th class="text-right">Bevétel/óra</th>
+            </tr>
+          </thead>
+          <tbody id="pultosStatisticRow"></tbody>
+        </table>
+      </div>
+      <br /><br />
+      <div class="text-center">
+        <!-- <form action="/admin">
+          <label for="transactionsStartDate">START:</label>
+          <input
+            type="date"
+            id="transactionsStartDate"
+            name="transactionsStartDate"
+          />
+
+          <label for="transactionsEndDate">END:</label>
+          <input
+            type="date"
+            id="transactionsEndDate"
+            name="transactionsEndDate"
+          />
+          <button
+            type="button"
+            class="btn btn-secondary"
+            onclick="datepicker()"
+          >
+            mehet
+          </button>
+        </form> -->
+      </div>
+
+      <div class="container-fluid">
+        <!-- <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Időszak</th>
+              <th>Kp 1</th>
+              <th>Kp 2</th>
+              <th>Kártya</th>
+              <th>Mindösszesen</th>
+              <th>Kivét</th>
+              <th>Nettó</th>
+              <th>Haszon</th>
+            </tr>
+          </thead>
+          <tbody id="intervalStatisticRow"></tbody>
+        </table> -->
+        <br /><br />
+      </div>
+      <div class="text-center">
+        <h2>Jelenlegi hónap ki és bejelentkezései</h2>
+        <br />
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Pultos id</th>
+              <th>Pultos neve</th>
+              <th>Bejelentkezés ideje</th>
+              <th>Kijelentkezés ideje</th>
+            </tr>
+          </thead>
+          <tbody id="pultosOnOffRow"></tbody>
+        </table>
+      </div>
+      <div class="text-center">
+        <h2>Elmult hónap ki és bejelentkezései</h2>
+        <br />
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Pultos id</th>
+              <th>Pultos neve</th>
+              <th>Original</th>
+              <th>Bejelentkezés ideje</th>
+              <th>Kijelentkezés ideje</th>
+            </tr>
+          </thead>
+          <tbody id="pultosBeforeOnOffRow"></tbody>
+        </table>
+      </div>
+    </div>
+    <script src="jquery.slim.min.js"></script>
+    <script src="popper.min.js"></script>
+    <script src="bootstrap.bundle.min.js"></script>
+    <script src="statistics.js"></script>
+  </body>
+</html>

@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="hu">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin</title>
+    <link href="bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-admin.css">
+</head>
+
+<body>
+
+    <!-- INFO: felső fix sav INFO: -->
+    <div class="container-fluid">
+        <nav class="fixed-top navbar navbar-expand-sm bg-light navbar-dark ">
+
+            <div class="fixed-top navbar navbar-expand-sm bg-light navbar-dark d-flex justify-content-around">
+
+                <div>
+                    <form action="/admin">
+                        <button type="submit" class="btn btn-danger ">Alapanyagok</button>
+                    </form>
+                </div>
+                <div>
+                    <!-- <form action="/termekek" method="get"> -->
+                    <form action="/termekek-adatlap" method="get">
+                        <button type="submit" class="btn btn-info ">Termék adatok
+                        </button>
+                    </form>
+                </div>
+                <div>
+                    <form action="/todo" method="get">
+                        <button type="submit" class="btn btn-info">Teendők</button>
+                    </form>
+                </div>
+                <div>
+                    <form action="/statistics" method="get">
+                        <button type="submit" class="btn btn-info">Statisztikák</button>
+                    </form>
+                </div>
+                <div>
+                    <form action="/forgalom" method="get">
+                        <button type="submit" class="btn btn-info ">Forgalom</button>
+                    </form>
+                </div>
+                <div>
+                    <form action="/visibleOrder" method="get">
+
+                        <button class="btn btn-dark " id="visibleOrder">Sorrend változtatás</button>
+                    </form>
+                </div>
+                <div>
+                    <form action="/pultosokadmin" method="get">
+                        <button type="submit" class="btn btn-dark ">Pultos admin</button>
+                    </form>
+                </div>
+                <div>
+                    <form action="/" method="get">
+                        <button type="submit" class="btn btn-danger ">Kilépés</button>
+                    </form>
+                </div>
+
+            </div>
+
+
+            <div class="fixed-top navbar navbar-expand-sm bg-light navbar-dark d-flex justify-content-around" style="position: absolute;
+            top: 3.4em;">
+                <!-- VERSION-2: -->
+                <div class="container text-center mt-3 shadow p-2 mb-1 bg-white rounded">
+
+                    <form action="#" method="post" id="newAlapanyag">
+                        <div class="input-group mb-3">
+
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Név</span>
+                            </div>
+                            <input type="text" class="form-control" placeholder="alapag. név" id="nev" name="nev"
+                                maxlength="45" size="45" required autofocus>
+
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Mértékegység</span>
+                            </div>
+
+                            <select id="mertekegyseg" name="mertekegyseg" class="custom-select" onchange="darabValue()">
+                                <option selected value="liter">Liter</option>
+                                <option value="darab">Darab</option>
+                            </select>
+
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Kiszerelés</span>
+                            </div>
+                            <input type="number" class="form-control" placeholder="LITERBEN !!!" id="kiszereles"
+                                name="kiszereles" maxlength="11" size="11">
+
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Leltározandó</span>
+                            </div>
+
+                            <select id="leltarozando" name="leltarozando" class="custom-select">
+                                <option selected value="1">IGEN</option>
+                                <option value="0">NEM</option>
+                            </select>
+
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Kritikus me.</span>
+                            </div>
+                            <input type="number" class="form-control" value=0 id="kritikus" name="kritikus"
+                                maxlength="11" size="11">
+
+                        </div>
+                        <div class="input-group mb-3">
+
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Gyüjtő</span>
+                            </div>
+                            <input type="number" class="form-control" value=0 id="gyujto" name="gyujto" maxlength="11"
+                                size="11">
+
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">ÖSSZ.készlet</span>
+                            </div>
+                            <input type="number" class="form-control" value=0 id="keszlet" name="keszlet" maxlength="11"
+                                size="11">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Ebből pultban van</span>
+                            </div>
+                            <input type="number" class="form-control" value=0 id="pultbanvan" name="pultbanvan"
+                                maxlength="11" size="11">
+
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Bontott üveg (liter)</span>
+                            </div>
+                            <input type="number" class="form-control" value=0 id="pult" name="pult" maxlength="11"
+                                size="11">
+
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Beszerzési ár</span>
+                            </div>
+                            <input type="number" class="form-control" value=0 id="beszar" name="beszar" maxlength="11"
+                                size="11" required>
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="newAlapanyag()">Adatok
+                            rögzítése!</button>
+                    </form>
+                </div>
+                <br>
+                <!-- VERSION-2: -->
+            </div>
+
+            <div class="container-fluid text-center">
+                <div class="fixed-top navbar navbar-expand-sm bg-light navbar-dark d-flex justify-content-around" style="position: absolute;
+            top: 15.7em;">
+                    <div class="font-weight-bold m-2 p-2">
+                        Termékek szűkítése: <input type="text" name="nevSzukit" id="nevSzukit">
+                        <button type="button" class="btn btn-success" id="szukit-btn">Szűrés</button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        <br><br><br><br>
+        <!-- <div id="adatok"></div> -->
+    </div>
+    <!-- INFO: felső fix sav INFO: -->
+
+    <!-- NOTE: valid product area -->
+    <!-- VERSION-2: -->
+    <!--     <div class="container text-center mt-3 shadow p-2 mb-1 bg-white rounded">
+
+        <form action="#" method="post" id="newAlapanyag">
+            <div class="input-group mb-3">
+
+                <div class="input-group-prepend">
+                    <span class="input-group-text">Név</span>
+                </div>
+                <input type="text" class="form-control" placeholder="alapag. név" id="nev" name="nev" maxlength="45"
+                    size="45" required autofocus>
+
+                <div class="input-group-prepend">
+                    <span class="input-group-text">Mértékegység</span>
+                </div>
+
+                <select id="mertekegyseg" name="mertekegyseg" class="custom-select" onchange="darabValue()">
+                    <option selected value="liter">Liter</option>
+                    <option value="darab">Darab</option>
+                </select>
+
+                <div class="input-group-prepend">
+                    <span class="input-group-text">Kiszerelés</span>
+                </div>
+                <input type="number" class="form-control" placeholder="LITERBEN !!!" id="kiszereles" name="kiszereles"
+                    maxlength="11" size="11">
+
+                <div class="input-group-prepend">
+                    <span class="input-group-text">Leltározandó</span>
+                </div>
+
+                <select id="leltarozando" name="leltarozando" class="custom-select">
+                    <option selected value="1">IGEN</option>
+                    <option value="0">NEM</option>
+                </select>
+            </div>
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">Kritikus me.</span>
+                </div>
+                <input type="number" class="form-control" value=0 id="kritikus" name="kritikus" maxlength="11"
+                    size="11">
+
+                <div class="input-group-prepend">
+                    <span class="input-group-text">Gyüjtő</span>
+                </div>
+                <input type="number" class="form-control" value=0 id="gyujto" name="gyujto" maxlength="11" size="11">
+
+                <div class="input-group-prepend">
+                    <span class="input-group-text">Készlet</span>
+                </div>
+                <input type="number" class="form-control" value=0 id="keszlet" name="keszlet" maxlength="11" size="11">
+
+                <div class="input-group-prepend">
+                    <span class="input-group-text">Pultban van</span>
+                </div>
+                <input type="number" class="form-control" value=0 id="pult" name="pult" maxlength="11" size="11">
+
+                <div class="input-group-prepend">
+                    <span class="input-group-text">Beszerzési ár</span>
+                </div>
+                <input type="number" class="form-control" value=0 id="beszar" name="beszar" maxlength="11" size="11"
+                    required>
+            </div>
+            <button type="button" class="btn btn-primary" onclick="newAlapanyag()">Adatok rögzítése!</button>
+        </form>
+    </div>
+    <br> -->
+    <!-- VERSION-2: -->
+
+    <!-- VERSION-2: -->
+    <!-- <div class="container-fluid text-center">
+        <div class="font-weight-bold m-2 p-2">
+            Termékek szűkítése: <input type="text" name="nevSzukit" id="nevSzukit">
+            <button type="button" class="btn btn-success" id="szukit-btn">Szűrés</button>
+        </div> -->
+    <!-- VERSION-2: -->
+
+    <!-- FIXME:FIXME:FIXME:FIXME:FIXME: -->
+
+    <!-- <div style="position:initial;
+        width:100px;
+        height:100px;
+        background:red;
+        left:10px;
+        top:100px;"> -->
+
+    <!-- <div class="fixed-bottom bg-danger text-white p-1 "> -->
+    <br><br><br><br><br><br><br><br><br><br><br>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <!-- <th>ix</th> -->
+                <th>Id</th>
+                <th>Neve</th>
+                <th>Mértékegység</th>
+                <th>Kiszerelés</th>
+                <th>Leltározandó</th>
+                <th>Kritikus mennyiség</th>
+                <th>Gyüjtő</th>
+                <th>Készlet</th>
+                <th>Beszerzési ár</th>
+                <th>Szerkeszt</th>
+            </tr>
+        </thead>
+        <tbody id="alapanyagokData">
+        </tbody>
+    </table>
+    <div id="adatok"></div>
+
+    <!-- </div> -->
+
+    <!-- </div> -->
+
+    <!-- FIXME:FIXME:FIXME:FIXME:FIXME: -->
+    </div>
+
+    <script src="jquery.slim.min.js"></script>
+    <script src="popper.min.js"></script>
+    <script src="bootstrap.bundle.min.js"></script>
+    <script src="alapanyagok.js"></script>
+</body>
+
+</html>
+<!-- <div>
+            <form class="form-horizontal" action="/insertalapanyagok" method="post">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>Neve</th>
+                                <th>Mértékegység</th>
+                                <th>Kiszerelés</th>
+                                <th>Gyüjtő</th>
+                                <th>Leltározandó</th>
+                                <th>Kritikus mennyiség</th>
+                                <th>Beszerzési ár</th>
+                            </tr>
+                        </thead>
+                        <tbody id="alapanyagok">
+                            <tr>
+                                <td>134
+                                </td>
+                                <td><input type="text" id="nev" name="nev" placeholder="Alapanyag neve" required
+                                        class="form-control form-control-sm"></td>
+                                <td>john@example.com</td>
+                                <td><input type="number" id="urtartalom" name="urtartalom" maxlength="11" size="11"
+                                        required class="form-control form-control-sm">
+                                </td>
+                                <td><input type="number" id="gyujto" name="gyujto" maxlength="11" size="11"
+                                        class="form-control form-control-sm"></td>
+                                <td>Leltározandó</td>
+                                <td><input type="number" id="kritikus" name="kritikus" maxlength="11" size="11"
+                                        class="form-control form-control-sm"></td>
+                                <td>
+                                    <input type="number" id="beszar" name="beszar" maxlength="11" size="11" required
+                                        class="form-control form-control-sm">
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <button type="submit" class="btn btn-primary  mr-4">Uj alapanyeg felvitele</button>
+            </form><br>
+        </div> -->
+
+<!-- <div class="input-group-prepend">
+                    <span class="input-group-text">123</span>
+                </div> -->

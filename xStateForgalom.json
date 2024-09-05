@@ -1,0 +1,52 @@
+[
+  {
+    "id": 105206,
+    "transaction_id": 57940,
+    "termekid": 10,
+    "db": 3,
+    "eladottbeszar": 358,
+    "eladottelar": 600,
+    "eladottdate": "2024. 02. 28. 19:03:15",
+    "xkimeresnevid": -7
+  },
+  {
+    "id": 105207,
+    "transaction_id": 57943,
+    "termekid": 86,
+    "db": 1,
+    "eladottbeszar": 20,
+    "eladottelar": 600,
+    "eladottdate": "2024. 02. 28. 19:52:31",
+    "xkimeresnevid": -7
+  },
+  {
+    "id": 105208,
+    "transaction_id": 57943,
+    "termekid": 2,
+    "db": 1,
+    "eladottbeszar": 146,
+    "eladottelar": 330,
+    "eladottdate": "2024. 02. 28. 19:52:54",
+    "xkimeresnevid": -7
+  },
+  {
+    "id": 105209,
+    "transaction_id": 57946,
+    "termekid": 1,
+    "db": 2,
+    "eladottbeszar": 243,
+    "eladottelar": 550,
+    "eladottdate": "2024. 02. 28. 20:02:22",
+    "xkimeresnevid": -7
+  },
+  {
+    "id": 105210,
+    "transaction_id": 57946,
+    "termekid": 42,
+    "db": 2,
+    "eladottbeszar": 79,
+    "eladottelar": 250,
+    "eladottdate": "2024. 02. 28. 20:03:08",
+    "xkimeresnevid": -7
+  }
+]

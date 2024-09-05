@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="hu">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forgalom</title>
+    <link href="bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-admin.css">
+</head>
+
+<body>
+
+    <!-- INFO: felső fix sav INFO: -->
+    <div class="container-fluid">
+        <nav class="fixed-top navbar navbar-expand-sm bg-light navbar-dark d-flex justify-content-around">
+            <div>
+                <form action="/alapanyagok">
+                    <button type="submit" class="btn btn-info ">Alapanyagok</button>
+                </form>
+            </div>
+            <div>
+                <!-- <form action="/termekek" method="get"> -->
+                <form action="/termekek-adatlap" method="get">
+                    <button type="submit" class="btn btn-info ">Termék adatok
+                    </button>
+                </form>
+            </div>
+            <div>
+                <form action="/todo" method="get">
+                    <button type="submit" class="btn btn-info">Teendők</button>
+                </form>
+            </div>
+            <div>
+                <form action="/statistics" method="get">
+                    <button type="submit" class="btn btn-info">Statisztikák</button>
+                </form>
+            </div>
+            <div>
+                <form action="/admin" method="get">
+                    <button type="submit" class="btn btn-danger ">Forgalom</button>
+                </form>
+            </div>
+            <div>
+                <form action="/visibleOrder" method="get">
+
+                    <button class="btn btn-dark " id="visibleOrder">Sorrend változtatás</button>
+                </form>
+            </div>
+            <div>
+                <form action="/pultosokadmin" method="get">
+                    <button type="submit" class="btn btn-dark ">Pultos admin</button>
+                </form>
+            </div>
+            <div>
+                <form action="/" method="get">
+                    <button type="submit" class="btn btn-danger ">Kilépés</button>
+                </form>
+            </div>
+        </nav>
+        <br><br><br><br>
+        <div id="adatok"></div>
+    </div>
+    <!-- INFO: felső fix sav INFO: -->
+
+    <div class="container-fluid text-center">
+        <div class="card bg-danger text-white">
+            <h4 class="card-body">F O R G A L O M</h4>
+        </div>
+        <br>
+        <!-- <form action="/admin" method="get">
+            <button type="submit" class="btn btn-primary mr-4 btn-lg">⚡ Vissza a menühöz ⚡ </button>
+        </form><br> -->
+        <form action="/isInStock" method="get">
+            <button type="submit" class="btn btn-warning mr-4 btn-lg">Jelenlegi készlet</button>
+        </form><br>
+        <!-- <form action="/lastStock" method="get">
+            <button type="submit" class="btn btn-secondary mr-4 btn-lg">Utólsó leltározás adatai</button>
+        </form> -->
+
+        <h1>Intervallum beállítása</h1>
+
+        <form action="/admin">
+            <label for="forgalomStartDate">START:</label>
+            <input type="date" id="forgalomStartDate" name="forgalomStartDate">
+
+            <label for="forgalomEndDate">END:</label>
+            <input type="date" id="forgalomEndDate" name="forgalomEndDate">
+            <button type="button" class="btn btn-secondary" onclick="datepicker()">mehet</button>
+        </form>
+
+        <div class="container  text-center">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th class="text-center">Alapanyagnév</th>
+                        <th class="text-right">Fogyás</th>
+                        <th class="text-left">Egység</th>
+                    </tr>
+                </thead>
+                <tbody id="forgalomdataALAPANYAGOK">
+                </tbody>
+            </table>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Terméknév</th>
+                        <th class="text-left">Össz db</th>
+                    </tr>
+                </thead>
+                <tbody id="forgalomdataDB">
+                </tbody>
+            </table>
+        </div>
+        <div class="container-fluid text-center">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th class="text-right">Óra</th>
+                        <th class="text-left">Forg. össz</th>
+                        <th class="text-right"> </th>
+                        <th class="text-right">Óra</th>
+                        <th class="text-left">Forg. össz</th>
+                        <th class="text-right"> </th>
+                        <th class="text-right">Óra</th>
+                        <th class="text-left">Forg. össz</th>
+                        <th class="text-right"> </th>
+                        <th class="text-right">Óra</th>
+                        <th class="text-left">Forg. össz</th>
+                        <th class="text-right"> </th>
+                    </tr>
+                </thead>
+                <tbody id="forgalomdataHOUR">
+                </tbody>
+            </table>
+            <div id="ossesit"></div>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>transaction_id</th>
+                        <th>Teréknév</th>
+                        <th>db</th>
+                        <th>Beszerzési</th>
+                        <th>Eladási</th>
+                        <th>Haszon</th>
+                        <th>Dátum</th>
+                    </tr>
+                </thead>
+                <tbody id="forgalomdata">
+                </tbody>
+            </table>
+            <div id="adatok"></div>
+
+            <!-- The Modal -->
+            <div class="modal" id="myModal">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+
+                        <!-- Modal Header -->
+                        <div class="modal-header">
+                            <h4 class="modal-title">Mi legyen a csoport neve?</h4>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+
+                        <!-- Modal body -->
+                        <div class="modal-body">
+                            <form>
+                                <label for="newNev">Új név:</label><br>
+                                <input type="text" id="newNev" name="newNev"><br>
+                            </form>
+                        </div>
+
+                        <!-- Modal footer -->
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-danger" data-dismiss="modal"
+                                onclick="updatecsoportok()">Felülírom !!!</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="jquery.slim.min.js"></script>
+        <script src="popper.min.js"></script>
+        <script src="bootstrap.bundle.min.js"></script>
+        <script src="forgalom.js"></script>
+</body>
+
+</html>
