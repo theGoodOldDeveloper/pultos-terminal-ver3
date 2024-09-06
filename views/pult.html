@@ -64,8 +64,9 @@
                     <h5 id="localStorageName"></h5>
                     <button type="button" class="btn btn-success mr-4  kilepes">Kilépés!</button>
                     <h6 id="datum"></h6>
-                    <button type="button" class="btn btn-light" id="other">Egyéb</button>
-                    <button type="button" class="btn btn-dark kpKivet ">Kasszából kivét</button>
+                    <button type="button" class="btn btn-light mr-3" id="egyebButton">Egyéb</button>
+<!--                     <button type="button" class="btn btn-light" id="other">Egyéb</button> -->
+                    <button type="button" class="btn btn-dark kpKivet mr-3">Kasszából kivét</button>
                     <button type="button" class="btn btn-warning mr-4 kosarak">KOSARAK</button>
                     <button type="button" class="btn btn-warning mr-4  kosarBt"
                         onclick="naTegyukEgyUjKosarba()">Kosárba</button>
@@ -77,23 +78,46 @@
 
                 </div>
             </div>
-            <!-- HACK: *  * HACK: -->
-            <!-- <div class="toast" id="toast" role="alert" aria-live="assertive" aria-atomic="true" style="position: fixed;
-            left: 66%;
-            top: 82%;">
-                <div class="toast-header">
-                    <img src="..." class="rounded mr-2" alt="...">
-                    <strong class="mr-auto">Napi mindösszesen</strong>
-                    <small>11 mins ago</small>
-                    <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="toast-body">
-                    <h2 id="kp2DaySumMessage"></h2>
-                </div>
-            </div> -->
-            <!-- HACK: *  * HACK: -->
+
+                <!--//HACK: Modal -->
+                <div id="egyebModal" class="modal fade" tabindex="-1" aria-labelledby="egyebModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg ">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="egyebModalLabel">Számlálók</h5>
+                          <!-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> -->
+                          <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                          <div id="counterButtons" class="text-center"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div id="counterModal" class="modal fade" tabindex="-1" aria-labelledby="counterModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="counterModalLabel">Számláló Frissítése</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                          <form id="counterForm">
+                            <div class="mb-3">
+                              <label for="counterValue" class="form-label">Új érték:</label>
+                              <input type="number" class="form-control" id="counterValue" required>
+                            </div>
+                          </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" id="closeCounter" data-bs-dismiss="modal">Bezárás</button>
+                            <button type="button" class="btn btn-primary" id="saveCounter">Mentés</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+    <!--//HACK: Modal -->
 
             <!-- The HACK: kosarakModal -->
             <div class="modal" id="kosarakModal">
@@ -435,3 +459,20 @@
 </body>
 
 </html>
+            <!-- HACK: *  * HACK: -->
+            <!-- <div class="toast" id="toast" role="alert" aria-live="assertive" aria-atomic="true" style="position: fixed;
+            left: 66%;
+            top: 82%;">
+                <div class="toast-header">
+                    <img src="..." class="rounded mr-2" alt="...">
+                    <strong class="mr-auto">Napi mindösszesen</strong>
+                    <small>11 mins ago</small>
+                    <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="toast-body">
+                    <h2 id="kp2DaySumMessage"></h2>
+                </div>
+            </div> -->
+            <!-- HACK: *  * HACK: -->

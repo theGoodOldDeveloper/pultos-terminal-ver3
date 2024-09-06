@@ -9,7 +9,7 @@ visszavalthato = 0,1
 a transactionba benne van a +50 Ft
 a forgalomban NINCS a beteetdij
 
-# repair (copy 12 file)
+# FIRST 😎😎😎 repair (copy 12 file)
 
 TO LEAVE:
 eslint.config.mjs
@@ -25,3 +25,15 @@ HAND REPAIRE:
 psw.txt ,{"pin":50,"name":"BD"}
 
 # pm2 restart app_name
+
+# SQLite 👑
+
+npm install sqlite3
+
+# SECOND 😎😎😎 repair (summ 8 file)
+
+TO LEAVE:
+counters.db
+
+REMOVE:
+other.json

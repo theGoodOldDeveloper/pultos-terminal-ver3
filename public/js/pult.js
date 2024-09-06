@@ -126,7 +126,7 @@ const state = {
   tempKosarak: [],
   tempKosarNevek: [],
   todolist: [],
-  otherlist: [],
+  /* otherlist: [], */
 };
 // localStorage kosarak & kosarnevek INFO:
 //state.kosarak = JSON.parse(localStorage.getItem("localKosarak"));
@@ -250,8 +250,8 @@ async function getdata() {
   state.todolist = await response.json();
 
   /* NOTE: get otherlist */
-  var response = await fetch("/otherdata");
-  state.otherlist = await response.json();
+  /* var response = await fetch("/otherdata");
+  state.otherlist = await response.json(); */
 
   if (state.todolist[weekNumber] != oldTodolist[weekNumber]) {
     ////VERSION-2:alert(state.todolist[weekNumber])
@@ -402,7 +402,7 @@ function renderPult() {
   //console.log("state.pult", state.pult);
   for (var sorok of state.pult) {
     if (state.alapanyagok[sorok.aId - 1].emailsend) {
-      console.log("talalt sullyedt");
+      //console.log("talalt sullyedt");
       betdij = sorok.db * betetdij;
       betdijText = `<h4>Betétdíj összege: <span class="font-weight-bold">${betdij}</span> Ft</h4>`;
     }
@@ -459,7 +459,7 @@ function renderPult() {
     //HACK:HACK:HACK:HACK:HACK:
   });
   $(".remove-db").click(function (event) {
-    console.log("kosarbolVisszatoltott: 😈 ", kosarbolVisszatoltott);
+    //console.log("kosarbolVisszatoltott: 😈 ", kosarbolVisszatoltott);
 
     let pultTombIndex = this.id;
     if (state.pult[pultTombIndex].db == 1 && kosarbolVisszatoltott) {
@@ -467,10 +467,10 @@ function renderPult() {
         "Mivel ez egy kosárból visszatoltott termék és, ezért nem lehetet 0 a darabszám!"
       );
     } else {
-      console.log(
+      /* console.log(
         "state.pult[pultTombIndex].db: 😈 ",
         state.pult[pultTombIndex].db
-      );
+      ); */
       state.pult[pultTombIndex].db--;
       termekKeszletModositas(state.pult[pultTombIndex], "plus");
       renderPult();
@@ -618,7 +618,9 @@ $(".kilepes").click(function () {
     alert("Előbb a kosarakat és a pultot üríteni kell !!!");
   } else {
     kosarakTarol();
-    offPultos();
+    let trFizetesMod = "f";
+    let megjegyzes = "workTime";
+    offPultos(trFizetesMod, megjegyzes);
     //window.location.href = "about:blank";
     window.location.href = "/";
     //window.close()
@@ -693,8 +695,8 @@ $(".kosarak").click(function () {
 /* TODO:TODO:TODO: TR KP TODO:TODO:TODO: */
 async function trKp() {
   let alkotmanyosToday = await alkotmanyosQuery();
-  console.log("alkotmanyosToday: ------->> 👀👀😈", alkotmanyosToday);
-  console.log("saldo: ------->> 👀👀😈", saldo);
+  //console.log("alkotmanyosToday: ------->> 👀👀😈", alkotmanyosToday);
+  //console.log("saldo: ------->> 👀👀😈", saldo);
   let trFizetesMod = "k";
   trNumber = createTrNumber();
   let megjegyzes = "*";
@@ -755,11 +757,11 @@ function visszajaro(trFizetesMod, saldo, alkotmanyosToday) {
 
 //BUG:BUG:BUG:BUG:BUG:BUG: -
 async function hogyanTovabb(trFizetesMod, megjegyzes) {
-  console.log("Várakozás a gombnyomásra...");
+  //console.log("Várakozás a gombnyomásra...");
   const buttonPressed = await waitForButtonPress();
-  console.log(`A ${buttonPressed}. gombot nyomták meg.`);
+  //console.log(`A ${buttonPressed}. gombot nyomták meg.`);
   if (buttonPressed == 2) {
-    console.log("Hogyan tovabb...");
+    //console.log("Hogyan tovabb...");
     kosarakTarol();
     renderPult();
     createTranactionData(
@@ -812,7 +814,7 @@ async function trKp2() {
       let responseKP2 = await fetch("/gettransactionssaldo");
       responseKP2 = await responseKP2.json();
       let responseKP2DaySUM = responseKP2[0]["SUM(kibeosszeg)"];
-      console.log("responseKP2DaySUM: ------->> 😛😛😛", responseKP2DaySUM);
+      //console.log("responseKP2DaySUM: ------->> 😛😛😛", responseKP2DaySUM);
       $("#responseKP2DaySUM").modal("show");
       document.getElementById("responseKP2DaySUMvalue").innerHTML =
         responseKP2DaySUM + ".- Ft";
@@ -822,8 +824,8 @@ async function trKp2() {
     }
   } else {
     let alkotmanyosToday = await alkotmanyosQuery();
-    console.log("alkotmanyosToday: ------->> 💲💲💲", alkotmanyosToday);
-    console.log("saldo: ------->> 💲💲💲", saldo);
+    //console.log("alkotmanyosToday: ------->> 💲💲💲", alkotmanyosToday);
+    //console.log("saldo: ------->> 💲💲💲", saldo);
     let trFizetesMod = "m";
     trNumber = createTrNumber();
     let megjegyzes = "*";
@@ -1346,10 +1348,9 @@ async function kosarNevekTarol() {
 } */
 
 /* TODO:TODO:TODO: pultos beléptetése TODO:TODO:TODO: */
-function offPultos() {
-  let trFizetesMod = "f";
+function offPultos(trFizetesMod, megjegyzes) {
   trNumber = createTrNumber();
-  let megjegyzes = "workTime";
+
   createTranactionDataOnOff(trNumber, trFizetesMod, megjegyzes);
 }
 
@@ -1393,7 +1394,7 @@ async function saldoTarget() {
   } else {
     saldo = response[5].pin;
     betetdij = response[6].pin;
-    console.log("betetdij: 👀👀👀", betetdij);
+    //console.log("betetdij: 👀👀👀", betetdij);
   }
 }
 
@@ -1471,7 +1472,7 @@ function alertDialog(messageHead, message) {
   document.getElementById("messageHead").innerHTML = messageHead;
   document.getElementById("message").innerHTML = message;
 }
-$("#other").off("click");
+/* $("#other").off("click");
 $("#other").on("click", () => {
   let datumNow = new Date().toLocaleString();
   let massage = `
@@ -1549,7 +1550,7 @@ $("#other").on("click", () => {
       });
     }
   });
-});
+}); */
 
 async function alarmOtherScreen() {
   //let responseKP2 = await fetch("/gettransactionssaldo")
@@ -1572,11 +1573,141 @@ async function alkotmanyosQuery() {
   let responseKP2 = await fetch("/gettransactionssaldo");
   responseKP2 = await responseKP2.json();
   let responseKP2DaySUM = responseKP2[0]["SUM(kibeosszeg)"];
-  console.log("responseKP2DaySUM: ------->> 😈😈😈", responseKP2DaySUM);
+  //console.log("responseKP2DaySUM: ------->> 😈😈😈", responseKP2DaySUM);
   return responseKP2DaySUM;
 }
 function backReturn() {
-  console.log("backReturn");
+  //console.log("backReturn");
   kosarakTarol();
   renderPult();
 }
+
+//BUG:
+
+document.addEventListener("DOMContentLoaded", () => {
+  const counterButtons = document.getElementById("counterButtons");
+  const counterValue = document.getElementById("counterValue");
+  const saveCounter = document.getElementById("saveCounter");
+  const closeCounter = document.getElementById("closeCounter"); //BUG
+  const egyebButton = document.getElementById("egyebButton");
+  const egyebModal = new bootstrap.Modal(document.getElementById("egyebModal"));
+  const counterModal = new bootstrap.Modal(
+    document.getElementById("counterModal")
+  );
+
+  let selectedCounter = null;
+
+  egyebButton.addEventListener("click", () => {
+    egyebModal.show();
+    fetchCounters();
+  });
+
+  const typeNames = {
+    KÁV: "Kávé",
+    JÁT: "Játék",
+    CSO: "Csocsó",
+    BIL: "Biliárd",
+    SÖR: "Hordócsere",
+  };
+
+  function createCounterButtons(counters) {
+    counterButtons.innerHTML = "";
+    if (Array.isArray(counters)) {
+      counters.forEach((counter) => {
+        const button = document.createElement("button");
+        button.textContent = `${typeNames[counter.type] || counter.type}: ${
+          counter.count
+        }`;
+        button.className = "btn btn-primary m-2 ";
+
+        if (counter.type === "SÖR") {
+          button.classList.add("btn-danger");
+          button.addEventListener("click", () => handleSorButton(counter));
+        } else {
+          button.addEventListener("click", () => openCounterModal(counter));
+        }
+
+        counterButtons.appendChild(button);
+      });
+    } else {
+      console.error(
+        "A szervertől kapott adatok nem tömb formátumúak:",
+        counters
+      );
+    }
+  }
+
+  function openCounterModal(counter) {
+    selectedCounter = counter;
+    document.getElementById("counterModalLabel").textContent = `${
+      typeNames[counter.type] || counter.type
+    } számláló frissítése`;
+    counterValue.value = "0"; // Változtassuk nullára a kezdőértéket
+    counterModal.show();
+  }
+
+  saveCounter.addEventListener("click", () => {
+    const newCount = parseInt(counterValue.value);
+    updateCounter(selectedCounter.type, newCount);
+  });
+
+  closeCounter.addEventListener("click", () => {
+    counterModal.hide();
+    egyebModal.hide();
+  });
+
+  function updateCounter(type, count) {
+    fetch("/api/update", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ type, count }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Hálózati hiba történt");
+        }
+        return response.json();
+      })
+      .then(() => {
+        counterModal.hide();
+        egyebModal.hide(); // Ez a sor zárja be az egyebModal-t is
+        fetchCounters();
+      })
+      .catch((error) => {
+        console.error("Hiba:", error);
+        alert("Hiba történt a számláló frissítésekor. Kérjük, próbálja újra.");
+      });
+  }
+
+  function fetchCounters() {
+    fetch("/api/counters")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Hálózati hiba történt");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        //console.log("Szervertől kapott adatok:", data);
+        createCounterButtons(data);
+      })
+      .catch((error) => {
+        console.error("Hiba:", error);
+        counterButtons.innerHTML =
+          "<p>Hiba történt az adatok betöltésekor. Kérjük, frissítse az oldalt.</p>";
+      });
+  }
+
+  function handleSorButton(counter) {
+    let trFizetesMod = "s";
+    let megjegyzes = "hCsere";
+    offPultos(trFizetesMod, megjegyzes);
+    //console.log("SÖR gomb megnyomva!");
+    // Példa: növeljük a számlálót 1-gyel
+    updateCounter(counter.type, counter.count + 1);
+  }
+
+  fetchCounters();
+});

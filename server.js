@@ -3,6 +3,11 @@ const bodyParser = require("body-parser");
 const dotenv = require("dotenv"); /* NOTE: környezeti változó */
 const conf = dotenv.config();
 const fs = require("fs");
+const path = require("path");
+const sqlite3 = require("sqlite3").verbose();
+//BUG: VERSION1:const db = new sqlite3.Database("./counters.db");
+const dbFile = "./counters.db";
+
 var port = conf.parsed.PORT;
 var mysql = require("mysql");
 const app = express();
@@ -12,6 +17,100 @@ app.use(express.static("public/js"));
 app.use(express.static("public/css"));
 app.use(express.static("public/img"));
 app.use(express.json());
+
+/* INFO: SQLITE */
+const dbPath = path.resolve(__dirname, "counters.db");
+let db;
+
+function openDatabase() {
+  return new Promise((resolve, reject) => {
+    db = new sqlite3.Database(
+      dbPath,
+      sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE,
+      (err) => {
+        if (err) {
+          console.error("Hiba az adatbázis megnyitásakor:", err.message);
+          reject(err);
+        } else {
+          console.log("Kapcsolódva a counters.db adatbázishoz.");
+          resolve(db);
+        }
+      }
+    );
+  });
+}
+
+function initializeDatabase() {
+  return new Promise((resolve, reject) => {
+    db.serialize(() => {
+      db.run(
+        `CREATE TABLE IF NOT EXISTS counters (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        type TEXT UNIQUE,
+        count INTEGER,
+        date TEXT
+      )`,
+        (err) => {
+          if (err) {
+            console.error("Hiba a tábla létrehozásakor:", err.message);
+            reject(err);
+            return;
+          }
+          console.log("A counters tábla ellenőrizve/létrehozva.");
+
+          const types = ["KÁV", "JÁT", "CSO", "BIL", "SÖR"];
+          const stmt = db.prepare(
+            "INSERT OR IGNORE INTO counters (type, count, date) VALUES (?, ?, ?)"
+          );
+
+          types.forEach((type) => {
+            stmt.run(type, 0, new Date().toISOString());
+          });
+
+          stmt.finalize((err) => {
+            if (err) {
+              console.error("Hiba az adatok inicializálásakor:", err.message);
+              reject(err);
+            } else {
+              console.log("A counters tábla inicializálva.");
+              resolve();
+            }
+          });
+        }
+      );
+    });
+  });
+}
+
+app.get("/api/counters", async (req, res) => {
+  db.all("SELECT * FROM counters", [], (err, rows) => {
+    if (err) {
+      console.error("Hiba a lekérdezés során:", err.message);
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    //console.log("Lekért adatok:", rows);
+    res.json(rows);
+  });
+});
+
+app.post("/api/update", async (req, res) => {
+  const { type, count } = req.body;
+  db.run(
+    "UPDATE counters SET count = ?, date = ? WHERE type = ?",
+    [count, new Date().toISOString(), type],
+    function (err) {
+      if (err) {
+        console.error("Hiba a frissítés során:", err.message);
+        res.status(500).json({ error: err.message });
+        return;
+      }
+      res.json({ message: "Számláló sikeresen frissítve" });
+    }
+  );
+});
+
+/* INFO: SQLITE */
 
 /* NOTE: inserttransactions */
 app.post("/inserttransactions", bodyParser.json(), (req, res) => {
@@ -103,7 +202,7 @@ app.get("/getStoreDataKosarNevek", (req, res) => {
     } else {
       //const jsonDataNevek = data;
       const jsonDataNevek = JSON.parse(data);
-      console.log("jsonDataNevek:", jsonDataNevek);
+      //console.log("jsonDataNevek:", jsonDataNevek);
       res.json(jsonDataNevek);
     }
   });
@@ -119,8 +218,8 @@ app.post("/backupkosarnevek", bodyParser.json(), (req, res) => {
   });
   res.end();
 });
-/* INFO: refreshpultbanvan */
-app.post("/othersave", bodyParser.json(), (req, res) => {
+/* BUG: refreshpultbanvan */
+/* app.post("/othersave", bodyParser.json(), (req, res) => {
   const content = req.body.data;
   fs.writeFile("other.json", JSON.stringify(content), (err) => {
     if (err) {
@@ -128,7 +227,7 @@ app.post("/othersave", bodyParser.json(), (req, res) => {
     }
   });
   res.end();
-});
+}); */
 /* INFO:INFO:INFO: readbackupkosarak */
 app.get("/readbackupkosarak", (req, res) => {
   res.sendFile(__dirname + "/backupkosarak.txt");
@@ -370,7 +469,7 @@ app.get("/", (req, res) => {
 function loggerMiddleWare(req, res, next) {
   const pin = true;
   if (pin) {
-    console.log("loggerMiddleWare is OK 😋 ");
+    //console.log("loggerMiddleWare is OK 😋 ");
     next();
   } else {
     /* res.status(401).send("Authentical error is NEMOK 🤔 "); */
@@ -384,9 +483,10 @@ function loggerMiddleWare(req, res, next) {
 app.get("/pultosokadminpsw", (req, res) => {
   res.sendFile(__dirname + "/psw.txt");
 });
-app.get("/otherdata", (req, res) => {
+/* BUG: pultosokadminpsw BUG:BUG: password JSON send 😁 BUG:BUG:*/
+/* app.get("/otherdata", (req, res) => {
   res.sendFile(__dirname + "/other.json");
-});
+}); */
 
 /* INFO: teendők  todoList array send */
 app.get("/todolist", (req, res) => {
@@ -396,8 +496,35 @@ app.get("/todolist", (req, res) => {
 app.get("/pult", loggerMiddleWare, (req, res) => {
   res.sendFile(__dirname + "/views/pult.html");
 });
-app.listen(port, () => console.log("server is OK 😋 PORT: " + port));
 
+/* INFO: server listen */
+//BUG: VERSION2: Adatbázis-kapcsolat létrehozása
+async function startServer() {
+  try {
+    await openDatabase();
+    await initializeDatabase();
+    app.listen(port, () => {
+      console.log(`Szerver fut a http://localhost:${port} címen`);
+    });
+  } catch (error) {
+    console.error("Nem sikerült elindítani a szervert:", error);
+    process.exit(1);
+  }
+}
+
+startServer();
+/* app.listen(port, async () => {
+  try {
+    await openDatabase();
+    console.log(`Szerver fut a http://localhost:${port} címen`);
+  } catch (error) {
+    console.error("Nem sikerült elindítani a szervert:", error);
+    process.exit(1);
+  }
+}); */
+/* 
+app.listen(port, () => console.log("server is OK 😋 PORT: " + port));
+ */
 /* NOTE: /dataread2 */
 app.get("/dataread2", (req, res) => {
   con.query("SELECT * FROM termekek", (err, rows) => {
@@ -421,3 +548,19 @@ app.get("/lasttransaction", (req, res) => {
   res.sendFile(__dirname + "/last-transaction.json");
 });
 //BUG:BUG:BUG:BUG:BUG:BUG: torolni
+
+// Alkalmazás leállításakor zárjuk be az adatbázis-kapcsolatot
+process.on("SIGINT", () => {
+  if (db) {
+    db.close((err) => {
+      if (err) {
+        console.error("Hiba az adatbázis bezárásakor:", err.message);
+      } else {
+        console.log("Adatbázis-kapcsolat lezárva.");
+      }
+      process.exit(0);
+    });
+  } else {
+    process.exit(0);
+  }
+});
