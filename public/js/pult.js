@@ -49,6 +49,8 @@ var datum = new Date().toLocaleString();
 const userLocalName = localStorage.getItem("user");
 const userLocalCode = localStorage.getItem("pultos");
 const xkimeresnevid = -7;
+var betetdij = 0;
+saldoTarget();
 document.getElementById("localStorageName").innerHTML = userLocalName;
 
 /* if (localStorage.getItem("saldoRuning")) {
@@ -79,6 +81,7 @@ var osszegKivet = "";
 var osszeg = -1;
 var mindosszesenTransaction = -1;
 var mindosszesenTransactionBeszar = -1;
+var mindosszesenTransactionBetDij = -1;
 var fizetoHitelesId = -1;
 var fizetoHitelesMegjegyzes = "";
 var fizetoHitelesIndex = -1;
@@ -199,20 +202,6 @@ async function backupKosarNevekStart(data) {
     body: JSON.stringify({ data: data }),
   });
 }
-//tempData();
-//async function tempData() {
-//  var responsekosarak = await fetch("/readbackupkosarak");
-//  state.tempKosarak = await responsekosarak.json();
-//console.log('state.tempKosarak ******************************')
-//console.log(state.tempKosarak)
-
-//  var responsenevek = await fetch("/readbackupkosarnevek");
-//  state.tempKosarNevek = await responsenevek.json();
-//console.log('state.tempKosarNevek ******************************')
-//console.log(state.tempKosarNevek)
-//}
-
-//BUG:BUG:BUG:BUG:BUG:BUG:BUG:BUG:
 
 var productsHTML = "";
 var foundPult = false;
@@ -383,8 +372,8 @@ function renderProducts() {
     document.getElementById("createContent").innerHTML = createContentHTML;
     //HACK             state.kosarak listener                //
     $(".termekButton").click(function () {
-      console.log("state.kosarak.length", state.kosarak.length);
-      console.log("beforStateGroceryValue", beforStateGroceryValue);
+      /* console.log("state.kosarak.length", state.kosarak.length);
+      console.log("beforStateGroceryValue", beforStateGroceryValue); */
       if (beforStateGroceryValue > state.kosarak.length) {
         kosarakTarol();
         beforStateGroceryValue = state.kosarak.length;
@@ -406,7 +395,19 @@ function renderPult() {
   var mindosszesen = 0;
   var mindosszesenBeszar = 0;
   var tombIndex = 0;
+  let betdijText = "";
+  let betdij = 0;
+  var mindosszesenBetdij = 0;
+  //HACK: betetdij megjelenítése
+  //console.log("state.pult", state.pult);
   for (var sorok of state.pult) {
+    if (state.alapanyagok[sorok.aId - 1].emailsend) {
+      console.log("talalt sullyedt");
+      betdij = sorok.db * betetdij;
+      betdijText = `<h4>Betétdíj összege: <span class="font-weight-bold">${betdij}</span> Ft</h4>`;
+    }
+    /* console.log("termek Id: ", sorok.aId);
+    console.log("termek BD: ", state.alapanyagok[sorok.aId - 1].emailsend); */
     tetelSorokHTML += `
         <div class="card">
         <div class="font-weight-bold d-flex justify-content-between" style=" padding-right: 3em">
@@ -429,12 +430,16 @@ function renderPult() {
           maximumFractionDigits: 0,
         })}</h3>
     </div>
+    ${betdijText}
         </div>
         <h6 <hr color="#ff0000"></h6>
 `;
     tombIndex++;
-    mindosszesen += sorok.eladottelar * sorok.db;
+    mindosszesen += sorok.eladottelar * sorok.db + betdij;
     mindosszesenBeszar += sorok.eladottbeszar * sorok.db;
+    mindosszesenBetdij += betdij;
+    betdijText = "";
+    betdij = 0;
   }
 
   document.getElementById("pult").innerHTML = tetelSorokHTML;
@@ -444,6 +449,7 @@ function renderPult() {
   );
   mindosszesenTransaction = mindosszesen;
   mindosszesenTransactionBeszar = mindosszesenBeszar;
+  mindosszesenTransactionBetDij = mindosszesenBetdij;
   $(".insert-db").click(function (event) {
     //HACK:HACK:HACK:HACK:HACK:
     let pultTombIndex = this.id;
@@ -685,30 +691,39 @@ $(".kosarak").click(function () {
 });
 
 /* TODO:TODO:TODO: TR KP TODO:TODO:TODO: */
-function trKp() {
+async function trKp() {
+  let alkotmanyosToday = await alkotmanyosQuery();
+  console.log("alkotmanyosToday: ------->> 👀👀😈", alkotmanyosToday);
+  console.log("saldo: ------->> 👀👀😈", saldo);
   let trFizetesMod = "k";
   trNumber = createTrNumber();
   let megjegyzes = "*";
-  kosarakTarol();
-  //INFO: new line !!!!!!!
-  renderPult();
+  /* kosarakTarol(); 
+   renderPult();
   createTranactionData(
-    //INFO: new line !!!!!!!
     trNumber,
     trFizetesMod,
     megjegyzes,
     mindosszesenTransaction,
     mindosszesenTransactionBeszar
-  );
+  ); */
   if (mindosszesenTransaction > 0) {
-    visszajaro();
+    visszajaro(trFizetesMod, saldo, alkotmanyosToday);
+    hogyanTovabb(trFizetesMod, megjegyzes);
   }
 }
-
-function visszajaro() {
+//HACK: visszajaro
+function visszajaro(trFizetesMod, saldo, alkotmanyosToday) {
   $("#visszajaroModal").modal();
   let cimletek = [500, 1000, 2000, 5000, 10000, 20000];
-  let visszajaroCimlet = `<table class="table"><thead><tr><th></th><th></th><th></th></tr></thead><tbody>`;
+  let betetdijBontas = ``;
+  if (trFizetesMod == "m") {
+    betetdijBontas = `<h3>Ebből 27%-os ÁFA: <span class="font-weight-bold"> ${
+      mindosszesenTransaction - mindosszesenTransactionBetDij
+    }</span>,- Ft</h3>
+    <h3>0%-os ÁFA (betétdíj): <span class="font-weight-bold"> ${mindosszesenTransactionBetDij}</span>,- Ft</h3>`;
+  }
+  let visszajaroCimlet = `<table class="table"><thead><tr><th></th><th></th><th></th></tr></thead><tbody> ${betetdijBontas}`;
   let mindossz = ezresCsoportosit(mindosszesenTransaction);
   document.getElementById(
     "backReturnHead"
@@ -733,7 +748,56 @@ function visszajaro() {
     </table>
     `;
   document.getElementById("cimletFelsorolas").innerHTML = visszajaroCimlet;
+  document.getElementById("megHatraVan").innerHTML = `<h3>${(
+    saldo - alkotmanyosToday
+  ).toLocaleString("hu-HU")}</h3>`;
 }
+
+//BUG:BUG:BUG:BUG:BUG:BUG: -
+async function hogyanTovabb(trFizetesMod, megjegyzes) {
+  console.log("Várakozás a gombnyomásra...");
+  const buttonPressed = await waitForButtonPress();
+  console.log(`A ${buttonPressed}. gombot nyomták meg.`);
+  if (buttonPressed == 2) {
+    console.log("Hogyan tovabb...");
+    kosarakTarol();
+    renderPult();
+    createTranactionData(
+      trNumber,
+      trFizetesMod,
+      megjegyzes,
+      mindosszesenTransaction,
+      mindosszesenTransactionBeszar
+    );
+  }
+}
+async function waitForButtonPress() {
+  return new Promise((resolve) => {
+    const button1 = document.getElementById("button1");
+    const button2 = document.getElementById("button2");
+
+    const handleClick = (buttonNumber) => {
+      button1.removeEventListener("click", handleButton1Click);
+      button2.removeEventListener("click", handleButton2Click);
+      resolve(buttonNumber);
+    };
+
+    const handleButton1Click = () => handleClick(1);
+    const handleButton2Click = () => handleClick(2);
+
+    button1.addEventListener("click", handleButton1Click);
+    button2.addEventListener("click", handleButton2Click);
+  });
+}
+
+// Használat példa:
+async function example() {
+  console.log("Várakozás a gombnyomásra...");
+  const buttonPressed = await waitForButtonPress();
+  console.log(`A ${buttonPressed}. gombot nyomták meg.`);
+}
+
+//BUG:BUG:BUG:BUG:BUG:BUG: -
 
 function reset() {
   location.reload();
@@ -741,7 +805,7 @@ function reset() {
 
 /* TODO:TODO:TODO: TR KP 2 😁 TODO:TODO:TODO: */
 var querykp2 = -1;
-function trKp2() {
+async function trKp2() {
   if (mindosszesenTransaction == 0) {
     kp2query();
     async function kp2query() {
@@ -757,22 +821,24 @@ function trKp2() {
       }, 4000);
     }
   } else {
+    let alkotmanyosToday = await alkotmanyosQuery();
+    console.log("alkotmanyosToday: ------->> 💲💲💲", alkotmanyosToday);
+    console.log("saldo: ------->> 💲💲💲", saldo);
     let trFizetesMod = "m";
     trNumber = createTrNumber();
     let megjegyzes = "*";
-    createTranactionData(
+    /* createTranactionData(
       trNumber,
       trFizetesMod,
       megjegyzes,
       mindosszesenTransaction,
       mindosszesenTransactionBeszar
-    );
-    //NOTE: NEW LINE !!!
+    );    
     kosarakTarol();
-    renderPult();
-    //NOTE: NEW LINE !!!
+    renderPult(); */
     if (mindosszesenTransaction > 0) {
-      visszajaro();
+      visszajaro(trFizetesMod, saldo, alkotmanyosToday);
+      hogyanTovabb(trFizetesMod, megjegyzes);
       alarmOtherScreen();
     }
   }
@@ -952,8 +1018,6 @@ async function insertForgalomData(
   if (foundKosar.length == 0) {
     foundKosar = false;
   }
-  //BUG:state.pult = [];
-  //BUG: renderPult();
 }
 
 /* TODO:TODO:TODO: KP KIVET TODO:TODO:TODO: */
@@ -1324,10 +1388,12 @@ function ezresCsoportosit(ezresCsoportNormal) {
 async function saldoTarget() {
   let response = await fetch("/pultosokadminpsw");
   response = await response.json();
-  if (response.length < 6) {
+  if (response.length < 7) {
     saldo = 210000;
   } else {
     saldo = response[5].pin;
+    betetdij = response[6].pin;
+    console.log("betetdij: 👀👀👀", betetdij);
   }
 }
 
@@ -1408,7 +1474,7 @@ function alertDialog(messageHead, message) {
 $("#other").off("click");
 $("#other").on("click", () => {
   let datumNow = new Date().toLocaleString();
-  massage = `
+  let massage = `
     <label for="other1">Kávégép számlálóállása: (${state.otherlist[0].dataValue})</label > <br>
         <input type="number" id="adat1" name="other1"><br>
             <label for="other2">Játékgépek számlálóállása: (${state.otherlist[1].dataValue})</label><br>
@@ -1502,3 +1568,15 @@ $(".hitelListRendez").off("click");
 
     $(".hitelListRendez").on("click", function (e) {
 */
+async function alkotmanyosQuery() {
+  let responseKP2 = await fetch("/gettransactionssaldo");
+  responseKP2 = await responseKP2.json();
+  let responseKP2DaySUM = responseKP2[0]["SUM(kibeosszeg)"];
+  console.log("responseKP2DaySUM: ------->> 😈😈😈", responseKP2DaySUM);
+  return responseKP2DaySUM;
+}
+function backReturn() {
+  console.log("backReturn");
+  kosarakTarol();
+  renderPult();
+}

@@ -1,1 +1,1 @@
-[{"pin":"0","name":"Margó"},{"pin":"11","name":"Bolacsek"},{"pin":"2","name":"Peti"},{"pin":"3","name":"beugrós"},{"pin":"","name":"admin"},{"pin":80000,"name":"otevesTerv"}]
+[{"pin":"0","name":"Margó"},{"pin":"11","name":"Bolacsek"},{"pin":"2","name":"Peti"},{"pin":"3","name":"beugrós"},{"pin":"","name":"admin"},{"pin":80000,"name":"otevesTerv"},{"pin":50,"name":"BD"}]

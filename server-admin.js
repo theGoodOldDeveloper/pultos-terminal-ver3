@@ -213,9 +213,10 @@ app.post("/insertalapanyagok", bodyParser.json(), (req, res) => {
     req.body.keszlet,
     req.body.beszar,
     req.body.keszletsum,
+    req.body.emailsend,
   ];
   con.query(
-    "INSERT INTO alapanyagok (nev, mertekegyseg, kiszereles, leltarozando, kritikus, gyujto, keszlet,  beszar, keszletsum) VALUES (?)",
+    "INSERT INTO alapanyagok (nev, mertekegyseg, kiszereles, leltarozando, kritikus, gyujto, keszlet,  beszar, keszletsum, emailsend) VALUES (?)",
     [insertData],
     (err, data) => {
       if (err) throw err;
@@ -286,10 +287,11 @@ app.patch("/updatealapanyagok", bodyParser.json(), (req, res) => {
   var keszlet = [req.body.keszlet];
   var beszar = [req.body.beszar];
   var keszletsum = [req.body.keszletsum];
+  var emailsend = [req.body.emailsend];
 
   var id = req.body.id;
   con.query(
-    "UPDATE alapanyagok SET nev = ?, mertekegyseg = ?, kiszereles = ?, leltarozando = ?, kritikus = ?, gyujto = ?, keszlet = ?, beszar = ?, keszletsum = ? WHERE id = ?",
+    "UPDATE alapanyagok SET nev = ?, mertekegyseg = ?, kiszereles = ?, leltarozando = ?, kritikus = ?, gyujto = ?, keszlet = ?, beszar = ?, keszletsum = ?, emailsend = ? WHERE id = ?",
     [
       nev,
       mertekegyseg,
@@ -300,6 +302,7 @@ app.patch("/updatealapanyagok", bodyParser.json(), (req, res) => {
       keszlet,
       beszar,
       keszletsum,
+      emailsend,
       id,
     ],
     (err, data) => {
