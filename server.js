@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 const express = require("express");
 const bodyParser = require("body-parser");
 const dotenv = require("dotenv"); /* NOTE: környezeti változó */
@@ -6,7 +7,6 @@ const fs = require("fs");
 const path = require("path");
 const sqlite3 = require("sqlite3").verbose();
 //BUG: VERSION1:const db = new sqlite3.Database("./counters.db");
-const dbFile = "./counters.db";
 
 var port = conf.parsed.PORT;
 var mysql = require("mysql");
@@ -18,9 +18,13 @@ app.use(express.static("public/css"));
 app.use(express.static("public/img"));
 app.use(express.json());
 
-/* INFO: SQLITE */
+/* INFO:FIXME SQLITE */
+/* FIXME:FIXME SQLITE counters.db */
 const dbPath = path.resolve(__dirname, "counters.db");
 let db;
+
+const kosarakDb = new sqlite3.Database("./kosarak.db");
+const kosarNevekDb = new sqlite3.Database("./kosarnevek.db");
 
 function openDatabase() {
   return new Promise((resolve, reject) => {
@@ -109,7 +113,147 @@ app.post("/api/update", async (req, res) => {
     }
   );
 });
+/* FIXME:FIXME SQLITE create tables */
+// Táblák létrehozása
+kosarakDb.run(`CREATE TABLE IF NOT EXISTS kosarak (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  nev TEXT,
+  db INTEGER,
+  eladottbeszar REAL,
+  eladottelar REAL,
+  fizetesmod TEXT,
+  transactionnumber INTEGER,
+  megjegyzes TEXT,
+  datum TEXT,
+  aId INTEGER,
+  sumcl REAL,
+  cl BOOLEAN
+)`);
 
+kosarNevekDb.run(`CREATE TABLE IF NOT EXISTS kosarnevek (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  kosarMegnevezes TEXT,
+  kosarMegnevezesIndex INTEGER,
+  kosarMegnevezesPultosNeve TEXT,
+  kosarMegnevezesPultosKod TEXT
+)`);
+/* FIXME:FIXME SQLITE kosarak.db */
+// Kosarak API végpontok
+app.get("/api/kosarak", (req, res) => {
+  kosarakDb.all("SELECT * FROM kosarak", [], (err, rows) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    res.json(rows);
+  });
+});
+
+app.post("/api/kosarak", (req, res) => {
+  const {
+    nev,
+    db,
+    eladottbeszar,
+    eladottelar,
+    fizetesmod,
+    transactionnumber,
+    megjegyzes,
+    datum,
+    aId,
+    sumcl,
+    cl,
+  } = req.body;
+  kosarakDb.run(
+    `INSERT INTO kosarak (nev, db, eladottbeszar, eladottelar, fizetesmod, transactionnumber, megjegyzes, datum, aId, sumcl, cl) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      nev,
+      db,
+      eladottbeszar,
+      eladottelar,
+      fizetesmod,
+      transactionnumber,
+      megjegyzes,
+      datum,
+      aId,
+      sumcl,
+      cl,
+    ],
+    function (err) {
+      if (err) {
+        res.status(500).json({ error: err.message });
+        return;
+      }
+      res.json({ id: this.lastID });
+    }
+  );
+});
+
+app.delete("/api/kosarak/:id", (req, res) => {
+  kosarakDb.run(
+    `DELETE FROM kosarak WHERE id = ?`,
+    req.params.id,
+    function (err) {
+      if (err) {
+        res.status(500).json({ error: err.message });
+        return;
+      }
+      res.json({ message: "deleted", changes: this.changes });
+    }
+  );
+});
+/* FIXME:FIXME SQLITE kosarnevek.db */
+// Kosárnevek API végpontok
+app.get("/api/kosarnevek", (req, res) => {
+  kosarNevekDb.all("SELECT * FROM kosarnevek", [], (err, rows) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    res.json(rows);
+  });
+});
+
+app.post("/api/kosarnevek", (req, res) => {
+  const {
+    kosarMegnevezes,
+    kosarMegnevezesIndex,
+    kosarMegnevezesPultosNeve,
+    kosarMegnevezesPultosKod,
+  } = req.body;
+  kosarNevekDb.run(
+    `INSERT INTO kosarnevek (kosarMegnevezes, kosarMegnevezesIndex, kosarMegnevezesPultosNeve, kosarMegnevezesPultosKod) 
+                    VALUES (?, ?, ?, ?)`,
+    [
+      kosarMegnevezes,
+      kosarMegnevezesIndex,
+      kosarMegnevezesPultosNeve,
+      kosarMegnevezesPultosKod,
+    ],
+    function (err) {
+      if (err) {
+        res.status(500).json({ error: err.message });
+        return;
+      }
+      res.json({ id: this.lastID });
+    }
+  );
+});
+
+app.delete("/api/kosarnevek/:id", (req, res) => {
+  kosarNevekDb.run(
+    `DELETE FROM kosarnevek WHERE id = ?`,
+    req.params.id,
+    function (err) {
+      if (err) {
+        res.status(500).json({ error: err.message });
+        return;
+      }
+      res.json({ message: "deleted", changes: this.changes });
+    }
+  );
+});
+/* FIXME:FIXME SQLITE */
 /* INFO: SQLITE */
 
 /* NOTE: inserttransactions */
@@ -287,7 +431,6 @@ app.patch("/keszletmodositas", bodyParser.json(), (req, res) => {
   var id = req.body.id;
   //VERSION-2:
   var cl = req.body.cl;
-  var db = req.body.db;
   //var lekertdata = ''
   //console.log('insertData, id, cl, db')
   //console.log(insertData, id, cl, db)

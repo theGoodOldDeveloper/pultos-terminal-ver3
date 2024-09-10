@@ -1,3 +1,4 @@
+## (BAF) SSH pultos terminal
 # database: alapanyagok.emailsend -> betétdíjas-e 😊
 
 visszavalthato = 0,1
@@ -25,6 +26,7 @@ HAND REPAIRE:
 psw.txt ,{"pin":50,"name":"BD"}
 
 # pm2 restart app_name
+# pm2 status
 
 # SQLite 👑
 
@@ -37,3 +39,23 @@ counters.db
 
 REMOVE:
 other.json
+
+### Kosarak databases struktura
+
+"id": number,
+"nev": string,
+"db": number,
+"eladottbeszar": number,
+"eladottelar": number,
+"fizetesmod": string,
+"transactionnumber": number,
+"megjegyzes": string,
+"datum": dátum,
+"aId": number,
+"sumcl": number,
+"cl": boolean
+
+"kosarMegnevezes": string,
+"kosarMegnevezesIndex": number,
+"kosarMegnevezesPultosNeve": string,
+"kosarMegnevezesPultosKod": string

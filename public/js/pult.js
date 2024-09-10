@@ -1,3 +1,7 @@
+/* eslint-disable no-empty */
+/* eslint-disable no-redeclare */
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-undef */
 var elem = document.documentElement;
 function openFullscreen() {
   if (elem.requestFullscreen) {
@@ -18,14 +22,6 @@ var oraPerc = `(${oraPercFull.getHours()}-${oraPercFull.getMinutes()})`;
 var querykp2 = -1;
 let temp = [];
 let tempWeek = ["", "", "", "", "", "", ""];
-/* if (localStorage.getItem("localKosarak")) {
-} else {
-  localStorage.setItem("localKosarak", JSON.stringify(temp));
-} */
-/* if (localStorage.getItem("localKosarNevek")) {
-} else {
-  localStorage.setItem("localKosarNevek", JSON.stringify(temp));
-} */
 if (localStorage.getItem("todolist")) {
   //console.log("letezik 😋");
 } else {
@@ -53,11 +49,6 @@ var betetdij = 0;
 saldoTarget();
 document.getElementById("localStorageName").innerHTML = userLocalName;
 
-/* if (localStorage.getItem("saldoRuning")) {
-} else {
-    localStorage.setItem("saldoRuning", false);
-} */
-//localStorage.setItem("saldoRuningDay", new Date().getDate())
 localStorage.setItem("saldoRuning", false);
 
 var saldo = 0;
@@ -85,7 +76,7 @@ var mindosszesenTransactionBetDij = -1;
 var fizetoHitelesId = -1;
 var fizetoHitelesMegjegyzes = "";
 var fizetoHitelesIndex = -1;
-var trFizetesMod = "";
+
 var visiblesequenceIndex = -1;
 var oldTodolist = JSON.parse(localStorage.getItem("todolist"));
 var weekNumber = trNumberDatum.getDay();
@@ -115,6 +106,15 @@ var aNev = [];
 var aKeszletsum = [];
 var tBeszar = [];
 
+//NOTE: sound generator
+document.addEventListener("click", function (event) {
+  if (event.target.tagName.toLowerCase() === "button") {
+    // Itt játszuk le a hangot, ha a kattintott elem egy gomb
+    const sound = new Audio("/click.mp3");
+    sound.play();
+  }
+});
+
 const state = {
   termekek: [],
   pult: [],
@@ -126,11 +126,7 @@ const state = {
   tempKosarak: [],
   tempKosarNevek: [],
   todolist: [],
-  /* otherlist: [], */
 };
-// localStorage kosarak & kosarnevek INFO:
-//state.kosarak = JSON.parse(localStorage.getItem("localKosarak"));
-/* state.kosarak = JSON.parse(getData()); */
 getDataKosarak();
 
 async function getDataKosarak() {
@@ -148,7 +144,6 @@ async function getDataKosarak() {
     console.error("Error:", error);
   }
 }
-//state.kosarNevek = JSON.parse(localStorage.getItem("localKosarNevek"));
 getDataKosarNevek();
 async function getDataKosarNevek() {
   try {
@@ -164,18 +159,6 @@ async function getDataKosarNevek() {
     console.error("Error:", error);
   }
 }
-
-//console.log(localStorage.getItem("localKosarak"));
-//BUG:BUG:BUG:BUG:BUG:BUG:BUG:BUG:
-/* console.log("***********KOSARak********");
-console.log(state.kosarak);
-console.log("-------");
-console.log(localStorage.getItem("localKosarak"));
-
-console.log("++++++++++++++++++++++++++++++");
-console.log(state.kosarNevek);
-console.log("-------");
-console.log(localStorage.getItem("localKosarNevek")); */
 
 backupKosarakStart(state.kosarak);
 backupKosarNevekStart(state.kosarNevek);
@@ -459,18 +442,12 @@ function renderPult() {
     //HACK:HACK:HACK:HACK:HACK:
   });
   $(".remove-db").click(function (event) {
-    //console.log("kosarbolVisszatoltott: 😈 ", kosarbolVisszatoltott);
-
     let pultTombIndex = this.id;
     if (state.pult[pultTombIndex].db == 1 && kosarbolVisszatoltott) {
       alert(
         "Mivel ez egy kosárból visszatoltott termék és, ezért nem lehetet 0 a darabszám!"
       );
     } else {
-      /* console.log(
-        "state.pult[pultTombIndex].db: 😈 ",
-        state.pult[pultTombIndex].db
-      ); */
       state.pult[pultTombIndex].db--;
       termekKeszletModositas(state.pult[pultTombIndex], "plus");
       renderPult();
@@ -497,9 +474,6 @@ function termekKeszletModositas(sendData, muvelet) {
       sendData.aId = osszetevo.alapanyag_id; //HACK:
       sendData.sumcl =
         Math.round(aKeszletsum[osszetevo.alapanyag_id] * 100) / 100; //HACK:
-
-      //console.log('*************sendData.sumcl***************', sendData.sumcl)
-
       sendData.cl = osszetevo.felhasznaltmennyiseg; //HACK:
 
       if (muvelet == "minus") {
@@ -510,6 +484,7 @@ function termekKeszletModositas(sendData, muvelet) {
       if (muvelet == "plus") {
         sendData.sumcl += sendData.cl;
         aKeszletsum[osszetevo.alapanyag_id] = sendData.sumcl;
+        // eslint-disable-next-line no-self-assign
         sendData.cl = sendData.cl;
       }
       if (muvelet == "reset") {
@@ -517,22 +492,6 @@ function termekKeszletModositas(sendData, muvelet) {
         sendData.sumcl += sendData.cl * sendData.db;
         aKeszletsum[osszetevo.alapanyag_id] = sendData.sumcl;
       }
-
-      //VERSION-2: kritikus me exam
-      /* let arrayIndexAlapanyag = 0
-            let index = 0
-            for (alapanyag of state.alapanyagok) {
-                if (alapanyag.id == osszetevo.alapanyag_id) {
-                    arrayIndexAlapanyag = index
-                }
-                index++
-            }
-            console.log('keszletsum*********************')
-            console.log(aKeszletsum[osszetevo.alapanyag_id])
-            console.log(state.alapanyagok[arrayIndexAlapanyag].nev)
-            console.log('kritikus--------------------')
-            console.log(state.alapanyagok[arrayIndexAlapanyag].kritikus) */
-
       tarolj(sendData.aId, sendData.sumcl, sendData.cl, sendData.db);
     }
   }
@@ -648,21 +607,6 @@ $(".kosarak").click(function () {
 
       $(".tempdelete").click(function () {
         console.log("klikkkkeltem", this.id);
-
-        /* let text = `Ha BIZTOS  vagy benne, hogy torolni akarod a :\n  ${state.kosarNevek[this.id].kosarMegnevezes}\n Akkor kattints az OK gombra`
-    if (confirm(text) == true) {
-        text = "You pressed OK!";
-    state.kosarak.splice(this.id, 1);
-    state.kosarNevek.splice(this.id, 1);
-    kosarbolVisszatoltott = false;
-                    foundKosar = state.kosarak.length > 0 ? true : false;
-
-    kosarakTarol();
-                } else {
-        text = "You canceled!";
-    console.log('You canceled!')
-                } */
-
         $("#kosarakModal .close").click();
         //kosarakTarol();
       });
@@ -720,29 +664,28 @@ function visszajaro(trFizetesMod, saldo, alkotmanyosToday) {
   let cimletek = [500, 1000, 2000, 5000, 10000, 20000];
   let betetdijBontas = ``;
   if (trFizetesMod == "m") {
-    betetdijBontas = `<h3>Ebből 27%-os ÁFA: <span class="font-weight-bold"> ${
+    betetdijBontas = `<h3 class="d-flex justify-content-between w-100 mt-3">Ebből 27%-os ÁFA: <span class="font-weight-bold"> ${
       mindosszesenTransaction - mindosszesenTransactionBetDij
-    }</span>,- Ft</h3>
-    <h3>0%-os ÁFA (betétdíj): <span class="font-weight-bold"> ${mindosszesenTransactionBetDij}</span>,- Ft</h3>`;
+    },- Ft</span></h3>
+    <h3 class="d-flex justify-content-between w-100 mb-3 ${
+      mindosszesenTransactionBetDij > 0 ? "text-danger" : ""
+    }">0%-os ÁFA (betétdíj): <span class="font-weight-bold"> ${mindosszesenTransactionBetDij},- Ft</span></h3>`;
   }
-  let visszajaroCimlet = `<table class="table"><thead><tr><th></th><th></th><th></th></tr></thead><tbody> ${betetdijBontas}`;
+  let visszajaroCimlet = `<table class="table"><tbody> ${betetdijBontas}`;
   let mindossz = ezresCsoportosit(mindosszesenTransaction);
-  document.getElementById(
-    "backReturnHead"
-  ).innerHTML = `Fizetendő:     ${mindossz},- Ft`;
+  document.getElementById("backReturnHead").innerHTML = `<span>Fizetendő:</span>
+    <span>${mindossz},- Ft</span>`; //`Fizetendő:     ${mindossz},- Ft`;
   for (cimlet of cimletek) {
     if (mindosszesenTransaction < cimlet) {
       visszajaroCimlet += `
             <h3><tr>
-            <td><h3><kbd>${cimlet}</kbd></td>
-            <td>cimletből visszajár: </td>
-            <td class="text-right"><h3><span class="font-weight-bold">${ezresCsoportosit(
+            <td class="p-1"><h3><kbd>${cimlet}</kbd></td>
+            <td class="p-1">cimletből visszajár: </td>
+            <td class="text-right p-1"><h3><span class="font-weight-bold">${ezresCsoportosit(
               cimlet - mindosszesenTransaction
             )},-</span> Ft</td>
             </tr>
             `;
-      /* visszajaroCimlet += `<h4><kbd>${cimlet}</kbd> cimletből visszajár: <span class="font-weight-bold"> ${cimlet - mindosszesenTransaction
-        },- </span> Ft</h4>`; */
     }
   }
   visszajaroCimlet += `
@@ -751,7 +694,9 @@ function visszajaro(trFizetesMod, saldo, alkotmanyosToday) {
     `;
   document.getElementById("cimletFelsorolas").innerHTML = visszajaroCimlet;
   document.getElementById("megHatraVan").innerHTML = `<h3>${(
-    saldo - alkotmanyosToday
+    saldo -
+    alkotmanyosToday -
+    mindosszesenTransaction
   ).toLocaleString("hu-HU")}</h3>`;
 }
 
@@ -841,7 +786,7 @@ async function trKp2() {
     if (mindosszesenTransaction > 0) {
       visszajaro(trFizetesMod, saldo, alkotmanyosToday);
       hogyanTovabb(trFizetesMod, megjegyzes);
-      alarmOtherScreen();
+      //HACK> alarmOtherScreen();
     }
   }
 }
@@ -1183,84 +1128,84 @@ function keyboardTemplateRender() {
   return `
     <div class="vKeyboard-container d-flex row">
 
-        <div class=" vKeyboard-letters " id="vKeyboard-letters">
+        <div class=" vKeyboard-letters " id="vKeyboard-letters ">
             <div class="row vKeyboardRow vKeyboard-offsetRow1 justify-content-center m-1">
-                <button type="button col" class="btn keyboard btn-primary vKeyboard-letter m-1"
+                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
                     id="keyboard-Q" value="Q">Q</button>
-                <button type="button col" class="btn keyboard btn-primary vKeyboard-letter m-1"
+                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
                     id="keyboard-W" value="W">W</button>
-                <button type="button col" class="btn keyboard btn-primary vKeyboard-letter m-1"
+                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
                     id="keyboard-E" value="E">E</button>
-                <button type="button col" class="btn keyboard btn-primary vKeyboard-letter m-1"
+                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
                     id="keyboard-R" value="R">R</button>
-                <button type="button col" class="btn keyboard btn-primary vKeyboard-letter m-1"
+                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
                     id="keyboard-T" value="T">T</button>
-                <button type="button col" class="btn keyboard btn-primary vKeyboard-letter m-1"
+                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
                     id="keyboard-Z" value="Z">Z</button>
 
-                <button type="button col" class="btn keyboard btn-primary vKeyboard-letter m-1"
+                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
                     id="keyboard-U" value="U">U</button>
-                <button type="button col" class="btn keyboard btn-primary vKeyboard-letter m-1"
+                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
                     id="keyboard-I" value="I">I</button>
-                <button type="button col" class="btn keyboard btn-primary vKeyboard-letter m-1"
+                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
                     id="keyboard-O" value="O">O</button>
-                <button type="button col" class="btn keyboard btn-primary vKeyboard-letter m-1"
+                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
                     id="keyboard-P" value="P">P</button>
             </div>
             <div class="row vKeyboardRow vKeyboard-offsetRow2 justify-content-center">
-                <button type="button col" class="btn keyboard btn-primary vKeyboard-letter m-1"
+                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
                     id="keyboard-A" value="A">A</button>
 
-                <button type="button col" class="btn keyboard btn-primary vKeyboard-letter m-1"
+                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
                     id="keyboard-S" value="S">S</button>
-                <button type="button col" class="btn keyboard btn-primary vKeyboard-letter m-1"
+                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
                     id="keyboard-D" value="D">D</button>
-                <button type="button col" class="btn keyboard btn-primary vKeyboard-letter m-1"
+                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
                     id="keyboard-F" value="F">F</button>
-                <button type="button col" class="btn keyboard btn-primary vKeyboard-letter m-1"
+                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
                     id="keyboard-G" value="G">G</button>
-                <button type="button col" class="btn keyboard btn-primary vKeyboard-letter m-1"
+                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
                     id="keyboard-H" value="H">H</button>
-                <button type="button col" class="btn keyboard btn-primary vKeyboard-letter m-1"
+                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
                     id="keyboard-J" value="J">J</button>
-                <button type="button col" class="btn keyboard btn-primary vKeyboard-letter m-1"
+                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
                     id="keyboard-K" value="K">K</button>
-                <button type="button col" class="btn keyboard btn-primary vKeyboard-letter m-1"
+                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
                     id="keyboard-L" value="L">L</button>
 
             </div>
             <div class="row vKeyboardRow vKeyboard-offsetRow3 justify-content-center">
-                <button type="button col" class="btn keyboard btn-primary vKeyboard-letter m-1"
+                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
                     id="keyboard-Y" value="Y">Y</button>
 
-                <button type="button col" class="btn keyboard btn-primary vKeyboard-letter m-1"
+                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
                     id="keyboard-X" value="X">X</button>
-                <button type="button col" class="btn keyboard btn-primary vKeyboard-letter m-1"
+                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
                     id="keyboard-C" value="C">C</button>
-                <button type="button col" class="btn keyboard btn-primary vKeyboard-letter m-1"
+                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
                     id="keyboard-V" value="V">V</button>
-                <button type="button col" class="btn keyboard btn-primary vKeyboard-letter m-1"
+                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
                     id="keyboard-B" value="B">B</button>
-                <button type="button col" class="btn keyboard btn-primary vKeyboard-letter m-1"
+                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
                     id="keyboard-N" value="N">N</button>
-                <button type="button col" class="btn keyboard btn-primary vKeyboard-letter m-1"
+                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
                     id="keyboard-M" value="M">M</button>
                 <span class="vKeyboard-spacer"></span>
-                <button type="button col" class="btn keyboard btn-primary vKeyboard-symbol m-1"
+                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-symbol m-1"
                     id="keyboard-tiret" value="-">-</button>
-                <button type="button col" class="btn keyboard btn-primary vKeyboard-symbol m-1"
+                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-symbol m-1"
                     id="keyboard-underscore" value="_">_</button>
-                <button type="button col" class="btn keyboard btn-primary vKeyboard-symbol m-1"
+                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-symbol m-1"
                     id="keyboard-@" value="@">@</button>
             </div>
             <div class="row vKeyboardRow justify-content-center">
 
                 <button type="button col"
-                    class="btn keyboard btn-primary vKeyboard-symbol vKeyboard-space"
+                    class="btn-lg keyboard btn-primary vKeyboard-symbol vKeyboard-space"
                     id="keyboard-space" value=".">
                     <span class="vKeyboard-space-character">┗━━━━━━━━━━━┛</span>
                 </button>
-                <button type="button col" class="btn keyboard btn-danger vKeyboard-symbol ml-3"
+                <button type="button col" class="btn-lg keyboard btn-danger vKeyboard-symbol ml-3"
                     id="keyboard-torol>" value="">⌫</button>
             </div>
         </div>
@@ -1268,8 +1213,6 @@ function keyboardTemplateRender() {
     </div>
     `;
 }
-/* <button type="button col" class="btn btn-primary vKeyboard-return vKeyboard-numOk vKeyboard-double ml-3"
-        id="keyboard-return" value="t">⌫</button> */
 
 /* INFO: másodlagos STATE bekérés INFO: */
 /* TODO:TODO:TODO: RENDER GETDATA TODO:TODO:TODO: */
@@ -1325,27 +1268,6 @@ async function kosarNevekTarol() {
     console.error("Error:", " ezzazz");
   }
 }
-/* localStorage.setItem("localKosarNevek", JSON.stringify(state.kosarNevek)); */
-/* const dataToSendNevek = state.kosarNevek; */
-
-/* try {
-    const responseNevek = await fetch("/storeDataKosarNevek", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(dataToSendNevek),
-    });
-
-    if (responseNevek.ok) {
-      console.log("Data sent successfully");
-    } else {
-      console.error("Failed to send data");
-    }
-  } catch (error) {
-    console.error("Error:", error);
-  }
-} */
 
 /* TODO:TODO:TODO: pultos beléptetése TODO:TODO:TODO: */
 function offPultos(trFizetesMod, megjegyzes) {
@@ -1407,18 +1329,10 @@ function saldoMessage() {
   saldoReactDatum = new Date(saldoReactDatum.setSeconds("00"));
   let saldoDatumEzred = saldoDatum.getTime();
   let saldoReactDatumEzred = saldoReactDatum.getTime();
-  /* console.log('Belepes datum: ', saldoDatum)
-    console.log('Message datum: ', saldoReactDatum)
-    console.log('Belepes datumEzred: ', saldoDatumEzred)
-    console.log('Message datumEzred: ', saldoReactDatumEzred)
-    console.log("Saldo message START time 😊! " + ((saldoReactDatumEzred - saldoDatumEzred) / 1000) + " sec"); */
-
   let timerId = setTimeout(
     saldoCalculation,
     saldoReactDatumEzred - saldoDatumEzred
   );
-
-  //let timerId = setTimeout(...);
 }
 
 async function saldoCalculation() {
@@ -1428,19 +1342,8 @@ async function saldoCalculation() {
   responseCARD = await responseCARD.json();
   let responseKP2DaySUM = 0;
   let responseCARDDaySUM = 0;
-  /* console.log('RESPONSE: KP2------->>', responseKP2)
-    console.log('RESPONSE: KP2------->>', {responseKP2})
-    console.log('RESPONSE: KP2------->>', responseKP2[0]["SUM(kibeosszeg)"]) */
   responseKP2DaySUM = responseKP2[0]["SUM(kibeosszeg)"];
-  //console.log('responseKP2DaySUM: ------->> 😛😛😛', responseKP2DaySUM)
-  //-------------------------------------------------
-  /* console.log('RESPONSE: CARD------->>', responseCARD)
-    console.log('RESPONSE: CARD------->>', {responseCARD})
-    console.log('RESPONSE: CARD------->>', responseCARD[0]["SUM(kibeosszeg)"]) */
   responseCARDDaySUM = responseCARD[0]["SUM(kibeosszeg)"];
-  //console.log('responseCARDDaySUM: ------->> 😛😛😛', responseCARDDaySUM)
-
-  //console.log('NAPIcel: ------->> 😛', saldo)
   saldoComplete = (
     saldo -
     responseKP2DaySUM -
@@ -1472,103 +1375,14 @@ function alertDialog(messageHead, message) {
   document.getElementById("messageHead").innerHTML = messageHead;
   document.getElementById("message").innerHTML = message;
 }
-/* $("#other").off("click");
-$("#other").on("click", () => {
-  let datumNow = new Date().toLocaleString();
-  let massage = `
-    <label for="other1">Kávégép számlálóállása: (${state.otherlist[0].dataValue})</label > <br>
-        <input type="number" id="adat1" name="other1"><br>
-            <label for="other2">Játékgépek számlálóállása: (${state.otherlist[1].dataValue})</label><br>
-                <input type="number" id="adat2" name="other2"><br>
-                    <label for="other3">Csocsó számláló: (${state.otherlist[2].dataValue})</label><br>
-                        <input type="number" id="adat3" name="other3"><br>
-                            <label for="other4">Biliárd: (${state.otherlist[3].dataValue})</label><br>
-                                <input type="number" id="adat4" name="other4"><br>
-                                    `;
-  alertDialog(datumNow, massage);
-  $("#sendData").off("click");
-  $("#sendData").on("click", () => {
-    let data = [];
-    if (document.getElementById("adat1").value == "") {
-      document.getElementById("adat1").value = state.otherlist[0].dataValue;
-    }
-    data.push({
-      dataType: "Kávégép számlálóállása",
-      dataValue: document.getElementById("adat1").value,
-    });
-    if (document.getElementById("adat2").value == "") {
-      document.getElementById("adat2").value = state.otherlist[1].dataValue;
-    }
-    data.push({
-      dataType: "Játékgépek számlálóállása",
-      dataValue: document.getElementById("adat2").value,
-    });
-    if (document.getElementById("adat3").value == "") {
-      document.getElementById("adat3").value = state.otherlist[2].dataValue;
-    }
-    data.push({
-      dataType: "Csocsó számláló",
-      dataValue: document.getElementById("adat3").value,
-    });
-    if (document.getElementById("adat4").value == "") {
-      document.getElementById("adat4").value = state.otherlist[3].dataValue;
-    }
-    data.push({
-      dataType: "Biliárd",
-      dataValue: document.getElementById("adat4").value,
-    });
-    data.push({ dataType: "Dátum", dataValue: datumNow });
-
-    data.push({
-      dataType: "Kávégép előző számlálóállása",
-      dataValue: state.otherlist[0].dataValue,
-    });
-    data.push({
-      dataType: "Játékgépek előző számlálóállása",
-      dataValue: state.otherlist[1].dataValue,
-    });
-    data.push({
-      dataType: "Csocsó előző számláló",
-      dataValue: state.otherlist[2].dataValue,
-    });
-    data.push({
-      dataType: "Biliárd előző",
-      dataValue: state.otherlist[3].dataValue,
-    });
-    data.push({
-      dataType: "Dátum előző",
-      dataValue: state.otherlist[4].dataValue,
-    });
-    otherTarol();
-    async function otherTarol() {
-      await fetch("/othersave", {
-        method: "POST",
-        headers: {
-          "Content-type": "application/json",
-        },
-        body: JSON.stringify({ data: data }),
-      });
-    }
-  });
-}); */
 
 async function alarmOtherScreen() {
-  //let responseKP2 = await fetch("/gettransactionssaldo")
-  //responseKP2 = await responseKP2.json()
-  //let responseKP2DaySUM = responseKP2[0]["SUM(kibeosszeg)"]
-  //console.log('responseKP2DaySUM: ------->> 😛😛😛', responseKP2DaySUM)
   $("#alarmOtherScreenModal").modal("show");
-  //document.getElementById('responseKP2DaySUMvalue').innerHTML = responseKP2DaySUM + '.- Ft'
   setTimeout(() => {
     $("#alarmOtherScreenModal").modal("hide");
   }, 4000);
 }
 
-/* 
-$(".hitelListRendez").off("click");
-
-    $(".hitelListRendez").on("click", function (e) {
-*/
 async function alkotmanyosQuery() {
   let responseKP2 = await fetch("/gettransactionssaldo");
   responseKP2 = await responseKP2.json();
@@ -1711,3 +1525,109 @@ document.addEventListener("DOMContentLoaded", () => {
 
   fetchCounters();
 });
+/* FIXME:FIXME SQLITE */
+// Kosarak kezelése
+function getKosarak() {
+  fetch("/api/kosarak")
+    .then((response) => response.json())
+    .then((data) => {
+      console.log("Kosarak:", data);
+      // Itt kezelheti a kapott adatokat
+    })
+    .catch((error) => console.error("Hiba:", error));
+}
+
+function addKosar(kosarData) {
+  fetch("/api/kosarak", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(kosarData),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log("Új kosár hozzáadva:", data);
+      // Itt frissítheti a felhasználói felületet
+    })
+    .catch((error) => console.error("Hiba:", error));
+}
+
+function deleteKosar(id) {
+  fetch(`/api/kosarak/${id}`, {
+    method: "DELETE",
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log("Kosár törölve:", data);
+      // Itt frissítheti a felhasználói felületet
+    })
+    .catch((error) => console.error("Hiba:", error));
+}
+
+// Kosárnevek kezelése
+function getKosarnevek() {
+  fetch("/api/kosarnevek")
+    .then((response) => response.json())
+    .then((data) => {
+      console.log("Kosárnevek:", data);
+      // Itt kezelheti a kapott adatokat
+    })
+    .catch((error) => console.error("Hiba:", error));
+}
+
+function addKosarnev(kosarnevData) {
+  fetch("/api/kosarnevek", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(kosarnevData),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log("Új kosárnév hozzáadva:", data);
+      // Itt frissítheti a felhasználói felületet
+    })
+    .catch((error) => console.error("Hiba:", error));
+}
+
+function deleteKosarnev(id) {
+  fetch(`/api/kosarnevek/${id}`, {
+    method: "DELETE",
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log("Kosárnév törölve:", data);
+      // Itt frissítheti a felhasználói felületet
+    })
+    .catch((error) => console.error("Hiba:", error));
+}
+/* FIXME:FIXME SQLITE TEST*/
+//getKosarak(); // Kosarak lekérése
+// Új kosár hozzáadása
+/* addKosar({
+  nev: 'Teszt kosár',
+  db: 1,
+  eladottbeszar: 1000,
+  eladottelar: 1500,
+  fizetesmod: 'készpénz',
+  transactionnumber: 12345,
+  megjegyzes: 'Teszt megjegyzés',
+  datum: new Date().toISOString(),
+  aId: 1,
+  sumcl: 50,
+  cl: true
+});  */
+//deleteKosar(1); // Kosár törlése
+
+//getKosarnevek(); // Kosárnevek lekérése
+// Új kosárnév hozzáadása
+/* addKosarnev({
+  kosarMegnevezes: 'Teszt kosár',
+  kosarMegnevezesIndex: 1,
+  kosarMegnevezesPultosNeve: 'Teszt Eladó',
+  kosarMegnevezesPultosKod: 'TE001'
+});  */
+//deleteKosarnev(1); // Kosárnév törlése
+/* FIXME:FIXME SQLITE */
