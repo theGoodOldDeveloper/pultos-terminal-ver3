@@ -238,9 +238,10 @@ app.post("/inserttermek", bodyParser.json(), (req, res) => {
     req.body.urtartalom,
     req.body.btncolor,
     req.body.visiblesequence,
+    req.body.emailsend,
   ];
   con.query(
-    "INSERT INTO termekek (nev, elar, urtartalom, btncolor, visiblesequence) VALUES (?)",
+    "INSERT INTO termekek (nev, elar, urtartalom, btncolor, visiblesequence, emailsend) VALUES (?)",
     [insertData],
     (err, data) => {
       if (err) throw err;
@@ -525,11 +526,14 @@ app.patch("/updatetermekek", bodyParser.json(), (req, res) => {
   var insertNev = [req.body.nev];
   var insertElar = [req.body.elar];
   var insertBtncolor = [req.body.btncolor];
+  var insertEmailsend = [req.body.emailsend];
+
+  //console.log(insertNev, insertElar, insertBtncolor, insertEmailsend);
 
   var id = req.body.id;
   con.query(
-    "UPDATE termekek SET nev = ?,  elar = ?, btncolor = ? WHERE id = ?",
-    [insertNev, insertElar, insertBtncolor, id],
+    "UPDATE termekek SET nev = ?,  elar = ?, btncolor = ?, emailsend = ? WHERE id = ?",
+    [insertNev, insertElar, insertBtncolor, insertEmailsend, id],
     (err, data) => {
       try {
         res.send(data);

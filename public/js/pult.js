@@ -381,11 +381,22 @@ function renderPult() {
   let betdijText = "";
   let betdij = 0;
   var mindosszesenBetdij = 0;
-  //HACK: betetdij megjelenítése
-  //console.log("state.pult", state.pult);
+  //HACK: betetdij megjelenítése-------
   for (var sorok of state.pult) {
-    if (state.alapanyagok[sorok.aId - 1].emailsend) {
-      //console.log("talalt sullyedt");
+    if (
+      state.alapanyagok[sorok.aId - 1].emailsend ||
+      state.termekek[sorok.id - 1].emailsend
+    ) {
+      /* console.log("talalt sullyedt 😈😈😈");
+      console.log(
+        "state.alapanyagok[sorok.aId - 1].emailsend",
+        state.alapanyagok[sorok.aId - 1].emailsend
+      );
+      console.log(
+        "state.termekek[id-1].emailsend",
+        state.termekek[sorok.id - 1].emailsend
+      );
+      console.log("talalt sullyedt 😈😈😈"); */
       betdij = sorok.db * betetdij;
       betdijText = `<h4>Betétdíj összege: <span class="font-weight-bold">${betdij}</span> Ft</h4>`;
     }

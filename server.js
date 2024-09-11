@@ -7,6 +7,7 @@ const fs = require("fs");
 const path = require("path");
 const sqlite3 = require("sqlite3").verbose();
 //BUG: VERSION1:const db = new sqlite3.Database("./counters.db");
+const util = require("util");
 
 var port = conf.parsed.PORT;
 var mysql = require("mysql");
@@ -17,6 +18,84 @@ app.use(express.static("public/js"));
 app.use(express.static("public/css"));
 app.use(express.static("public/img"));
 app.use(express.json());
+
+/* INFO: MySQL connection */
+const dbConfig = {
+  host: "localhost",
+  user: "pultos",
+  password: "Terminal-2022",
+  database: "pultosterminal",
+};
+var con = mysql.createConnection(dbConfig);
+/* INFO: MySQL connection */
+
+con.connect(function (err) {
+  if (err) throw err;
+  console.log("Connected! 😎");
+});
+
+/* BUG:FIXME betétdíj */
+/* FIXME:FIXME MySQL termekek table extend */
+// Ellenőrző fájl neve
+const MIGRATION_CHECK_FILE = "migration_completed.txt";
+// Promise wrapper a mysql kapcsolathoz
+function makeDb(config) {
+  const connection = mysql.createConnection(config);
+  return {
+    query(sql, args) {
+      return util.promisify(connection.query).call(connection, sql, args);
+    },
+    close() {
+      return util.promisify(connection.end).call(connection);
+    },
+    connect() {
+      return util.promisify(connection.connect).call(connection);
+    },
+  };
+}
+async function runMigration() {
+  // Ellenőrizzük, hogy a migráció már megtörtént-e
+  if (fs.existsSync(MIGRATION_CHECK_FILE)) {
+    console.log("A migráció már egyszer lefutott. Kihagyjuk.");
+    return;
+  }
+
+  const db = makeDb(dbConfig);
+
+  try {
+    await db.connect();
+
+    // Ellenőrizzük, hogy az 'emailsend' oszlop létezik-e már
+    const columns = await db.query(
+      "SHOW COLUMNS FROM termekek LIKE 'emailsend'"
+    );
+
+    if (columns.length === 0) {
+      // Ha az oszlop nem létezik, hozzáadjuk
+      await db.query(
+        "ALTER TABLE termekek ADD COLUMN emailsend TINYINT(1) DEFAULT 0"
+      );
+      console.log(
+        "Az 'emailsend' oszlop sikeresen hozzáadva a 'termekek' táblához."
+      );
+
+      // Létrehozzuk az ellenőrző fájlt
+      fs.writeFileSync(MIGRATION_CHECK_FILE, "Migration completed");
+      console.log("Migráció sikeresen befejezve.");
+    } else {
+      console.log("Az 'emailsend' oszlop már létezik a 'termekek' táblában.");
+    }
+  } catch (error) {
+    console.error("Hiba történt a migráció során:", error);
+  } finally {
+    await db.close();
+  }
+}
+
+// A migrációs szkript futtatása a szerver indításakor
+runMigration().catch(console.error);
+
+/* FIXME:FIXME MySQL termekek table extend */
 
 /* INFO:FIXME SQLITE */
 /* FIXME:FIXME SQLITE counters.db */
@@ -512,7 +591,7 @@ app.get("/gettransactionssaldo", (req, res) => {
   //let datumNow = new Date()
   //let datum = `${datumNow.getFullYear()}. ${datumNow.getMonth()} ${datumNow.getDate()}.`
   //let datum = datumNow.getDate() datumNow.getFullYear() datumNow.getMonth
-  console.log("A mai datum: kp2 -> ", datum);
+  //console.log("A mai datum: kp2 -> ", datum);
   //BUG: - con.query(`SELECT SUM(kibeosszeg) FROM transactions WHERE trfizetesmod = 'm' AND trdate LIKE '%${datum}%'`, (err, data) => {
   con.query(
     `SELECT SUM(kibeosszeg) FROM transactions WHERE (trfizetesmod = 'm' OR trfizetesmod = 'c') AND trdate LIKE '%${datum}%'`,
@@ -548,20 +627,6 @@ app.get("/gettransactionssaldocard", (req, res) => {
       res.send(data);
     }
   );
-});
-
-/* INFO: MySQL connection */
-var con = mysql.createConnection({
-  host: "localhost",
-  user: "pultos",
-  password: "Terminal-2022",
-  database: "pultosterminal",
-});
-/* INFO: MySQL connection */
-
-con.connect(function (err) {
-  if (err) throw err;
-  console.log("Connected! 😎");
 });
 
 /* INFO: TESZT 😎😎😎😎😎 termek nev lekeres */

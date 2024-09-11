@@ -1,0 +1,1 @@
+["SÖRÖK", "BOROK", "RÖVIDITALOK", "KÁVÉ-ÜDÍTŐ", "ÉDESSÉG", "EGYÉB","tartalék"]
