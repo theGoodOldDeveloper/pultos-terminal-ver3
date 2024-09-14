@@ -12,12 +12,18 @@ const util = require("util");
 var port = conf.parsed.PORT;
 var mysql = require("mysql");
 const app = express();
+const kosarakDb = new sqlite3.Database("./kosarakdb.sqlite");
 
 app.use(express.static("public"));
 app.use(express.static("public/js"));
 app.use(express.static("public/css"));
 app.use(express.static("public/img"));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use((req, res, next) => {
+  //console.log(`${req.method} kérés érkezett a ${req.url} útvonalra`);
+  next();
+});
 
 /* INFO: MySQL connection */
 const dbConfig = {
@@ -56,7 +62,6 @@ function makeDb(config) {
 async function runMigration() {
   // Ellenőrizzük, hogy a migráció már megtörtént-e
   if (fs.existsSync(MIGRATION_CHECK_FILE)) {
-    console.log("A migráció már egyszer lefutott. Kihagyjuk.");
     return;
   }
 
@@ -102,9 +107,6 @@ runMigration().catch(console.error);
 const dbPath = path.resolve(__dirname, "counters.db");
 let db;
 
-const kosarakDb = new sqlite3.Database("./kosarak.db");
-const kosarNevekDb = new sqlite3.Database("./kosarnevek.db");
-
 function openDatabase() {
   return new Promise((resolve, reject) => {
     db = new sqlite3.Database(
@@ -115,7 +117,7 @@ function openDatabase() {
           console.error("Hiba az adatbázis megnyitásakor:", err.message);
           reject(err);
         } else {
-          console.log("Kapcsolódva a counters.db adatbázishoz.");
+          //console.log("Kapcsolódva a counters.db adatbázishoz.");
           resolve(db);
         }
       }
@@ -139,7 +141,7 @@ function initializeDatabase() {
             reject(err);
             return;
           }
-          console.log("A counters tábla ellenőrizve/létrehozva.");
+          //console.log("A counters tábla ellenőrizve/létrehozva.");
 
           const types = ["KÁV", "JÁT", "CSO", "BIL", "SÖR"];
           const stmt = db.prepare(
@@ -155,7 +157,7 @@ function initializeDatabase() {
               console.error("Hiba az adatok inicializálásakor:", err.message);
               reject(err);
             } else {
-              console.log("A counters tábla inicializálva.");
+              //console.log("A counters tábla inicializálva.");
               resolve();
             }
           });
@@ -193,145 +195,397 @@ app.post("/api/update", async (req, res) => {
   );
 });
 /* FIXME:FIXME SQLITE create tables */
-// Táblák létrehozása
-kosarakDb.run(`CREATE TABLE IF NOT EXISTS kosarak (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  nev TEXT,
-  db INTEGER,
-  eladottbeszar REAL,
-  eladottelar REAL,
-  fizetesmod TEXT,
-  transactionnumber INTEGER,
-  megjegyzes TEXT,
-  datum TEXT,
-  aId INTEGER,
-  sumcl REAL,
-  cl BOOLEAN
-)`);
+// INFO:FIXME SQLITE KosarTáblák létrehozása
+// Módosított a kosarak tábla relációs kapcsolathoz
+kosarakDb.serialize(() => {
+  kosarakDb.run(`CREATE TABLE IF NOT EXISTS kosarnevek (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    kosarMegnevezes TEXT,
+    kosarMegnevezesIndex INTEGER,
+    kosarMegnevezesPultosNeve TEXT,
+    kosarMegnevezesPultosKod TEXT
+  )`);
 
-kosarNevekDb.run(`CREATE TABLE IF NOT EXISTS kosarnevek (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  kosarMegnevezes TEXT,
-  kosarMegnevezesIndex INTEGER,
-  kosarMegnevezesPultosNeve TEXT,
-  kosarMegnevezesPultosKod TEXT
-)`);
+  kosarakDb.run(`CREATE TABLE IF NOT EXISTS kosarak (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    kosarnev_id INTEGER,
+    nev TEXT,
+    db INTEGER,
+    eladottbeszar REAL,
+    eladottelar REAL,
+    fizetesmod TEXT,
+    transactionnumber INTEGER,
+    megjegyzes TEXT,
+    datum TEXT,
+    aId INTEGER,
+    sumcl REAL,
+    cl BOOLEAN,
+    termekId INTEGER,
+    FOREIGN KEY (kosarnev_id) REFERENCES kosarnevek(id)
+  )`);
+});
 /* FIXME:FIXME SQLITE kosarak.db */
-// Kosarak API végpontok
-app.get("/api/kosarak", (req, res) => {
-  kosarakDb.all("SELECT * FROM kosarak", [], (err, rows) => {
-    if (err) {
-      res.status(500).json({ error: err.message });
-      return;
-    }
-    res.json(rows);
-  });
-});
 
-app.post("/api/kosarak", (req, res) => {
-  const {
-    nev,
-    db,
-    eladottbeszar,
-    eladottelar,
-    fizetesmod,
-    transactionnumber,
-    megjegyzes,
-    datum,
-    aId,
-    sumcl,
-    cl,
-  } = req.body;
-  kosarakDb.run(
-    `INSERT INTO kosarak (nev, db, eladottbeszar, eladottelar, fizetesmod, transactionnumber, megjegyzes, datum, aId, sumcl, cl) 
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [
-      nev,
-      db,
-      eladottbeszar,
-      eladottelar,
-      fizetesmod,
-      transactionnumber,
-      megjegyzes,
-      datum,
-      aId,
-      sumcl,
-      cl,
-    ],
-    function (err) {
-      if (err) {
-        res.status(500).json({ error: err.message });
-        return;
-      }
-      res.json({ id: this.lastID });
-    }
-  );
-});
-
-app.delete("/api/kosarak/:id", (req, res) => {
-  kosarakDb.run(
-    `DELETE FROM kosarak WHERE id = ?`,
-    req.params.id,
-    function (err) {
-      if (err) {
-        res.status(500).json({ error: err.message });
-        return;
-      }
-      res.json({ message: "deleted", changes: this.changes });
-    }
-  );
-});
-/* FIXME:FIXME SQLITE kosarnevek.db */
-// Kosárnevek API végpontok
-app.get("/api/kosarnevek", (req, res) => {
-  kosarNevekDb.all("SELECT * FROM kosarnevek", [], (err, rows) => {
-    if (err) {
-      res.status(500).json({ error: err.message });
-      return;
-    }
-    res.json(rows);
-  });
-});
-
+// POST: Kosárnév létrehozása kosarakkal együtt
 app.post("/api/kosarnevek", (req, res) => {
-  const {
-    kosarMegnevezes,
-    kosarMegnevezesIndex,
-    kosarMegnevezesPultosNeve,
-    kosarMegnevezesPultosKod,
-  } = req.body;
-  kosarNevekDb.run(
-    `INSERT INTO kosarnevek (kosarMegnevezes, kosarMegnevezesIndex, kosarMegnevezesPultosNeve, kosarMegnevezesPultosKod) 
-                    VALUES (?, ?, ?, ?)`,
-    [
-      kosarMegnevezes,
-      kosarMegnevezesIndex,
-      kosarMegnevezesPultosNeve,
-      kosarMegnevezesPultosKod,
-    ],
-    function (err) {
+  //console.log("Beérkező teljes request body:");
+  //console.log(JSON.stringify(req.body, null, 2));
+
+  const { kosarNevek, kosarak } = req.body;
+
+  if (!kosarNevek || !kosarak || kosarNevek.length !== kosarak.length) {
+    return res.status(400).json({
+      error: "Hiányzó vagy érvénytelen adatok: kosarNevek vagy kosarak",
+    });
+  }
+
+  //console.log("Érkező kosárnév adatok:");
+  //console.log(JSON.stringify(kosarNevek, null, 2));
+
+  //console.log("Érkező kosarak adatok:");
+  //console.log(JSON.stringify(kosarak, null, 2));
+
+  kosarakDb.serialize(() => {
+    kosarakDb.run("BEGIN TRANSACTION");
+
+    const insertKosarAndItems = (kosarnevData, kosarItems) => {
+      return new Promise((resolve, reject) => {
+        kosarakDb.run(
+          `INSERT INTO kosarnevek (kosarMegnevezes, kosarMegnevezesIndex, kosarMegnevezesPultosNeve, kosarMegnevezesPultosKod) 
+          VALUES (?, ?, ?, ?)`,
+          [
+            kosarnevData.kosarMegnevezes,
+            kosarnevData.kosarMegnevezesIndex,
+            kosarnevData.kosarMegnevezesPultosNeve,
+            kosarnevData.kosarMegnevezesPultosKod,
+          ],
+          function (err) {
+            if (err) {
+              console.error("Hiba a kosárnév beszúrásakor:", err.message);
+              return reject(err);
+            }
+
+            const kosarnevId = this.lastID;
+            //console.log(`Beszúrt kosárnév ID: ${kosarnevId}`);
+
+            const stmt = kosarakDb.prepare(`
+              INSERT INTO kosarak (kosarnev_id, nev, db, eladottbeszar, eladottelar, fizetesmod, transactionnumber, megjegyzes, datum, aId, sumcl, cl, termekId) 
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `);
+
+            const insertPromises = kosarItems.map((kosar, itemIndex) => {
+              return new Promise((resolveItem, rejectItem) => {
+                stmt.run(
+                  [
+                    kosarnevId,
+                    kosar.nev,
+                    kosar.db,
+                    kosar.eladottbeszar,
+                    kosar.eladottelar,
+                    kosar.fizetesmod,
+                    kosar.transactionnumber,
+                    kosar.megjegyzes,
+                    kosar.datum,
+                    kosar.aId,
+                    kosar.sumcl,
+                    kosar.cl,
+                    kosar.termekId,
+                  ],
+                  (err) => {
+                    if (err) {
+                      console.error(
+                        `Hiba a(z) ${itemIndex}. kosár beszúrásakor:`,
+                        err.message
+                      );
+                      rejectItem(err);
+                    } else {
+                      /* console.log(
+                        `A(z) ${itemIndex}. kosár sikeresen beszúrva a ${kosarnevId}. kosárnévhez.`
+                      ); */
+                      resolveItem();
+                    }
+                  }
+                );
+              });
+            });
+
+            Promise.all(insertPromises)
+              .then(() => {
+                stmt.finalize();
+                resolve(kosarnevId);
+              })
+              .catch((error) => {
+                stmt.finalize();
+                reject(error);
+              });
+          }
+        );
+      });
+    };
+
+    Promise.all(
+      kosarNevek.map((kosarnevData, index) =>
+        insertKosarAndItems(kosarnevData, kosarak[index])
+      )
+    )
+      .then((kosarnevIds) => {
+        kosarakDb.run("COMMIT");
+        //console.log("Tranzakció sikeresen végrehajtva.");
+        res.json({
+          message: "Kosárnév és kosarak sikeresen mentve",
+          kosarnevIds: kosarnevIds,
+          insertedKosarCount: kosarak.flat().length,
+        });
+      })
+      .catch((error) => {
+        console.error("Hiba a kosarak mentése során:", error);
+        kosarakDb.run("ROLLBACK");
+        res.status(500).json({ error: error.message });
+      });
+  });
+});
+// Kosarak lekérése kosárnév ID alapján
+app.get("/api/kosarak/:id", (req, res) => {
+  const kosarnevId = req.params.id;
+  kosarakDb.all(
+    "SELECT * FROM kosarak WHERE kosarnev_id = ?",
+    [kosarnevId],
+    (err, rows) => {
       if (err) {
-        res.status(500).json({ error: err.message });
-        return;
+        return res.status(500).json({ error: err.message });
       }
-      res.json({ id: this.lastID });
+      res.json(rows);
+    }
+  );
+});
+//BUG-----------------------------------------------------
+// GET: Kosárnevek lekérése a hozzájuk tartozó kosarakkal
+app.get("/api/kosarnevek", (req, res) => {
+  kosarakDb.all(
+    `SELECT kn.*, k.* 
+          FROM kosarnevek kn 
+          LEFT JOIN kosarak k ON kn.id = k.kosarnev_id`,
+    (err, rows) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      const result = rows.reduce((acc, row) => {
+        if (!acc[row.id]) {
+          acc[row.id] = {
+            id: row.id,
+            kosarMegnevezes: row.kosarMegnevezes,
+            kosarMegnevezesIndex: row.kosarMegnevezesIndex,
+            kosarMegnevezesPultosNeve: row.kosarMegnevezesPultosNeve,
+            kosarMegnevezesPultosKod: row.kosarMegnevezesPultosKod,
+            thisId: row.kosarnev_id,
+            kosarak: [],
+          };
+        }
+        if (row.kosarnev_id) {
+          acc[row.id].kosarak.push({
+            id: row.kosarnev_id, // Ez a kosár egyedi azonosítója
+            nev: row.nev,
+            db: row.db,
+            eladottbeszar: row.eladottbeszar,
+            eladottelar: row.eladottelar,
+            fizetesmod: row.fizetesmod,
+            transactionnumber: row.transactionnumber,
+            megjegyzes: row.megjegyzes,
+            datum: row.datum,
+            aId: row.aId,
+            sumcl: row.sumcl,
+            cl: row.cl,
+            thisId: row.id,
+            termekId: row.termekId,
+          });
+        }
+        return acc;
+      }, {});
+
+      res.json(Object.values(result));
     }
   );
 });
 
-app.delete("/api/kosarnevek/:id", (req, res) => {
-  kosarNevekDb.run(
-    `DELETE FROM kosarnevek WHERE id = ?`,
-    req.params.id,
-    function (err) {
-      if (err) {
-        res.status(500).json({ error: err.message });
-        return;
+// PUT: Kosárnév és kosarak frissítése
+aktualKosarThisIdGlobal = [56];
+aktualKosarNevThisIdGlobal = 28;
+
+app.post("/api/updateKosarak", (req, res) => {
+  const { state, aktualKosarThisIdGlobal, aktualKosarNevThisIdGlobal } =
+    req.body;
+
+  kosarakDb.serialize(() => {
+    kosarakDb.run("BEGIN TRANSACTION");
+
+    // Módosított UPDATE statement
+    const updateStmt = kosarakDb.prepare(`
+      UPDATE kosarak 
+      SET db = ?, eladottbeszar = ?, eladottelar = ?, fizetesmod = ?, 
+          transactionnumber = ?, megjegyzes = ?, datum = ?, aId = ?, sumcl = ?, cl = ?, termekId = ?
+      WHERE kosarnev_id = (SELECT id FROM kosarnevek WHERE kosarMegnevezes = ?) AND nev = ?
+    `);
+
+    const insertStmt = kosarakDb.prepare(`
+      INSERT INTO kosarak (kosarnev_id, nev, db, eladottbeszar, eladottelar, fizetesmod, 
+                           transactionnumber, megjegyzes, datum, aId, sumcl, cl, termekId)
+      VALUES ((SELECT id FROM kosarnevek WHERE kosarMegnevezes = ?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    kosarakDb.get(
+      "SELECT kosarMegnevezes FROM kosarnevek WHERE id = ?",
+      [aktualKosarNevThisIdGlobal],
+      (err, row) => {
+        if (err) {
+          console.error("Hiba a kosárnév lekérdezésekor:", err);
+          kosarakDb.run("ROLLBACK");
+          return res
+            .status(500)
+            .json({ error: "Hiba történt a kosárnév lekérdezésekor." });
+        }
+
+        const kosarMegnevezes = row ? row.kosarMegnevezes : null;
+
+        if (!kosarMegnevezes) {
+          console.error("Nem található kosárnév az adott ID-val.");
+          kosarakDb.run("ROLLBACK");
+          return res.status(404).json({ error: "Nem található kosárnév." });
+        }
+
+        let updateCount = 0;
+        let insertCount = 0;
+
+        state.pult.forEach((item, index) => {
+          //console.log(`Feldolgozás alatt álló item:`, item); // Debugging
+
+          if (item.kosarMegnevezes) {
+            // Frissítés (UPDATE)
+            updateStmt.run(
+              item.db,
+              item.eladottbeszar,
+              item.eladottelar,
+              item.fizetesmod,
+              item.transactionnumber,
+              item.megjegyzes,
+              item.datum,
+              item.aId,
+              item.sumcl,
+              item.cl,
+              item.kosarMegnevezes,
+              item.nev,
+              item.termekId,
+              function (err) {
+                if (err) {
+                  console.error("Hiba a kosár frissítésekor:", err);
+                } else {
+                  updateCount++;
+                  //console.log(`Frissítve: ${this.changes} sor`); // Debugging
+                }
+              }
+            );
+          } else {
+            // Beszúrás (INSERT)
+            insertStmt.run(
+              kosarMegnevezes,
+              item.nev,
+              item.db,
+              item.eladottbeszar,
+              item.eladottelar,
+              item.fizetesmod,
+              item.transactionnumber,
+              item.megjegyzes,
+              item.datum,
+              item.aId,
+              item.sumcl,
+              item.cl,
+              item.termekId,
+              function (err) {
+                if (err) {
+                  console.error("Hiba az új kosár beszúrásakor:", err);
+                } else {
+                  insertCount++;
+                  //console.log(`Beszúrva: ${this.changes} sor`); // Debugging
+                }
+              }
+            );
+          }
+        });
+
+        updateStmt.finalize();
+        insertStmt.finalize();
+
+        kosarakDb.run("COMMIT", (err) => {
+          if (err) {
+            console.error("Hiba a tranzakció véglegesítésekor:", err);
+            kosarakDb.run("ROLLBACK");
+            res.status(500).json({ error: "Hiba történt a művelet során." });
+          } else {
+            res.json({
+              success: true,
+              message: `Kosarak sikeresen frissítve és hozzáadva. ${updateCount} frissítés, ${insertCount} új beszúrás.`,
+              kosarMegnevezes: kosarMegnevezes,
+            });
+          }
+        });
       }
-      res.json({ message: "deleted", changes: this.changes });
-    }
-  );
+    );
+  });
 });
+
+// DELETE: Kosárnév és hozzá tartozó kosarak törlése
+app.delete("/api/kosarnevek/:id", (req, res) => {
+  const kosarId = req.params.id;
+  //console.log("Feldolgozott kosar törlése:😛😛😛😛😛😛😛😛😛😛😛😛 ", kosarId);
+  kosarakDb.serialize(() => {
+    kosarakDb.run("BEGIN TRANSACTION");
+
+    // Töröljük a kapcsolódó kosarakat
+    kosarakDb.run(
+      "DELETE FROM kosarak WHERE kosarnev_id = ?",
+      [kosarId],
+      (err) => {
+        if (err) {
+          console.error("Hiba a kosarak törlésekor:", err.message);
+          kosarakDb.run("ROLLBACK");
+          return res.status(500).json({ success: false, error: err.message });
+        }
+
+        // Töröljük a kosárnevet
+        kosarakDb.run(
+          "DELETE FROM kosarnevek WHERE id = ?",
+          [kosarId],
+          (err) => {
+            if (err) {
+              console.error("Hiba a kosárnév törlésekor:", err.message);
+              kosarakDb.run("ROLLBACK");
+              return res
+                .status(500)
+                .json({ success: false, error: err.message });
+            }
+
+            kosarakDb.run("COMMIT", (err) => {
+              if (err) {
+                console.error(
+                  "Hiba a tranzakció véglegesítésekor:",
+                  err.message
+                );
+                return res
+                  .status(500)
+                  .json({ success: false, error: err.message });
+              }
+              res.json({
+                success: true,
+                message:
+                  "A kosár és a hozzá tartozó tételek sikeresen törlődtek.",
+              });
+            });
+          }
+        );
+      }
+    );
+  });
+});
+
 /* FIXME:FIXME SQLITE */
 /* INFO: SQLITE */
 
@@ -359,38 +613,6 @@ app.post("/inserttransactions", bodyParser.json(), (req, res) => {
   );
 });
 
-//BUG:BUG:BUG:BUG:BUG:BUG:BUG:BUG:
-/* NOTE:
-INFO:INFO: storeDataKosarak */
-app.post("/storeDataKosarak", (req, res) => {
-  const dataKosarak = req.body;
-  //console.log(dataKosarak);
-
-  fs.writeFile("storeDataKosarak.json", JSON.stringify(dataKosarak), (err) => {
-    if (err) {
-      console.error(err);
-      res.status(500).json({ message: "Failed to store dataKosarak" });
-    } else {
-      res.json({ message: "DataKosarak stored successfully" });
-    }
-  });
-});
-app.get("/getStoreDataKosarak", (req, res) => {
-  // Read JSON data from file
-  fs.readFile("storeDataKosarak.json", "utf8", (err, data) => {
-    if (err) {
-      console.error(err);
-      res.status(500).json({ message: "Failed to read data" });
-    } else {
-      //const jsonDataKosarak = data;
-      const jsonDataKosarak = JSON.parse(data);
-      /* console.log("jsonDataKosarak:", jsonDataKosarak); */
-      res.json(jsonDataKosarak);
-    }
-  });
-});
-/* NOTE:
-INFO:INFO: backupkosarak */
 app.post("/backupkosarak", bodyParser.json(), (req, res) => {
   const content = req.body.data;
   fs.writeFile("backupkosarak.txt", JSON.stringify(content), (err) => {
@@ -400,38 +622,6 @@ app.post("/backupkosarak", bodyParser.json(), (req, res) => {
   });
   res.end();
 });
-/* BUG:
-INFO:INFO: storeDataKosarNevek */
-
-app.post("/storeDataKosarNevek", (req, res) => {
-  const dataNevek = req.body;
-  /* console.log(dataNevek); */
-  fs.writeFile("storeDataKosarNevek.json", JSON.stringify(dataNevek), (err) => {
-    if (err) {
-      console.error(err);
-      res.status(500).json({ message: "Failed to store dataNevek" });
-    } else {
-      console.log("DataNevek stored successfully");
-      res.json({ message: "DataNevek stored successfully" });
-    }
-  });
-});
-app.get("/getStoreDataKosarNevek", (req, res) => {
-  // Read JSON data from file
-  fs.readFile("storeDataKosarNevek.json", "utf8", (err, data) => {
-    if (err) {
-      console.error(err);
-      res.status(500).json({ message: "Failed to read data" });
-    } else {
-      //const jsonDataNevek = data;
-      const jsonDataNevek = JSON.parse(data);
-      //console.log("jsonDataNevek:", jsonDataNevek);
-      res.json(jsonDataNevek);
-    }
-  });
-});
-/* BUG:
-INFO:INFO: backupkosarnevek */
 app.post("/backupkosarnevek", bodyParser.json(), (req, res) => {
   const content = req.body.data;
   fs.writeFile("backupkosarnevek.txt", JSON.stringify(content), (err) => {
@@ -441,16 +631,6 @@ app.post("/backupkosarnevek", bodyParser.json(), (req, res) => {
   });
   res.end();
 });
-/* BUG: refreshpultbanvan */
-/* app.post("/othersave", bodyParser.json(), (req, res) => {
-  const content = req.body.data;
-  fs.writeFile("other.json", JSON.stringify(content), (err) => {
-    if (err) {
-      console.error(err);
-    }
-  });
-  res.end();
-}); */
 /* INFO:INFO:INFO: readbackupkosarak */
 app.get("/readbackupkosarak", (req, res) => {
   res.sendFile(__dirname + "/backupkosarak.txt");
@@ -459,7 +639,6 @@ app.get("/readbackupkosarak", (req, res) => {
 app.get("/readbackupkosarnevek", (req, res) => {
   res.sendFile(__dirname + "/backupkosarnevek.txt");
 });
-//BUG:BUG:BUG:BUG:BUG:BUG:BUG:BUG:
 
 /* NOTE: modifytransactions   */
 app.patch("/modifytransactions", bodyParser.json(), (req, res) => {
@@ -505,31 +684,15 @@ app.post("/insertforgalom", bodyParser.json(), (req, res) => {
 });
 
 app.patch("/keszletmodositas", bodyParser.json(), (req, res) => {
-  //var insertData = [req.body.sumcl];
   var insertData = [];
   var id = req.body.id;
-  //VERSION-2:
   var cl = req.body.cl;
-  //var lekertdata = ''
-  //console.log('insertData, id, cl, db')
-  //console.log(insertData, id, cl, db)
   con.query(
     `SELECT keszletsum  FROM alapanyagok WHERE id=${id}`,
     (err, data) => {
       try {
-        //console.log('data ***********************')
-        //console.log(data[0].keszletsum)
-        //lekertdata = data
         lekertdata = data[0].keszletsum;
-        //console.log('lekertdata ------------------------')
-        //console.log(lekertdata)
-
-        //console.log('ATVITT DATA/*/*/*/*/*/*/*/*/*/*/*/**/')
-        //console.log(lekertdata)
-        //let insertData = []
         insertData = Math.round((lekertdata + cl) * 100) / 100;
-        //console.log('insertData *-*-*-*-*-*-*-*-*-*-*-*-*-*')
-        //console.log(insertData)
 
         con.query(
           `UPDATE alapanyagok SET keszletsum = ${insertData} WHERE id = ${id}`,
@@ -588,40 +751,26 @@ app.get("/gettransactionshitel/:id", (req, res) => {
 app.get("/gettransactionssaldo", (req, res) => {
   let datum = new Date().toLocaleString();
   datum = datum.substring(0, 13);
-  //let datumNow = new Date()
-  //let datum = `${datumNow.getFullYear()}. ${datumNow.getMonth()} ${datumNow.getDate()}.`
-  //let datum = datumNow.getDate() datumNow.getFullYear() datumNow.getMonth
-  //console.log("A mai datum: kp2 -> ", datum);
-  //BUG: - con.query(`SELECT SUM(kibeosszeg) FROM transactions WHERE trfizetesmod = 'm' AND trdate LIKE '%${datum}%'`, (err, data) => {
   con.query(
     `SELECT SUM(kibeosszeg) FROM transactions WHERE (trfizetesmod = 'm' OR trfizetesmod = 'c') AND trdate LIKE '%${datum}%'`,
     (err, data) => {
       if (err) throw err;
-      //console.log('data', data)
-      //console.log('data', data[0]["SUM(kibeosszeg)"])
       if (data[0]["SUM(kibeosszeg)"] == null) {
-        //console.log('itt a bibi 11111')
         data[0]["SUM(kibeosszeg)"] = 0;
       }
       res.send(data);
     }
   );
-  /* con.query("SELECT * FROM transactions WHERE trfizetesmod = 'm' AND GETDATE() = ''", (err, data) => {
-        if (err) throw err;
-        res.send(data);
-    }); */
 });
 //INFO:VERSION-2:INFO: napi CARD lekerdezes
 app.get("/gettransactionssaldocard", (req, res) => {
   let datum = new Date().toLocaleString();
   datum = datum.substring(0, 13);
-  //console.log('A mai datum:  card -> ', datum)
   con.query(
     `SELECT SUM(kibeosszeg) FROM transactions WHERE trfizetesmod = 'c' AND trdate LIKE '%${datum}%'`,
     (err, data) => {
       if (err) throw err;
       if (data[0]["SUM(kibeosszeg)"] == null) {
-        //console.log('itt a bibi 2222')
         data[0]["SUM(kibeosszeg)"] = 0;
       }
       res.send(data);

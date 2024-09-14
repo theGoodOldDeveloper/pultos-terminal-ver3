@@ -1,0 +1,114 @@
+SERVER
+app.delete("/api/kosarnevek/:megnevezes
+
+FRONTEND
+pult KOSARAK button --- 744  sor
+$(".kosarak
+PULTRA
+kosarNevBtn
+
+Kosármentés
+function saveKosarWithItems(kosarNevek, kosarak) {
+
+pult Kosárba button  --- 560 sor
+function naTegyukEgyUjKosarba( --- 560 sor
+
+state.kosarNevek
+
+
+HA UJ A KOSAR
+kosarNevSzerintiTarolas(
+saveKosarWithItems
+
+-------------------------------------------------------------
+
+
+Akkor most a kosarak frissítésére lenne szükségem, mégpedig ugy hogy végig kellene iterálni a "state.pult" objektumon amibe egy, vagy több tétel szerepelhet a következő strukturával, ezek csak példa adatok:
+
+aId: 25
+cl: -0.1
+datum: "2024. 09. 13. 17:00:36"
+db: 1
+eladottbeszar: 88.4
+eladottelar: 200
+fizetesmod: "c"
+id: 28
+kosarMegnevezes: "VOROS"
+megjegyzes: "info"
+nev: "Vörös bor nagyfröccs"
+sumcl: -83.69999999999999
+transactionnumber: 21
+
+és attól függöen, hogy ha tételek kulcsa között szerepel a "kosarMegnevezes:"
+akkor UPDATE metódussal frissítse a "kosarak" táblát, az "aktualKosarThisIdGlobal[]" id-val rendelkezőt.Nyilván annyi "kosarMegnevezes:"-sel rendelkező item van aminnyi id van a "aktualKosarThisIdGlobal[]".Elöször a kulcsal rendelkező item, vagy itemek vannak, majd zeután lehetnek a kulcsal nem rendelkezők.
+Ha nem szerepel a kulcsok között a "kosarMegnevezes:" akkor szurja be a "kosarMegnevezes:"-t, az értéke egyenlő lesz a "kosárnevek" tábla, "aktualKosarNevThisIdGlobal" id-val rendelkező item "kosarMegnevezes" kulcs értékével, valamint a "kosarnev_id" értéke a "aktualKosarNevThisIdGlobal" legyen egyenlő és INSERT metódussal szurja be a "kosarak" táblába.
+
+A "kosarak" tábla pedig a következő szerkezetű:
+kosarakDb.serialize(() => {
+  kosarakDb.run(`CREATE TABLE IF NOT EXISTS kosarnevek (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    kosarMegnevezes TEXT,
+    kosarMegnevezesIndex INTEGER,
+    kosarMegnevezesPultosNeve TEXT,
+    kosarMegnevezesPultosKod TEXT
+  )`);
+
+  kosarakDb.run(`CREATE TABLE IF NOT EXISTS kosarak (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    kosarnev_id INTEGER,
+    nev TEXT,
+    db INTEGER,
+    eladottbeszar REAL,
+    eladottelar REAL,
+    fizetesmod TEXT,
+    transactionnumber INTEGER,
+    megjegyzes TEXT,
+    datum TEXT,
+    aId INTEGER,
+    sumcl REAL,
+    cl BOOLEAN,
+    FOREIGN KEY (kosarnev_id) REFERENCES kosarnevek(id)
+  )`);
+});
+
+-------------------------------------------------------------
+aId: 25
+cl: -0.1
+datum: "2024. 09. 13. 17:00:36"
+db: 1
+eladottbeszar: 88.4
+eladottelar: 200
+fizetesmod: "c"
+id: 28
+kosarMegnevezes: "VOROS"
+megjegyzes: "info"
+nev: "Vörös bor nagyfröccs"
+sumcl: -83.69999999999999
+transactionnumber: 21
+
+kosarakDb.serialize(() => {
+  kosarakDb.run(`CREATE TABLE IF NOT EXISTS kosarnevek (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    kosarMegnevezes TEXT,
+    kosarMegnevezesIndex INTEGER,
+    kosarMegnevezesPultosNeve TEXT,
+    kosarMegnevezesPultosKod TEXT
+  )`);
+
+  kosarakDb.run(`CREATE TABLE IF NOT EXISTS kosarak (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    kosarnev_id INTEGER,
+    nev TEXT,
+    db INTEGER,
+    eladottbeszar REAL,
+    eladottelar REAL,
+    fizetesmod TEXT,
+    transactionnumber INTEGER,
+    megjegyzes TEXT,
+    datum TEXT,
+    aId INTEGER,
+    sumcl REAL,
+    cl BOOLEAN,
+    FOREIGN KEY (kosarnev_id) REFERENCES kosarnevek(id)
+  )`);
+});

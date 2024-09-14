@@ -7,10 +7,8 @@ function openFullscreen() {
   if (elem.requestFullscreen) {
     elem.requestFullscreen();
   } else if (elem.webkitRequestFullscreen) {
-    /* Safari */
     elem.webkitRequestFullscreen();
   } else if (elem.msRequestFullscreen) {
-    /* IE11 */
     elem.msRequestFullscreen();
   }
   //window.close()
@@ -23,7 +21,6 @@ var querykp2 = -1;
 let temp = [];
 let tempWeek = ["", "", "", "", "", "", ""];
 if (localStorage.getItem("todolist")) {
-  //console.log("letezik 😋");
 } else {
   localStorage.setItem("todolist", JSON.stringify(tempWeek));
   console.log("NEM letezik");
@@ -40,7 +37,7 @@ const dayOfWeek = [
 var isPultItem = false;
 const vissza = localStorage.getItem("adminLocal");
 var trNumberDatum = new Date();
-const keyboardTemplateHTML = keyboardTemplateRender();
+const keyboardTemplateHTML = KeyboardModule.keyboardTemplateRender();
 var datum = new Date().toLocaleString();
 const userLocalName = localStorage.getItem("user");
 const userLocalCode = localStorage.getItem("pultos");
@@ -62,6 +59,10 @@ if (
   saldoMessage();
 }
 
+var kosarNevPultosKodSQL = -1;
+var kosarNevDatumSQL = "";
+var kosarNevIdSQL = -1;
+var kosarMegnevezesSQL = "";
 var trNumber = "";
 var pultos = userLocalCode;
 var lastTransactionId = -1;
@@ -80,13 +81,11 @@ var fizetoHitelesIndex = -1;
 var visiblesequenceIndex = -1;
 var oldTodolist = JSON.parse(localStorage.getItem("todolist"));
 var weekNumber = trNumberDatum.getDay();
-var beforStateGroceryValue = 0;
 
 var productItem = 0;
 const tabSor = 8;
 const tabOszlop = 6;
 const widthBTN = 8;
-//BUG: - const heightBTN = 3.95;
 const heightBTN = 3.75;
 var createTabsHTML = "";
 var createContentHTML = "";
@@ -114,7 +113,7 @@ document.addEventListener("click", function (event) {
     sound.play();
   }
 });
-
+const oldKosar = true;
 const state = {
   termekek: [],
   pult: [],
@@ -127,64 +126,12 @@ const state = {
   tempKosarNevek: [],
   todolist: [],
 };
-getDataKosarak();
-
-async function getDataKosarak() {
-  try {
-    const response = await fetch("/getStoreDataKosarak");
-
-    if (response.ok) {
-      state.kosarak = await response.json();
-      beforStateGroceryValue = state.kosarak.length;
-      /* renderTable(state.kosarak); */
-    } else {
-      console.error("Failed to get state.kosarak");
-    }
-  } catch (error) {
-    console.error("Error:", error);
-  }
-}
-getDataKosarNevek();
-async function getDataKosarNevek() {
-  try {
-    const response = await fetch("/getStoreDataKosarNevek");
-
-    if (response.ok) {
-      state.kosarNevek = await response.json();
-      /* renderTable(state.kosarak); */
-    } else {
-      console.error("Failed to get state.kosarak");
-    }
-  } catch (error) {
-    console.error("Error:", error);
-  }
-}
-
-backupKosarakStart(state.kosarak);
-backupKosarNevekStart(state.kosarNevek);
-
-async function backupKosarakStart(data) {
-  //console.log('data')
-  //console.log(data)
-  await fetch("/backupkosarak", {
-    method: "POST",
-    headers: {
-      "Content-type": "application/json",
-    },
-    body: JSON.stringify({ data: data }),
-  });
-}
-async function backupKosarNevekStart(data) {
-  //console.log('data')
-  //console.log(data)
-  await fetch("/backupkosarnevek", {
-    method: "POST",
-    headers: {
-      "Content-type": "application/json",
-    },
-    body: JSON.stringify({ data: data }),
-  });
-}
+let oldKosarNevek = [];
+let oldKosarak = [];
+let aktualKosarNevThisIdGlobal = -1;
+let aktualKosarThisIdGlobal = [];
+let oldKosarModify = -1;
+getKosarak();
 
 var productsHTML = "";
 var foundPult = false;
@@ -232,17 +179,10 @@ async function getdata() {
   var response = await fetch("/todolist");
   state.todolist = await response.json();
 
-  /* NOTE: get otherlist */
-  /* var response = await fetch("/otherdata");
-  state.otherlist = await response.json(); */
-
   if (state.todolist[weekNumber] != oldTodolist[weekNumber]) {
-    ////VERSION-2:alert(state.todolist[weekNumber])
     let messageHead = dayOfWeek[weekNumber];
     let message = state.todolist[weekNumber];
     alertDialog(messageHead, message);
-
-    //$("#dialog").modal();
 
     oldTodolist[weekNumber] = state.todolist[weekNumber];
     localStorage.setItem("todolist", JSON.stringify(oldTodolist));
@@ -261,17 +201,12 @@ async function getdata() {
     let sorokNev;
     let kosarUjsorIndex = -1;
     localStorage.setItem("eladottElar", eladottElar);
+    let tempEmilsend = -1;
     $(".termekButton").click(function (e) {
       visiblesequenceIndex = e.target.dataset.visiblesequence - 1;
       arrayIndex = visiblesequenceIndex;
       var edb = 1;
       eladottElar = state.termekek[arrayIndex].elar;
-      /* console.log('**************************************')
-            console.log('visiblesequenceIndex', visiblesequenceIndex)
-            console.log()
-            console.log('id', state.termekek[arrayIndex].id)
-            console.log('nev', state.termekek[arrayIndex].nev)
-            console.log('**************************************') */
       sorokNev = state.termekek[arrayIndex].nev;
       sorokId = state.termekek[arrayIndex].id;
       sorokEladottBeszar = tBeszar[sorokId];
@@ -295,9 +230,10 @@ async function getdata() {
           eladottbeszar: sorokEladottBeszar,
           eladottelar: sorokEladottElar,
           fizetesmod: "c",
-          transactionnumber: 21,
+          transactionnumber: arrayIndex,
           megjegyzes: "info",
           datum: datum,
+          termekId: sorokId,
         });
       }
       isPultItem = false;
@@ -353,27 +289,55 @@ function renderProducts() {
       createContentHTML += `</div>`;
     }
     document.getElementById("createContent").innerHTML = createContentHTML;
-    //HACK             state.kosarak listener                //
-    $(".termekButton").click(function () {
-      /* console.log("state.kosarak.length", state.kosarak.length);
-      console.log("beforStateGroceryValue", beforStateGroceryValue); */
-      if (beforStateGroceryValue > state.kosarak.length) {
-        kosarakTarol();
-        beforStateGroceryValue = state.kosarak.length;
-        kosarakTest();
-      } else {
-        beforStateGroceryValue = state.kosarak.length;
-      }
-    });
-    function kosarakTest() {
-      console.log("Kosarak mentve !!!!! 😈😈😈😈😈");
-    }
-    //HACK             state.kosarak listener                //
   }
 }
-
+function renderPultFromDatabases(aktualKosarNev, aktualKosarak) {
+  kosarbolVisszatoltott = true;
+  kosarNevPultosKodSQL = aktualKosarNev.kosarMegnevezesPultosKod;
+  kosarNevIdSQL = aktualKosarNev.thisId;
+  kosarMegnevezesSQL = aktualKosarNev.kosarMegnevezes;
+  kosarNevDatumSQL = aktualKosarak[0].datum;
+  aktualKosarak.forEach((kosar) => {
+    state.pult.push({
+      aId: kosar.aId,
+      cl: kosar.cl,
+      datum: kosar.datum,
+      db: kosar.db,
+      eladottbeszar: kosar.eladottbeszar,
+      eladottelar: kosar.eladottelar,
+      fizetesmod: kosar.fizetesmod,
+      id: kosar.id,
+      kosarMegnevezes: kosar.kosarMegnevezes,
+      megjegyzes: kosar.megjegyzes,
+      nev: kosar.nev,
+      sumcl: kosar.sumcl,
+      transactionnumber: kosar.transactionnumber,
+      termekId: kosar.termekId,
+    });
+  });
+}
 /* TODO:TODO:TODO: RENDERPULT TODO:TODO:TODO: */
-function renderPult() {
+function renderPult(aktualKosarNev, aktualKosarak) {
+  if (aktualKosarNev) {
+    aktualKosarNevThisIdGlobal = aktualKosarNev.thisId;
+  }
+  aktualKosarNevThisId = aktualKosarNev
+    ? aktualKosarNev.thisId
+    : (let = temporary = "none"); //console.log("newState: 💖💖💖💖💖💖💖💖💖💖💖💖💖💖💖");
+  aktualKosarNev ? (dataFirst = aktualKosarNev) : (dataFirst = "hmmm...");
+
+  aktualKosarak
+    ? renderPultFromDatabases(aktualKosarNev, aktualKosarak)
+    : (let = temporary = "none"); //console.log("aktualKosarak: 😎😎😎  - nincs");
+
+  if (aktualKosarak) {
+    aktualKosarak.forEach((kosar) => {
+      aktualKosarThisIdGlobal.push(kosar.thisId);
+    });
+  }
+  if (aktualKosarak) {
+    oldKosarModify = aktualKosarak.length;
+  }
   var tetelSorokHTML = "";
   var mindosszesen = 0;
   var mindosszesenBeszar = 0;
@@ -381,27 +345,14 @@ function renderPult() {
   let betdijText = "";
   let betdij = 0;
   var mindosszesenBetdij = 0;
-  //HACK: betetdij megjelenítése-------
   for (var sorok of state.pult) {
     if (
       state.alapanyagok[sorok.aId - 1].emailsend ||
-      state.termekek[sorok.id - 1].emailsend
+      state.termekek[sorok.transactionnumber].emailsend
     ) {
-      /* console.log("talalt sullyedt 😈😈😈");
-      console.log(
-        "state.alapanyagok[sorok.aId - 1].emailsend",
-        state.alapanyagok[sorok.aId - 1].emailsend
-      );
-      console.log(
-        "state.termekek[id-1].emailsend",
-        state.termekek[sorok.id - 1].emailsend
-      );
-      console.log("talalt sullyedt 😈😈😈"); */
       betdij = sorok.db * betetdij;
       betdijText = `<h4>Betétdíj összege: <span class="font-weight-bold">${betdij}</span> Ft</h4>`;
     }
-    /* console.log("termek Id: ", sorok.aId);
-    console.log("termek BD: ", state.alapanyagok[sorok.aId - 1].emailsend); */
     tetelSorokHTML += `
         <div class="card">
         <div class="font-weight-bold d-flex justify-content-between" style=" padding-right: 3em">
@@ -454,7 +405,11 @@ function renderPult() {
   });
   $(".remove-db").click(function (event) {
     let pultTombIndex = this.id;
-    if (state.pult[pultTombIndex].db == 1 && kosarbolVisszatoltott) {
+    if (
+      state.pult[pultTombIndex].db == 1 &&
+      kosarbolVisszatoltott &&
+      this.id < oldKosarModify
+    ) {
       alert(
         "Mivel ez egy kosárból visszatoltott termék és, ezért nem lehetet 0 a darabszám!"
       );
@@ -465,9 +420,9 @@ function renderPult() {
     }
   });
   $(".delete-db").click(function (event) {
-    if (kosarbolVisszatoltott) {
+    if (kosarbolVisszatoltott && this.id < oldKosarModify) {
       alert(
-        "Mivel ez egy kosárból visszatoltott termék, ezért nem lehet törölni!"
+        `Mivel ez egy kosárból visszatoltott termék, ezért nem lehet törölni!`
       );
     } else {
       let pultTombIndex = this.id;
@@ -511,8 +466,6 @@ function termekKeszletModositas(sendData, muvelet) {
 /* TODO:TODO:TODO: TAROLJ TODO:TODO:TODO: */
 function tarolj(id, sumcl, cl, db) {
   sumcl = Math.round(sumcl * 100) / 100;
-  //console.log('<<<<<<<<<<<<<<<<<<id, sumcl, cl, db>>>>>>>>>>>>>>>>>')
-  //console.log(id, sumcl, cl, db)
   try {
     updateMySQL();
   } catch (e) {}
@@ -530,8 +483,38 @@ function tarolj(id, sumcl, cl, db) {
 /* TODO:TODO:TODO: UJ KOSARBA TESSZUK TODO:TODO:TODO: */
 function naTegyukEgyUjKosarba() {
   if (foundPult) {
+    //BUG-----------------------------------------------------
     if (kosarbolVisszatoltott) {
+      let tempKosarMegnevezes = state.pult[0].kosarMegnevezes;
+      let index = 0;
+      for (pult of state.pult) {
+        if (!pult.kosarMegnevezes) {
+          index++;
+          pusingDatatoState(index);
+        }
+        index++;
+      }
+      function pusingDatatoState(index) {
+        state.kosarak.push({
+          aId: 0,
+          cl: 0,
+          datum: 0,
+          db: 0,
+          eladottbeszar: 0,
+          eladottelar: 0,
+          fizetesmod: 0,
+          id: 0,
+          megjegyzes: 0,
+          nev: 0,
+          sumcl: 0,
+          transactionnumber: 66666,
+          termekid: -21,
+        });
+      }
       state.kosarak[kosarbolVisszatoltottId] = state.pult;
+
+      updateKosarak();
+
       state.pult = [];
       renderPult();
       kosarbolVisszatoltott = false;
@@ -549,7 +532,6 @@ function naTegyukEgyUjKosarba() {
         inputKey = this.value;
         //VERSION-2:
         if (inputKey == "") {
-          console.log("torleesgomb");
           kosarMegnevezes = kosarMegnevezes.substring(
             0,
             kosarMegnevezes.length - 1
@@ -563,22 +545,62 @@ function naTegyukEgyUjKosarba() {
     }
   }
 
-  kosarakTarol();
   foundKosar = state.kosarak.length > 0 ? true : false;
 }
 
 /* TODO:TODO:TODO: KOSAR NEVET KAP ES TAROL TODO:TODO:TODO: */
 function kosarNevSzerintiTarolas() {
-  state.kosarak.push(state.pult);
-  state.kosarNevek.push({
-    kosarMegnevezes: kosarMegnevezes,
-    kosarMegnevezesIndex: state.kosarak.length,
-    kosarMegnevezesPultosNeve: userLocalName,
-    kosarMegnevezesPultosKod: userLocalCode,
-  });
-  kosarakTarol();
-  state.pult = [];
-  renderPult();
+  const validKosarak = state.pult.filter((item) => item !== null);
+  if (validKosarak.length > 0) {
+    const newKosarNev = {
+      kosarMegnevezes: kosarMegnevezes,
+      kosarMegnevezesIndex: state.kosarNevek.length + 1,
+      kosarMegnevezesPultosNeve: userLocalName,
+      kosarMegnevezesPultosKod: userLocalCode,
+    };
+
+    // Csak az új kosarat és kosárnevet küldjük el
+    const kosarNevekToSend = [newKosarNev];
+    const kosarakToSend = [validKosarak];
+
+    saveKosarWithItems(kosarNevekToSend, kosarakToSend);
+
+    // Frissítjük a lokális state-et
+    state.kosarNevek.push(newKosarNev);
+    state.kosarak.push(validKosarak);
+
+    state.pult = [];
+    renderPult();
+  } else {
+    console.error("Nincs érvényes kosár elem a mentéshez");
+    // Itt kezelheti azt az esetet, amikor nincs érvényes kosár elem
+  }
+}
+//INFO: Új kosár létrehozása method 2
+function createKosarWithItems(kosarnev, termekek) {
+  const newKosar = {
+    kosarMegnevezes: kosarnev.kosarMegnevezes,
+    kosarMegnevezesIndex: kosarnev.kosarMegnevezesIndex,
+    kosarMegnevezesPultosNeve: kosarnev.kosarMegnevezesPultosNeve,
+    kosarMegnevezesPultosKod: kosarnev.kosarMegnevezesPultosKod,
+    termekek: termekek,
+  };
+  //BUG - alarm -> fetch("/api/kosarnevek" vs. lásd egy sorral lejjebb
+  fetch("/api/kosarak", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(newKosar),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data.message);
+      getKosarak(); // Frissítjük a kosarak listáját
+    })
+    .catch((error) =>
+      console.error("Hiba történt az új kosár létrehozásakor:", error)
+    );
 }
 
 /* TODO:TODO:TODO: KILEPES TODO:TODO:TODO: */
@@ -587,7 +609,6 @@ $(".kilepes").click(function () {
   if (state.pult > "") {
     alert("Előbb a kosarakat és a pultot üríteni kell !!!");
   } else {
-    kosarakTarol();
     let trFizetesMod = "f";
     let megjegyzes = "workTime";
     offPultos(trFizetesMod, megjegyzes);
@@ -597,7 +618,6 @@ $(".kilepes").click(function () {
   }
 });
 
-/* TODO:TODO:TODO: KOSARAK TODO:TODO:TODO: */
 $(".kosarak").click(function () {
   if (foundPult) {
     alert(
@@ -606,43 +626,167 @@ $(".kosarak").click(function () {
   } else {
     foundKosar = state.kosarak.length > 0 ? true : false;
     if (foundKosar) {
-      $("#kosarakModal").modal();
-      var kosarSorokHTML = "";
-      for (let index = 0; index < state.kosarak.length; index++) {
-        kosarSorokHTML += `<button type="button" class="btn btn-info m-2 zzzzz zizitoast " id=${index} style="color: black; font-weight: bold;"> ${state.kosarNevek[index].kosarMegnevezes} - ${state.kosarNevek[index].kosarMegnevezesIndex}</button> --> ${state.kosarak[index][0].datum} 
-<br>`;
-        /* <button type="button" class="btn btn-danger m-2 tempdelete" id=${index}>DELETE</button> */
+      oldKosarNevek = [];
+      oldKosarak = [];
+      let oldKosar = true;
+      let state = {
+        kosarNevek: [],
+        kosarak: [],
+      };
+
+      function getKosarak() {
+        fetch("/api/kosarnevek")
+          .then((response) => response.json())
+          .then((data) => {
+            // Adatok feldolgozása
+            const kosarNevekMap = new Map();
+
+            Object.values(data).forEach((item) => {
+              const kosarNev = {
+                id: item.id,
+                kosarMegnevezes: item.kosarMegnevezes,
+                kosarMegnevezesIndex: item.kosarMegnevezesIndex,
+                kosarMegnevezesPultosNeve: item.kosarMegnevezesPultosNeve,
+                kosarMegnevezesPultosKod: item.kosarMegnevezesPultosKod,
+                thisId: item.thisId,
+              };
+
+              if (!kosarNevekMap.has(item.kosarMegnevezes)) {
+                kosarNevekMap.set(item.kosarMegnevezes, kosarNev);
+              }
+
+              state.kosarak.push(
+                ...item.kosarak.map((kosar) => ({
+                  ...kosar,
+                  kosarMegnevezes: item.kosarMegnevezes,
+                  oldKosar: oldKosar,
+                }))
+              );
+            });
+            state.kosarNevek = Array.from(kosarNevekMap.values());
+
+            // Frissítsük a globális változókat
+            oldKosarNevek = [...state.kosarNevek];
+            oldKosarak = [...state.kosarak];
+
+            renderKosarak();
+          })
+
+          .catch((error) =>
+            console.error("Hiba a kosarak lekérésekor:", error)
+          );
+      }
+      //NOTE innen
+      function renderKosarak() {
+        const tableBody = document.getElementById("kosarakTableBody");
+        tableBody.innerHTML = "";
+
+        state.kosarNevek.forEach((kosarNev) => {
+          const kosarak = state.kosarak.filter(
+            (k) => k.kosarMegnevezes === kosarNev.kosarMegnevezes
+          );
+          const osszesEladasiAr = kosarak.reduce(
+            (sum, kosar) => sum + kosar.eladottelar * kosar.db,
+            0
+          );
+
+          const row = document.createElement("tr");
+          row.innerHTML = `
+          <td>
+          <button class="btn btn-sm btn-info kosaradatokBtn" data-megnevezes="${
+            kosarNev.kosarMegnevezes
+          }">Kosáradatok</button>
+          </td>
+            <td>${kosarNev.kosarMegnevezes}</td>
+            <td>${kosarNev.kosarMegnevezesIndex}</td>
+            <td>${kosarNev.kosarMegnevezesPultosNeve}</td>
+            <td class="text-center">${kosarNev.kosarMegnevezesPultosKod}</td>
+            <td class="text-right">${osszesEladasiAr.toFixed(0)} Ft</td>
+            <td>
+              <button class="btn btn-primary kosarNevBtn" data-megnevezes="${
+                kosarNev.kosarMegnevezes
+              }">PULTRA</button>
+              
+            </td>
+          `;
+          tableBody.appendChild(row);
+        });
+
+        //NOTE eddig
+
+        // Eseménykezelők hozzáadása
+        document.querySelectorAll(".kosarNevBtn").forEach((btn) => {
+          btn.addEventListener("click", function () {
+            const kosarMegnevezes = this.getAttribute("data-megnevezes");
+            const aktualKosarNev = state.kosarNevek.find(
+              (k) => k.kosarMegnevezes === kosarMegnevezes
+            );
+            const aktualKosarak = state.kosarak.filter(
+              (k) => k.kosarMegnevezes === kosarMegnevezes
+            );
+            $("#kosarakModal").modal("hide");
+            renderPult(aktualKosarNev, aktualKosarak);
+          });
+        });
+
+        document.querySelectorAll(".kosaradatokBtn").forEach((btn) => {
+          btn.addEventListener("click", function () {
+            const kosarMegnevezes = this.getAttribute("data-megnevezes");
+            const kosarNev = state.kosarNevek.find(
+              (k) => k.kosarMegnevezes === kosarMegnevezes
+            );
+            const kosarak = state.kosarak.filter(
+              (k) => k.kosarMegnevezes === kosarMegnevezes
+            );
+            renderKosaradatok(kosarak, kosarNev);
+            $("#kosaradatokModal").modal("show");
+          });
+        });
+      }
+      //NOTE innen
+      function renderKosaradatok(kosarak, kosarNev) {
+        const modalTitle = document.getElementById("kosaradatokModalLabel");
+        modalTitle.textContent = `Kosár adatai - ${kosarNev.kosarMegnevezes}`;
+
+        const tableBody = document.getElementById("kosaradatokTableBody");
+        tableBody.innerHTML = "";
+
+        let osszesEladasiAr = 0;
+
+        kosarak.forEach((kosar) => {
+          const teljesAr = kosar.eladottelar * kosar.db;
+          osszesEladasiAr += teljesAr;
+
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${kosar.nev}</td>
+            <td>${kosar.db}</td>
+            <td>${kosar.eladottelar.toFixed(2)} Ft</td>
+            <td>${teljesAr.toFixed(2)} Ft</td>
+            <td>${kosar.fizetesmod}</td>
+            <td>${kosar.datum}</td>
+          `;
+          tableBody.appendChild(row);
+        });
+
+        // Összesítő sor hozzáadása
+        const osszesitoRow = document.createElement("tr");
+        osszesitoRow.innerHTML = `
+          <td colspan="3" class="text-right"><strong>Összesen:</strong></td>
+          <td><strong>${osszesEladasiAr.toFixed(2)} Ft</strong></td>
+          <td colspan="2"></td>
+        `;
+        tableBody.appendChild(osszesitoRow);
+      }
+      //NOTE eddig
+      // Kosarak modal megjelenítése
+      function showKosarakModal() {
+        getKosarak();
+        $("#kosarakModal").modal("show");
       }
 
-      document.getElementById("kosarakFelsorolasa").innerHTML = kosarSorokHTML;
-
-      $(".tempdelete").click(function () {
-        console.log("klikkkkeltem", this.id);
-        $("#kosarakModal .close").click();
-        //kosarakTarol();
-      });
-      /* TODO:TODO:TODO: KOSAR KLIKK FIGYELES TODO:TODO:TODO: */
-      $(".zzzzz").click(function () {
-        if (state.kosarak[this.id].length == 0) {
-          //alert("Ezt most törlöm mert üres kosár!");
-          state.kosarak.splice(this.id, 1);
-          state.kosarNevek.splice(this.id, 1);
-          kosarbolVisszatoltott = false;
-          foundKosar = state.kosarak.length > 0 ? true : false;
-          $("#kosarakModal .close").click();
-          kosarakTarol();
-        } else {
-          kosarbolVisszatoltott = true;
-          kosarbolVisszatoltottId = this.id;
-          state.pult = state.kosarak[this.id];
-          $("#kosarakModal .close").click();
-        }
-        kosarakTarol();
-        foundKosar = state.kosarak.length > 0 ? true : false;
-        renderPult();
-      });
+      showKosarakModal();
     }
-    kosarakTarol();
   }
   foundKosar = state.kosarak.length > 0 ? true : false;
 });
@@ -650,20 +794,9 @@ $(".kosarak").click(function () {
 /* TODO:TODO:TODO: TR KP TODO:TODO:TODO: */
 async function trKp() {
   let alkotmanyosToday = await alkotmanyosQuery();
-  //console.log("alkotmanyosToday: ------->> 👀👀😈", alkotmanyosToday);
-  //console.log("saldo: ------->> 👀👀😈", saldo);
   let trFizetesMod = "k";
   trNumber = createTrNumber();
   let megjegyzes = "*";
-  /* kosarakTarol(); 
-   renderPult();
-  createTranactionData(
-    trNumber,
-    trFizetesMod,
-    megjegyzes,
-    mindosszesenTransaction,
-    mindosszesenTransactionBeszar
-  ); */
   if (mindosszesenTransaction > 0) {
     visszajaro(trFizetesMod, saldo, alkotmanyosToday);
     hogyanTovabb(trFizetesMod, megjegyzes);
@@ -713,12 +846,8 @@ function visszajaro(trFizetesMod, saldo, alkotmanyosToday) {
 
 //BUG:BUG:BUG:BUG:BUG:BUG: -
 async function hogyanTovabb(trFizetesMod, megjegyzes) {
-  //console.log("Várakozás a gombnyomásra...");
   const buttonPressed = await waitForButtonPress();
-  //console.log(`A ${buttonPressed}. gombot nyomták meg.`);
   if (buttonPressed == 2) {
-    //console.log("Hogyan tovabb...");
-    kosarakTarol();
     renderPult();
     createTranactionData(
       trNumber,
@@ -750,9 +879,7 @@ async function waitForButtonPress() {
 
 // Használat példa:
 async function example() {
-  console.log("Várakozás a gombnyomásra...");
   const buttonPressed = await waitForButtonPress();
-  console.log(`A ${buttonPressed}. gombot nyomták meg.`);
 }
 
 //BUG:BUG:BUG:BUG:BUG:BUG: -
@@ -770,7 +897,6 @@ async function trKp2() {
       let responseKP2 = await fetch("/gettransactionssaldo");
       responseKP2 = await responseKP2.json();
       let responseKP2DaySUM = responseKP2[0]["SUM(kibeosszeg)"];
-      //console.log("responseKP2DaySUM: ------->> 😛😛😛", responseKP2DaySUM);
       $("#responseKP2DaySUM").modal("show");
       document.getElementById("responseKP2DaySUMvalue").innerHTML =
         responseKP2DaySUM + ".- Ft";
@@ -780,20 +906,9 @@ async function trKp2() {
     }
   } else {
     let alkotmanyosToday = await alkotmanyosQuery();
-    //console.log("alkotmanyosToday: ------->> 💲💲💲", alkotmanyosToday);
-    //console.log("saldo: ------->> 💲💲💲", saldo);
     let trFizetesMod = "m";
     trNumber = createTrNumber();
     let megjegyzes = "*";
-    /* createTranactionData(
-      trNumber,
-      trFizetesMod,
-      megjegyzes,
-      mindosszesenTransaction,
-      mindosszesenTransactionBeszar
-    );    
-    kosarakTarol();
-    renderPult(); */
     if (mindosszesenTransaction > 0) {
       visszajaro(trFizetesMod, saldo, alkotmanyosToday);
       hogyanTovabb(trFizetesMod, megjegyzes);
@@ -813,45 +928,27 @@ function trCard() {
     mindosszesenTransaction,
     mindosszesenTransactionBeszar
   );
-  //NOTE: old LINE !!!
-  kosarakTarol();
   renderPult();
-  //NOTE: old LINE !!!
-  /* reset() */ //VERSION-2:
 }
-//BUG:BUG:BUG:BUG:BUG:BUG:BUG:BUG:BUG:BUG:BUG:BUG:BUG:BUG:BUG:BUG:BUG:BUG:BUG:BUG:
-/* TODO:TODO:TODO: TR HITEL TODO:TODO:TODO: */
-function nevesitettHitel() {
-  trFizetesMod = "h";
-  trNumber = createTrNumber();
-  megjegyzes = "";
 
-  document.querySelector("#hitelMegnevezesId").value = "";
-  hitelMegnevezes = "";
-
-  if (kosarbolVisszatoltott) {
-    megjegyzes = state.kosarNevek[kosarbolVisszatoltottId].kosarMegnevezes;
-    trHitel();
-  } else {
-    if (foundPult) {
-      $("#hitelMegnevezesModal").modal();
-      //FIXME:
-      document.getElementById("keyboardTemplateHitel").innerHTML =
-        keyboardTemplateHTML;
-      //FIXME:
-      $(".keyboard").off("click");
-      $(".keyboard").on("click", function () {
-        inputKey = "";
-        inputKey = this.id;
-        inputKey = this.value;
-        hitelMegnevezes += inputKey;
-        document.querySelector("#hitelMegnevezesId").value = hitelMegnevezes;
-        megjegyzes = hitelMegnevezes;
-      });
-    }
-  }
+function torolFeldolgozottKosarat(kosarId) {
+  fetch(`/api/kosarnevek/${kosarId}`, {
+    method: "DELETE",
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        // Frissítjük a state-et
+        state.kosarNevek = state.kosarNevek.filter((k) => k.id !== kosarId);
+        state.kosarak = state.kosarak.filter((k) => k.kosarnev_id !== kosarId);
+      } else {
+        console.error("Hiba történt a kosár törlése során:", data.error);
+      }
+    })
+    .catch((error) => {
+      console.error("Hiba a kosár törlése során:", error);
+    });
 }
-//BUG:BUG:BUG:BUG:BUG:BUG:BUG:BUG:BUG:BUG:BUG:BUG:BUG:BUG:BUG:BUG:BUG:BUG:BUG:BUG:
 function trHitel() {
   createTranactionData(
     trNumber,
@@ -877,14 +974,19 @@ function createTranactionData(
   async function updateMySQL() {
     datum = theTime();
     if (kosarbolVisszatoltott) {
-      pultos =
-        state.kosarNevek[kosarbolVisszatoltottId].kosarMegnevezesPultosKod;
-      tarolando = state.kosarak[kosarbolVisszatoltottId][0].datum;
+      pultos = kosarNevPultosKodSQL;
+      kosarNevPultosKodSQL = -1;
+      tarolando = kosarNevDatumSQL;
+      kosarNevDatumSQL = "";
+      kosarMegnevezes = kosarMegnevezesSQL;
+      torolFeldolgozottKosarat(kosarNevIdSQL);
+      kosarMegnevezesSQL = "";
+      kosarNevIdSQL = -1;
     } else {
       pultos = userLocalCode;
       tarolando = datum;
     }
-    //VERSION-2://VERSION-2://VERSION-2://VERSION-2:
+    //INFOVERSION-2://VERSION-2://VERSION-2://VERSION-2:
     const response = await fetch("/inserttransactions/", {
       method: "POST",
       headers: {
@@ -916,10 +1018,10 @@ function createTranactionData(
         pultItem.eladottbeszar,
         pultItem.eladottelar,
         pultItem.datum,
-        xkimeresnevid
+        xkimeresnevid,
+        pultItem.termekId
       );
     }
-    //console.log("renderPult yesss!!! 😈");
     state.pult = [];
     renderPult();
   }
@@ -949,7 +1051,8 @@ async function insertForgalomData(
   eladottbeszar,
   eladottelar,
   xDatum,
-  xkimeresnevid
+  xkimeresnevid,
+  termekId
 ) {
   const response = await fetch("/insertforgalom/", {
     method: "POST",
@@ -958,7 +1061,7 @@ async function insertForgalomData(
     },
     body: JSON.stringify({
       transaction_id: lastTransactionId,
-      termekid: id,
+      termekid: termekId,
       db: db,
       eladottbeszar: eladottbeszar,
       eladottelar: eladottelar,
@@ -994,7 +1097,6 @@ $(".kpKivet").click(function () {
     inputKey = this.id;
     inputKey = this.value;
     if (inputKey == "") {
-      console.log("torleesgomb");
       kivetMegnevezes = kivetMegnevezes.substring(
         0,
         kivetMegnevezes.length - 1
@@ -1134,150 +1236,11 @@ function hitelStateRender() {
 
 window.onload = renderPult();
 
-//INFO: * keyboardTemplateRender * INFO:
-function keyboardTemplateRender() {
-  return `
-    <div class="vKeyboard-container d-flex row">
-
-        <div class=" vKeyboard-letters " id="vKeyboard-letters ">
-            <div class="row vKeyboardRow vKeyboard-offsetRow1 justify-content-center m-1">
-                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
-                    id="keyboard-Q" value="Q">Q</button>
-                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
-                    id="keyboard-W" value="W">W</button>
-                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
-                    id="keyboard-E" value="E">E</button>
-                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
-                    id="keyboard-R" value="R">R</button>
-                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
-                    id="keyboard-T" value="T">T</button>
-                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
-                    id="keyboard-Z" value="Z">Z</button>
-
-                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
-                    id="keyboard-U" value="U">U</button>
-                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
-                    id="keyboard-I" value="I">I</button>
-                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
-                    id="keyboard-O" value="O">O</button>
-                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
-                    id="keyboard-P" value="P">P</button>
-            </div>
-            <div class="row vKeyboardRow vKeyboard-offsetRow2 justify-content-center">
-                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
-                    id="keyboard-A" value="A">A</button>
-
-                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
-                    id="keyboard-S" value="S">S</button>
-                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
-                    id="keyboard-D" value="D">D</button>
-                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
-                    id="keyboard-F" value="F">F</button>
-                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
-                    id="keyboard-G" value="G">G</button>
-                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
-                    id="keyboard-H" value="H">H</button>
-                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
-                    id="keyboard-J" value="J">J</button>
-                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
-                    id="keyboard-K" value="K">K</button>
-                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
-                    id="keyboard-L" value="L">L</button>
-
-            </div>
-            <div class="row vKeyboardRow vKeyboard-offsetRow3 justify-content-center">
-                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
-                    id="keyboard-Y" value="Y">Y</button>
-
-                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
-                    id="keyboard-X" value="X">X</button>
-                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
-                    id="keyboard-C" value="C">C</button>
-                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
-                    id="keyboard-V" value="V">V</button>
-                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
-                    id="keyboard-B" value="B">B</button>
-                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
-                    id="keyboard-N" value="N">N</button>
-                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-letter m-1"
-                    id="keyboard-M" value="M">M</button>
-                <span class="vKeyboard-spacer"></span>
-                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-symbol m-1"
-                    id="keyboard-tiret" value="-">-</button>
-                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-symbol m-1"
-                    id="keyboard-underscore" value="_">_</button>
-                <button type="button col" class="btn-lg keyboard btn-primary vKeyboard-symbol m-1"
-                    id="keyboard-@" value="@">@</button>
-            </div>
-            <div class="row vKeyboardRow justify-content-center">
-
-                <button type="button col"
-                    class="btn-lg keyboard btn-primary vKeyboard-symbol vKeyboard-space"
-                    id="keyboard-space" value=".">
-                    <span class="vKeyboard-space-character">┗━━━━━━━━━━━┛</span>
-                </button>
-                <button type="button col" class="btn-lg keyboard btn-danger vKeyboard-symbol ml-3"
-                    id="keyboard-torol>" value="">⌫</button>
-            </div>
-        </div>
-
-    </div>
-    `;
-}
-
-/* INFO: másodlagos STATE bekérés INFO: */
 /* TODO:TODO:TODO: RENDER GETDATA TODO:TODO:TODO: */
 async function renderGetdata() {
   var id = "h";
   var response = await fetch(`/gettransactionshitel/${id}`);
   state.fullTransactionsHitel = await response.json();
-}
-
-/* TODO:TODO:TODO: KOSARAK TODO:TODO:TODO: */
-async function kosarakTarol() {
-  /* localStorage.setItem("localKosarak", JSON.stringify(state.kosarak)); */
-
-  const dataToSendKosarak = state.kosarak;
-  //const dataToSendNevek = state.kosarNevek;
-
-  try {
-    const responseKosarak = await fetch("/storeDataKosarak", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(dataToSendKosarak),
-    });
-
-    if (responseKosarak.ok) {
-      //console.log("Data sent successfully");
-    } else {
-      console.error("Failed to send data");
-    }
-  } catch (error) {
-    console.error("Error:", error);
-  }
-  kosarNevekTarol();
-}
-
-async function kosarNevekTarol() {
-  const dataToSendNevek = state.kosarNevek;
-  try {
-    const responseNevek = await fetch("/storeDataKosarNevek", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(dataToSendNevek),
-    });
-    if (responseNevek.ok) {
-      //console.log("Data sent successfully");
-    } else {
-      console.error("Failed to send data");
-    }
-  } catch (error) {
-    console.error("Error:", " ezzazz");
-  }
 }
 
 /* TODO:TODO:TODO: pultos beléptetése TODO:TODO:TODO: */
@@ -1327,12 +1290,10 @@ async function saldoTarget() {
   } else {
     saldo = response[5].pin;
     betetdij = response[6].pin;
-    //console.log("betetdij: 👀👀👀", betetdij);
   }
 }
 
 function saldoMessage() {
-  //console.log("Saldo message START!");
   let saldoDatum = new Date();
   let saldoReactDatum = new Date();
   saldoReactDatum = new Date(saldoReactDatum.setHours("19"));
@@ -1362,7 +1323,6 @@ async function saldoCalculation() {
   ).toLocaleString("hu-HU", {
     maximumFractionDigits: 0,
   });
-  //console.log('Saldo calculation: ----EZAZ???--->>', saldoComplete)
   responseKP2DaySUM = responseKP2DaySUM.toLocaleString("hu-HU", {
     maximumFractionDigits: 0,
   });
@@ -1370,7 +1330,6 @@ async function saldoCalculation() {
     maximumFractionDigits: 0,
   });
 
-  //console.log('saldoComplete: ------->> 😛', saldoComplete)
   $("#saldoMessageSend").modal();
   document.getElementById("saldoMessageSendTarget").innerHTML = "LIMIT";
   document.getElementById("saldoMessageSendComplete").innerHTML =
@@ -1398,22 +1357,17 @@ async function alkotmanyosQuery() {
   let responseKP2 = await fetch("/gettransactionssaldo");
   responseKP2 = await responseKP2.json();
   let responseKP2DaySUM = responseKP2[0]["SUM(kibeosszeg)"];
-  //console.log("responseKP2DaySUM: ------->> 😈😈😈", responseKP2DaySUM);
   return responseKP2DaySUM;
 }
 function backReturn() {
-  //console.log("backReturn");
-  kosarakTarol();
   renderPult();
 }
-
-//BUG:
 
 document.addEventListener("DOMContentLoaded", () => {
   const counterButtons = document.getElementById("counterButtons");
   const counterValue = document.getElementById("counterValue");
   const saveCounter = document.getElementById("saveCounter");
-  const closeCounter = document.getElementById("closeCounter"); //BUG
+  const closeCounter = document.getElementById("closeCounter");
   const egyebButton = document.getElementById("egyebButton");
   const egyebModal = new bootstrap.Modal(document.getElementById("egyebModal"));
   const counterModal = new bootstrap.Modal(
@@ -1515,7 +1469,6 @@ document.addEventListener("DOMContentLoaded", () => {
         return response.json();
       })
       .then((data) => {
-        //console.log("Szervertől kapott adatok:", data);
         createCounterButtons(data);
       })
       .catch((error) => {
@@ -1529,116 +1482,363 @@ document.addEventListener("DOMContentLoaded", () => {
     let trFizetesMod = "s";
     let megjegyzes = "hCsere";
     offPultos(trFizetesMod, megjegyzes);
-    //console.log("SÖR gomb megnyomva!");
-    // Példa: növeljük a számlálót 1-gyel
     updateCounter(counter.type, counter.count + 1);
   }
 
   fetchCounters();
 });
-/* FIXME:FIXME SQLITE */
-// Kosarak kezelése
-function getKosarak() {
-  fetch("/api/kosarak")
-    .then((response) => response.json())
-    .then((data) => {
-      console.log("Kosarak:", data);
-      // Itt kezelheti a kapott adatokat
-    })
-    .catch((error) => console.error("Hiba:", error));
-}
-
-function addKosar(kosarData) {
-  fetch("/api/kosarak", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(kosarData),
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      console.log("Új kosár hozzáadva:", data);
-      // Itt frissítheti a felhasználói felületet
-    })
-    .catch((error) => console.error("Hiba:", error));
-}
-
-function deleteKosar(id) {
-  fetch(`/api/kosarak/${id}`, {
-    method: "DELETE",
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      console.log("Kosár törölve:", data);
-      // Itt frissítheti a felhasználói felületet
-    })
-    .catch((error) => console.error("Hiba:", error));
-}
-
-// Kosárnevek kezelése
-function getKosarnevek() {
-  fetch("/api/kosarnevek")
-    .then((response) => response.json())
-    .then((data) => {
-      console.log("Kosárnevek:", data);
-      // Itt kezelheti a kapott adatokat
-    })
-    .catch((error) => console.error("Hiba:", error));
-}
-
-function addKosarnev(kosarnevData) {
+/* HACKFIXME:FIXME SQLITE */
+// Kosárnév és kosarak mentése
+function saveKosarWithItems(kosarNevek, kosarak) {
   fetch("/api/kosarnevek", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(kosarnevData),
+    body: JSON.stringify({ kosarNevek, kosarak }),
   })
     .then((response) => response.json())
+    .then((data) => console.log("Sikeres mentés:", data))
+    .catch((error) => console.error("Hiba a mentés során:", error));
+}
+// Kosárnevek és kosarak lekérése
+function getKosarak() {
+  fetch("/api/kosarnevek")
+    .then((response) => response.json())
     .then((data) => {
-      console.log("Új kosárnév hozzáadva:", data);
-      // Itt frissítheti a felhasználói felületet
+      console.log("Kosarak kosárnevekkel:", data);
+      displayKosarakTable(data);
     })
     .catch((error) => console.error("Hiba:", error));
 }
 
-function deleteKosarnev(id) {
+// Kosárnév és kosarak törlése
+function deleteKosar(id) {
   fetch(`/api/kosarnevek/${id}`, {
     method: "DELETE",
   })
     .then((response) => response.json())
     .then((data) => {
-      console.log("Kosárnév törölve:", data);
-      // Itt frissítheti a felhasználói felületet
+      console.log("Törlés sikeres:", data);
+      getKosarak();
     })
     .catch((error) => console.error("Hiba:", error));
 }
-/* FIXME:FIXME SQLITE TEST*/
-//getKosarak(); // Kosarak lekérése
-// Új kosár hozzáadása
-/* addKosar({
-  nev: 'Teszt kosár',
-  db: 1,
-  eladottbeszar: 1000,
-  eladottelar: 1500,
-  fizetesmod: 'készpénz',
-  transactionnumber: 12345,
-  megjegyzes: 'Teszt megjegyzés',
-  datum: new Date().toISOString(),
-  aId: 1,
-  sumcl: 50,
-  cl: true
-});  */
-//deleteKosar(1); // Kosár törlése
 
-//getKosarnevek(); // Kosárnevek lekérése
-// Új kosárnév hozzáadása
-/* addKosarnev({
-  kosarMegnevezes: 'Teszt kosár',
-  kosarMegnevezesIndex: 1,
-  kosarMegnevezesPultosNeve: 'Teszt Eladó',
-  kosarMegnevezesPultosKod: 'TE001'
-});  */
-//deleteKosarnev(1); // Kosárnév törlése
-/* FIXME:FIXME SQLITE */
+// Kosárnév és kosarak frissítése
+function updateKosarWithItems(id, kosarnev, kosarak) {
+  fetch(`/api/kosarnevek/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ kosarnev, kosarak }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log("Frissítés sikeres:", data);
+      getKosarak();
+    })
+    .catch((error) => console.error("Hiba:", error));
+}
+
+// Táblázat megjelenítése
+function displayKosarakTable(data) {
+  const tableBody = document.getElementById("kosarakTableBody");
+  tableBody.innerHTML = "";
+
+  data.forEach((item) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${item.id}</td>
+      <td>${item.kosarMegnevezes}</td>
+      <td>${item.kosarMegnevezesIndex}</td>
+      <td>${item.kosarMegnevezesPultosNeve}</td>
+      <td>${item.kosarMegnevezesPultosKod}</td>
+      <td>${item.kosarak.length}</td>
+      <td>
+        <button onclick="showKosarDetails(${item.id})">Részletek</button>
+        <button onclick="editKosar(${item.id})">Szerkesztés</button>
+        <button onclick="deleteKosar(${item.id})">Törlés</button>
+      </td>
+    `;
+    tableBody.appendChild(row);
+  });
+}
+
+// Kosár részletek megjelenítése
+function showKosarDetails(id) {
+  fetch(`/api/kosarnevek/${id}`)
+    .then((response) => response.json())
+    .then((data) => {
+      console.log("Kosár részletek:", data);
+      // Itt megjelenítheti a részleteket egy modális ablakban vagy egy külön oldalon
+    })
+    .catch((error) => console.error("Hiba:", error));
+}
+
+// Kosár szerkesztése
+function editKosar(id) {
+  fetch(`/api/kosarnevek/${id}`)
+    .then((response) => response.json())
+    .then((data) => {
+      console.log("Szerkesztendő kosár:", data);
+    })
+    .catch((error) => console.error("Hiba:", error));
+}
+
+document.addEventListener("DOMContentLoaded", getKosarak);
+// Kosárnév és kosarak mentése
+function addNewKosar(newKosarNev, newKosarTermekek) {
+  const newKosarData = {
+    kosarnev: newKosarNev, // Ez már egy objektum, nem kell újra létrehozni
+    termekek: newKosarTermekek, // Ez már egy tömb, nem kell újabb tömbbe rakni
+  };
+
+  fetch("/kosarak", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(newKosarData),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log("Szerver válasza:", data);
+      getKosarak(); // Frissítsük a kosarakat
+    })
+    .catch((error) => console.error("Hiba az új kosár hozzáadásakor:", error));
+}
+
+//INFO - OK
+function getKosarak() {
+  fetch("/api/kosarnevek")
+    .then((response) => response.json())
+    .then((data) => {
+      state.kosarNevek = data.map((item) => ({
+        id: item.id,
+        kosarMegnevezes: item.kosarMegnevezes,
+        kosarMegnevezesIndex: item.kosarMegnevezesIndex,
+        kosarMegnevezesPultosNeve: item.kosarMegnevezesPultosNeve,
+        kosarMegnevezesPultosKod: item.kosarMegnevezesPultosKod,
+        thisId: item.thisId,
+      }));
+
+      state.kosarak = data.map((item) => item.kosarak);
+    })
+    .catch((error) => console.error("Hiba a kosarak lekérésekor:", error));
+}
+
+function updateStateWithKosarak(data) {
+  // Új kosárnevek és kosarak tömbök létrehozása
+  const newKosarNevek = [];
+  const newKosarak = [];
+
+  data.forEach((item) => {
+    // Kosárnév hozzáadása
+    newKosarNevek.push({
+      kosarMegnevezes: item.kosarMegnevezes,
+      kosarMegnevezesIndex: item.kosarMegnevezesIndex,
+      kosarMegnevezesPultosNeve: item.kosarMegnevezesPultosNeve,
+      kosarMegnevezesPultosKod: item.kosarMegnevezesPultosKod,
+    });
+
+    // Termékek hozzáadása a kosarakhoz
+    newKosarak.push(item.termekek);
+  });
+
+  // State frissítése az új adatokkal
+  state.kosarNevek = newKosarNevek;
+  state.kosarak = newKosarak;
+
+  function addNewKosar(newKosarNev, newKosarTermekek) {
+    // Új kosár adatainak összeállítása
+    const newKosarData = {
+      kosarMegnevezes: newKosarNev.kosarMegnevezes,
+      kosarMegnevezesIndex: newKosarNev.kosarMegnevezesIndex,
+      kosarMegnevezesPultosNeve: newKosarNev.kosarMegnevezesPultosNeve,
+      kosarMegnevezesPultosKod: newKosarNev.kosarMegnevezesPultosKod,
+      termekek: newKosarTermekek,
+    };
+
+    // Küldés a szervernek
+    fetch("/api/kosarnevek", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newKosarData),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Új kosár sikeresen hozzáadva:", data);
+
+        // Frissítsük a teljes kosár listát
+        getKosarak();
+      })
+      .catch((error) =>
+        console.error("Hiba az új kosár hozzáadásakor:", error)
+      );
+  }
+}
+function ggggetKosarak() {
+  fetch("/kosarak")
+    .then((response) => response.json())
+    .then((data) => {
+      kosarakTotal = data; // Globális változóba mentjük a kosarakat
+      console.log("Kosarak lekéréve:", kosarakTotal);
+    })
+    .catch((error) =>
+      console.error("Hiba történt a kosarakTotal lekérésekor:", error)
+    );
+}
+function createStateKosarKosarnevek(kosarakTotal) {
+  state.kosarNevek = [];
+  state.kosarak = [];
+  let index = 0;
+  for (kosarnev of kosarakTotal) {
+    state.kosarNevek.push({
+      kosarMegnevezes: kosarnev.kosarMegnevezes,
+      kosarMegnevezesIndex: kosarnev.kosarMegnevezesIndex,
+      kosarMegnevezesPultosNeve: kosarnev.kosarMegnevezesPultosNeve,
+      kosarMegnevezesPultosKod: kosarnev.kosarMegnevezesPultosKod,
+    });
+    for (termek of kosarakTotal[index].termekek) {
+      state.kosarak.push({
+        aId: termek.aId,
+        cl: termek.cl,
+        datum: termek.datum,
+        db: termek.db,
+        eladottbeszar: termek.eladottbeszar,
+        eladottelar: termek.eladottelar,
+        fizetesmod: termek.fizetesmod,
+        id: termek.id,
+        megjegyzes: termek.megjegyzes,
+        nev: termek.nev,
+        sumcl: termek.sumcl,
+        transactionnumber: termek.transactionnumber,
+      });
+    }
+    index++;
+  }
+}
+
+function showKosarDetails(kosarId) {
+  const kosar = kosarak.find((k) => k.id === kosarId);
+  if (kosar) {
+    const detailsDiv = document.getElementById("kosarDetails");
+    detailsDiv.innerHTML = `
+      <h3>${kosar.kosarMegnevezes} részletei</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Név</th>
+            <th>Darab</th>
+            <th>Eladási ár</th>
+            <th>Fizetési mód</th>
+            <th>Dátum</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${kosar.termekek
+            .map(
+              (termek) => `
+            <tr>
+              <td>${termek.nev}</td>
+              <td>${termek.db}</td>
+              <td>${termek.eladottelar}</td>
+              <td>${termek.fizetesmod}</td>
+              <td>${termek.datum}</td>
+            </tr>
+          `
+            )
+            .join("")}
+        </tbody>
+      </table>
+    `;
+  }
+}
+
+function deleteKosar(id) {
+  if (confirm("Biztosan törölni szeretné ezt a kosarat?")) {
+    fetch(`/api/kosarak/${id}`, {
+      method: "DELETE",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data.message);
+        getKosarak(); // Frissítjük a kosarak listáját
+      })
+      .catch((error) =>
+        console.error("Hiba történt a kosár törlésekor:", error)
+      );
+  }
+}
+
+function updateKosarWithItems(id, kosarnev, termekek) {
+  const updatedKosar = {
+    kosarMegnevezes: kosarnev.kosarMegnevezes,
+    kosarMegnevezesIndex: kosarnev.kosarMegnevezesIndex,
+    kosarMegnevezesPultosNeve: kosarnev.kosarMegnevezesPultosNeve,
+    kosarMegnevezesPultosKod: kosarnev.kosarMegnevezesPultosKod,
+    termekek: termekek,
+  };
+
+  fetch(`/api/kosarak/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(updatedKosar),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data.message);
+      getKosarak(); // Frissítjük a kosarak listáját
+    })
+    .catch((error) =>
+      console.error("Hiba történt a kosár frissítésekor:", error)
+    );
+}
+
+// Kosár szerkesztése
+function editKosar(id) {
+  fetch(`/api/kosarnevek/${id}`)
+    .then((response) => response.json())
+    .then((data) => {
+      console.log("Szerkesztendő kosár:", data);
+      // Itt megnyithat egy űrlapot a kosár szerkesztéséhez
+    })
+    .catch((error) => console.error("Hiba:", error));
+}
+
+/* HACKFIXME:FIXME SQLITE */
+function updateKosarak() {
+  fetch("/api/updateKosarak", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      state: { pult: state.pult },
+      aktualKosarThisIdGlobal: aktualKosarThisIdGlobal,
+      aktualKosarNevThisIdGlobal: aktualKosarNevThisIdGlobal,
+    }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        console.log(data.message);
+        // További műveletek siker esetén
+      } else {
+        console.error(data.error);
+        // Hibakezelés
+      }
+    })
+    .catch((error) => {
+      console.error("Hiba történt:", error);
+    });
+  aktualKosarNevThisIdGlobal = -1;
+  aktualKosarThisIdGlobal = [];
+  oldKosarModify = [];
+}

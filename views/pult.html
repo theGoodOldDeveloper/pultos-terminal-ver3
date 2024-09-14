@@ -26,14 +26,6 @@
                     <div class="tab-content text-center m-0" id="createContent">
                     </div>
                 </div>
-                <!-- BUG: BALL -->
-                <!-- <button onclick="openFullscreen();" id="hideFullScreen" style="position: absolute;
-                    top: 10%;
-                    right: 10%;
-                    width: 800px;
-                    height: 500px;
-                    border: 3px solid #ad2196;">KATTINTS IDE!!!<br>TELJES KÉPERNYŐRE VÁLTÁS</button> -->
-                <!-- BUG: BALL -->
             </div>
             <div class="col-sm-3" id="right">
 
@@ -118,26 +110,87 @@
                     </div>
                   </div>
     <!--//HACK: Modal -->
-
+<!-- Kosarak Modal -->
+<div class="modal fade" id="kosarakModal" tabindex="-1" role="dialog" aria-labelledby="kosarakModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header bg-warning">
+          <h5 class="modal-title" id="kosarakModalLabel">Kosarak</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th class="text-center">Kosár adatok</th>
+                    <th>Kosár neve</th>
+                    <th>Index</th>
+                    <th class="text-center">Pultos neve</th>
+                    <th>Pultos kód</th>
+                    <th class="text-center">Kosár értéke</th>
+                    <th class="text-center">Vissza a pultra</th>
+                  </tr>
+                </thead>
+                <tbody id="kosarakTableBody">
+                  <!-- Itt jelennek meg a kosárnevek -->
+                </tbody>
+              </table>
+              </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Kosaradatok Modal -->
+<div class="modal fade" id="kosaradatokModal" tabindex="-1" role="dialog" aria-labelledby="kosaradatokModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header bg-info">
+          <h5 class="modal-title " id="kosaradatokModalLabel">Kosár adatai</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Név</th>
+                <th>Darab</th>
+                <th>Eladási ár</th>
+                <th>Összesen</th>
+                <th>Fizetési mód</th>
+                <th>Dátum</th>
+              </tr>
+            </thead>
+            <tbody id="kosaradatokTableBody">
+              <!-- Itt jelennek meg a kosár elemei -->
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-footer">
+          <!-- <button type="button" class="btn btn-secondary" id="visszaKosarakhoz">Vissza a kosarak listájához</button> -->
+          <button type="button" class="btn btn-primary" data-dismiss="modal">Bezár</button>
+        </div>
+      </div>
+    </div>
+  </div>
             <!-- The HACK: kosarakModal -->
-            <div class="modal" id="kosarakModal">
+            <!-- <div class="modal" id="kosarakModal">
                 <div class="modal-dialog">
                     <div class="modal-content">
-
-                        <!-- Modal Header -->
                         <div class="modal-header">
                             <h4 class="modal-title">Melyik kosár tartalmát töltsem vissza a pultra?</h4>
                             <button type="button" class="close" data-dismiss="modal">&times;</button>
                         </div>
-
-                        <!-- Modal body -->
                         <div class="modal-body">
                             <div id="kosarakFelsorolasa" style="color: black;"></div>
                         </div>
-
                     </div>
                 </div>
-            </div>
+            </div> -->
             <!-- The HACK: kosarakModal -->
 
             <!-- The Modal -->
@@ -454,25 +507,9 @@
     <script src="jquery.slim.min.js"></script>
     <script src="popper.min.js"></script>
     <script src="bootstrap.bundle.min.js"></script>
+    <script src="keyboard.js"></script>
     <script src="pult.js"></script>
 
 </body>
 
 </html>
-            <!-- HACK: *  * HACK: -->
-            <!-- <div class="toast" id="toast" role="alert" aria-live="assertive" aria-atomic="true" style="position: fixed;
-            left: 66%;
-            top: 82%;">
-                <div class="toast-header">
-                    <img src="..." class="rounded mr-2" alt="...">
-                    <strong class="mr-auto">Napi mindösszesen</strong>
-                    <small>11 mins ago</small>
-                    <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="toast-body">
-                    <h2 id="kp2DaySumMessage"></h2>
-                </div>
-            </div> -->
-            <!-- HACK: *  * HACK: -->
