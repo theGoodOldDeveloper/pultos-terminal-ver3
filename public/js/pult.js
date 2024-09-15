@@ -209,13 +209,15 @@ async function getdata() {
       eladottElar = state.termekek[arrayIndex].elar;
       sorokNev = state.termekek[arrayIndex].nev;
       sorokId = state.termekek[arrayIndex].id;
+      //console.log("arrayIndex", arrayIndex);
+      //console.log("state.pult", state.pult);
       sorokEladottBeszar = tBeszar[sorokId];
       sorokEladottElar = state.termekek[arrayIndex].elar;
       datum = theTime();
       let _pultTombIndex = 0;
       isPultItem = false;
       for (pultItem of state.pult) {
-        if (sorokId == pultItem.id) {
+        if (sorokId == pultItem.termekId) {
           state.pult[_pultTombIndex].db++;
           isPultItem = true;
         }
@@ -435,8 +437,11 @@ function renderPult(aktualKosarNev, aktualKosarak) {
 }
 
 function termekKeszletModositas(sendData, muvelet) {
+  //console.log("sendData, muvelet", sendData, muvelet);
   for (osszetevo of state.osszetevok) {
-    if (osszetevo.termek_id == sendData.id) {
+    //BUG- termekId
+    if (osszetevo.termek_id == sendData.termekId) {
+      //BUG
       sendData.aId = osszetevo.alapanyag_id; //HACK:
       sendData.sumcl =
         Math.round(aKeszletsum[osszetevo.alapanyag_id] * 100) / 100; //HACK:
@@ -459,6 +464,10 @@ function termekKeszletModositas(sendData, muvelet) {
         aKeszletsum[osszetevo.alapanyag_id] = sendData.sumcl;
       }
       tarolj(sendData.aId, sendData.sumcl, sendData.cl, sendData.db);
+      //console.log("sendData.aId", sendData.aId);
+      //console.log("sendData.sumcl", sendData.sumcl);
+      //console.log("sendData.cl", sendData.cl);
+      //console.log("sendData.db", sendData.db);
     }
   }
 }
@@ -483,7 +492,6 @@ function tarolj(id, sumcl, cl, db) {
 /* TODO:TODO:TODO: UJ KOSARBA TESSZUK TODO:TODO:TODO: */
 function naTegyukEgyUjKosarba() {
   if (foundPult) {
-    //BUG-----------------------------------------------------
     if (kosarbolVisszatoltott) {
       let tempKosarMegnevezes = state.pult[0].kosarMegnevezes;
       let index = 0;
@@ -726,6 +734,7 @@ $(".kosarak").click(function () {
             );
             $("#kosarakModal").modal("hide");
             renderPult(aktualKosarNev, aktualKosarak);
+            //console.log(aktualKosarak);
           });
         });
 
