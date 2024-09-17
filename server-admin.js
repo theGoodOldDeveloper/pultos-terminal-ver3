@@ -3,6 +3,7 @@ const bodyParser = require("body-parser");
 const dotenv = require("dotenv");
 const conf = dotenv.config();
 const fs = require("fs");
+const path = require("path");
 
 var port = conf.parsed.ADMINPORT;
 var mysql = require("mysql");
@@ -32,27 +33,27 @@ con.connect(function (err) {
 
 /* INFO: induló login képernyő */
 app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/views/app-admin.html");
+  res.sendFile(path.join(__dirname, "/views/app-admin.html"));
 });
 
 /* INFO: admin képernyő */
 app.get("/admin", (req, res) => {
-  res.sendFile(__dirname + "/views/admin.html");
+  res.sendFile(path.join(__dirname, "/views/admin.html"));
 });
 
 /* INFO: isinstock képernyő */
 app.get("/isinstock", (req, res) => {
-  res.sendFile(__dirname + "/views/isInStock.html");
+  res.sendFile(path.join(__dirname, "/views/isInStock.html"));
 });
 
 /* INFO: laststock képernyő */
 app.get("/laststock", (req, res) => {
-  res.sendFile(__dirname + "/views/laststock.html");
+  res.sendFile(path.join(__dirname, "/views/laststock.html"));
 });
 
 /* INFO: laststockdata */
 app.get("/laststockdata", (req, res) => {
-  res.sendFile(__dirname + "/lastLeltar.txt");
+  res.sendFile(path.join(__dirname, "/lastLeltar.txt"));
 });
 
 /* INFO: kosarak */
@@ -91,7 +92,7 @@ app.post("/refreshpultbanvan", bodyParser.json(), (req, res) => {
       console.error(err);
     }
   });
-  res.sendFile(__dirname + "/views/alapanyagok.html");
+  res.sendFile(path.join(__dirname, "/views/alapanyagok.html"));
 });
 /* INFO: updatepultosok */
 app.post("/updatepultosok", bodyParser.json(), (req, res) => {
@@ -101,7 +102,7 @@ app.post("/updatepultosok", bodyParser.json(), (req, res) => {
       console.error(err);
     }
   });
-  res.sendFile(__dirname + "/views/pultosok-admin.html");
+  res.sendFile(path.join(__dirname, "/views/pultosok-admin.html"));
 });
 /* INFO: updatetodolist */
 app.post("/updatetodolist", bodyParser.json(), (req, res) => {
@@ -116,37 +117,37 @@ app.post("/updatetodolist", bodyParser.json(), (req, res) => {
 
 /* INFO: visibleOrder */
 app.get("/visibleOrder", (req, res) => {
-  res.sendFile(__dirname + "/views/visibleOrder.html");
+  res.sendFile(path.join(__dirname, "/views/visibleOrder.html"));
 });
 /* INFO: pultosokadmin */
 app.get("/pultosokadmin", (req, res) => {
-  res.sendFile(__dirname + "/views/pultosok-admin.html");
+  res.sendFile(path.join(__dirname, "/views/pultosok-admin.html"));
 });
 /* INFO: pultosokadminpsw */
 app.get("/pultosokadminpsw", (req, res) => {
-  res.sendFile(__dirname + "/psw.txt");
+  res.sendFile(path.join(__dirname, "/psw.txt"));
 });
 /* INFO: pultbanvan */
 app.get("/pultbanvan", (req, res) => {
-  res.sendFile(__dirname + "/pultbanvan.txt");
+  res.sendFile(path.join(__dirname, "/pultbanvan.txt"));
 });
 
 /* INFO: kategoriák  categori array send */
 app.get("/categories", (req, res) => {
-  res.sendFile(__dirname + "/categories.txt");
+  res.sendFile(path.join(__dirname, "/categories.txt"));
 });
 /* INFO: teendők  todoList array send */
 app.get("/todolist", (req, res) => {
-  res.sendFile(__dirname + "/todolist.txt");
+  res.sendFile(path.join(__dirname, "/todolist.txt"));
 });
 /* INFO: other */
 app.get("/otherdata", (req, res) => {
-  res.sendFile(__dirname + "/other.json");
+  res.sendFile(path.join(__dirname, "/other.json"));
 });
 
 /* INFO: lasttransaction  TOROLNI ??? NEM KELL??? */
 app.get("/lasttransaction", (req, res) => {
-  res.sendFile(__dirname + "/last-transaction.json");
+  res.sendFile(path.join(__dirname, "/last-transaction.json"));
 });
 
 /* INFO: termek nev lekeres */
@@ -165,15 +166,15 @@ app.get("/datareadtermekek", (req, res) => {
 
 // INFO: alapanyagok HTML
 app.get("/alapanyagok", (req, res) => {
-  res.sendFile(__dirname + "/views/alapanyagok.html");
+  res.sendFile(path.join(__dirname, "/views/alapanyagok.html"));
 });
 // INFO: TODO HTML
 app.get("/todo", (req, res) => {
-  res.sendFile(__dirname + "/views/todo.html");
+  res.sendFile(path.join(__dirname, "/views/todo.html"));
 });
 // INFO: STATISTICS HTML
 app.get("/statistics", (req, res) => {
-  res.sendFile(__dirname + "/views/statistics.html");
+  res.sendFile(path.join(__dirname, "/views/statistics.html"));
 });
 // INFO: /datareadalapanyagok DATA
 app.get("/datareadalapanyagok", (req, res) => {
@@ -228,7 +229,7 @@ app.post("/insertalapanyagok", bodyParser.json(), (req, res) => {
       }
     }
   );
-  res.sendFile(__dirname + "/views/alapanyagok.html");
+  res.sendFile(path.join(__dirname, "/views/alapanyagok.html"));
 });
 // INFO: //inserttermek DATA insert
 app.post("/inserttermek", bodyParser.json(), (req, res) => {
@@ -253,7 +254,7 @@ app.post("/inserttermek", bodyParser.json(), (req, res) => {
       }
     }
   );
-  res.sendFile(__dirname + "/views/termekek-adatlap.html");
+  res.sendFile(path.join(__dirname, "/views/termekek-adatlap.html"));
 });
 // INFO: /insertosszetevok DATA insert
 app.post("/insertosszetevok", bodyParser.json(), (req, res) => {
@@ -275,7 +276,7 @@ app.post("/insertosszetevok", bodyParser.json(), (req, res) => {
       }
     }
   );
-  res.sendFile(__dirname + "/views/termekek-adatlap.html");
+  res.sendFile(path.join(__dirname, "/views/termekek-adatlap.html"));
 });
 // INFO: /alapanyagok DATA update
 app.patch("/updatealapanyagok", bodyParser.json(), (req, res) => {
@@ -487,21 +488,21 @@ function beforeDayIntervallum(datum) {
 
 /* INFO: config */
 app.get("/config", (req, res) => {
-  res.sendFile(__dirname + "/views/config.html");
+  res.sendFile(path.join(__dirname, "/views/config.html"));
 });
 
 /* INFO: forgalom */
 app.get("/forgalom", (req, res) => {
-  res.sendFile(__dirname + "/views/forgalom.html");
+  res.sendFile(path.join(__dirname, "/views/forgalom.html"));
 });
 
 /* INFO: termekek */
 app.get("/termekek", (req, res) => {
-  res.sendFile(__dirname + "/views/termekek.html");
+  res.sendFile(path.join(__dirname, "/views/termekek.html"));
 });
 /* INFO: termekek-adatlap */
 app.get("/termekek-adatlap", (req, res) => {
-  res.sendFile(__dirname + "/views/termekek-adatlap.html");
+  res.sendFile(path.join(__dirname, "/views/termekek-adatlap.html"));
 });
 
 app.patch("/updatetermekekbeszerzes", bodyParser.json(), (req, res) => {
@@ -591,14 +592,14 @@ function loggerMiddleWare(req, res, next) {
   } else {
     //console.log(body);
     /* res.status(401).send("Authentical error is NEMOK 🤔 "); */
-    res.status(200).sendFile(__dirname + "/views/index.html");
+    res.status(200).sendFile(path.join(__dirname, "/views/index.html"));
     /* console.log("loggerMiddleWare is NEMOK 🤔 ");
         return; */
   }
 }
 
 app.get("/pult", loggerMiddleWare, (req, res) => {
-  res.sendFile(__dirname + "/views/pult.html");
+  res.sendFile(path.join(__dirname, "/views/pult.html"));
 });
 app.listen(port, () => console.log("server is OK 😋 ADMINPORT: " + port));
 
@@ -638,5 +639,16 @@ app.post("/inserttermekek", bodyParser.json(), (req, res) => {
         }
     ); */
   /* FIXME:FIXME:FIXME: */
-  //res.sendFile(__dirname + "/views/termekek.html");
+  //res.sendFile(path.join(__dirname,   "/views/termekek.html"));
+});
+
+app.get("/api/transactions", (req, res) => {
+  con.query("SELECT * FROM transactions", (err, data) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ error: "Database error" });
+    } else {
+      res.json(data);
+    }
+  });
 });
