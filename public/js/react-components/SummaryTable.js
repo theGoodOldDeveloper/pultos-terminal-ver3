@@ -43,9 +43,14 @@ const SummaryTable = () => {
     const startOfDay = new Date(today6_30.getTime() - oneDay);
     const startOfWeek = new Date(today6_30.getTime() - 6 * oneDay);
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1, 6, 30);
+
+    // Előző hónap kezelése, figyelembe véve az év váltását
+    const previousMonth = now.getMonth() === 0 ? 11 : now.getMonth() - 1;
+    const previousYear =
+      now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
     const startOfPreviousMonth = new Date(
-      now.getFullYear(),
-      now.getMonth() - 1,
+      previousYear,
+      previousMonth,
       1,
       6,
       30

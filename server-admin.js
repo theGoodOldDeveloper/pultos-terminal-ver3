@@ -652,3 +652,32 @@ app.get("/api/transactions", (req, res) => {
     }
   });
 });
+
+app.post("/api/transactions/interval", (req, res) => {
+  const { startDate, endDate } = req.body;
+  console.log("Received request for interval:", startDate, "-", endDate);
+
+  const query = `
+    SELECT * FROM transactions 
+    WHERE STR_TO_DATE(trdate, '%Y. %m. %d. %H:%i:%s') >= ? AND STR_TO_DATE(trdate, '%Y. %m. %d. %H:%i:%s') < ?
+  `;
+
+  const adjustedStartDate = new Date(startDate);
+  adjustedStartDate.setUTCHours(6, 30, 0, 0);
+
+  const adjustedEndDate = new Date(endDate);
+  adjustedEndDate.setUTCDate(adjustedEndDate.getUTCDate() + 1);
+  adjustedEndDate.setUTCHours(6, 30, 0, 0);
+
+  console.log("Adjusted dates:", adjustedStartDate, "-", adjustedEndDate);
+
+  con.query(query, [adjustedStartDate, adjustedEndDate], (err, data) => {
+    if (err) {
+      console.error("Database error:", err);
+      res.status(500).json({ error: "Database error" });
+    } else {
+      console.log("Found transactions:", data.length);
+      res.json(data);
+    }
+  });
+});
