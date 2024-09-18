@@ -33,6 +33,16 @@ const SummaryTable = () => {
     );
     const oneDay = 24 * 60 * 60 * 1000;
 
+    // Módosítás: Ellenőrizzük, hogy a jelenlegi idő 6:30 előtt vagy után van-e
+    const isAfter6_30 =
+      now.getHours() > 6 || (now.getHours() === 6 && now.getMinutes() >= 30);
+    const startOfDay = isAfter6_30
+      ? today6_30
+      : new Date(today6_30.getTime() - oneDay);
+    const endOfDay = isAfter6_30
+      ? new Date(today6_30.getTime() + oneDay)
+      : today6_30;
+
     const summary = {
       daily: { kp1: 0, kp2: 0, card: 0, kivet: 0, haszon: 0 },
       weekly: { kp1: 0, kp2: 0, card: 0, kivet: 0, haszon: 0 },
@@ -40,7 +50,6 @@ const SummaryTable = () => {
       previousMonth: { kp1: 0, kp2: 0, card: 0, kivet: 0, haszon: 0 },
     };
 
-    const startOfDay = new Date(today6_30.getTime() - oneDay);
     const startOfWeek = new Date(today6_30.getTime() - 6 * oneDay);
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1, 6, 30);
 
@@ -68,9 +77,10 @@ const SummaryTable = () => {
     transactions.forEach((transaction) => {
       const trDate = new Date(transaction.trdate);
 
-      const isToday = trDate >= startOfDay && trDate < today6_30;
-      const isThisWeek = trDate >= startOfWeek && trDate < today6_30;
-      const isThisMonth = trDate >= startOfMonth && trDate < today6_30;
+      // Módosítás: A napi adatok ellenőrzése az új időintervallummal
+      const isToday = trDate >= startOfDay && trDate < endOfDay;
+      const isThisWeek = trDate >= startOfWeek && trDate < endOfDay;
+      const isThisMonth = trDate >= startOfMonth && trDate < endOfDay;
       const isPreviousMonth =
         trDate >= startOfPreviousMonth && trDate < endOfPreviousMonth;
 

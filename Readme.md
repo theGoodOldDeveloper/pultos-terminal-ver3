@@ -9,7 +9,10 @@ TODO:
 HACK:
 BUG:
 FIXME:
-VERSION-2:
+
+VERSION-3:
+"egy nap intervalluma reggel 6 óra 30 perctől másmap reggel 6 óra 30 percig tart"
+VERSION-3:
 
 // lastTransaction: [],
 // NOTE: Ezek kellenek a forgalom adatokhoz
@@ -17,42 +20,42 @@ VERSION-2:
 q======================================================================
 termék (transaction) :HACK:
 
--   id
--   transaction number FIXME:FIXME:
--   date
--   pultos
--   fizetés: kp, kártya, hitel, leltár, beszállító kifizetés FIXME:
-    --- k: kp
-    --- m: kp2
-    --- c: bank card
-    --- h: hitel (info: kie a hitel) NOTE:
-    --- l: leltar (info: ???) NOTE:
-    --- b: beszállító kifizetés (info: kinek let kifizetve) NOTE:
-    --- o: pultos beléptetése
-    --- f: pultos kiléptetése
--   info FIXME:
-    q======================================================================
-    termék (transaction item) :HACK:
--   -   transaction number_id FIXME:FIXME:
--   termék id FIXME:
--   db FIXME:
--   adott eladási kiszereles beszar FIXME:
--   adott eladási kiszereles elar FIXME:
--   xkimeresnev id FIXME:
-    q======================================================================
--   cl: azonnali FIXME:
--   sumcl: azonnali FIXME:
-    q======================================================================
-    INFO: ha a kiszereles_id i
--   _1_ adalek (termek) id x
--   _1_ xkimeresnev id x
--   _2_ adalek (termek) id y
--   _2_ xkimeresnev id y
-    INFO: ha a kiszereles_id i
+- id
+- transaction number FIXME:FIXME:
+- date
+- pultos
+- fizetés: kp, kártya, hitel, leltár, beszállító kifizetés FIXME:
+  --- k: kp
+  --- m: kp2
+  --- c: bank card
+  --- h: hitel (info: kie a hitel) NOTE:
+  --- l: leltar (info: ???) NOTE:
+  --- b: beszállító kifizetés (info: kinek let kifizetve) NOTE:
+  --- o: pultos beléptetése
+  --- f: pultos kiléptetése
+- info FIXME:
+  q======================================================================
+  termék (transaction item) :HACK:
+- - transaction number_id FIXME:FIXME:
+- termék id FIXME:
+- db FIXME:
+- adott eladási kiszereles beszar FIXME:
+- adott eladási kiszereles elar FIXME:
+- xkimeresnev id FIXME:
+  q======================================================================
+- cl: azonnali FIXME:
+- sumcl: azonnali FIXME:
+  q======================================================================
+  INFO: ha a kiszereles_id i
+- _1_ adalek (termek) id x
+- _1_ xkimeresnev id x
+- _2_ adalek (termek) id y
+- _2_ xkimeresnev id y
+  INFO: ha a kiszereles_id i
 
--   kevert ital osszetevo
--   xkimeresnev urtartalom || 0 HACK: keszlet \* cl-ból vonódik ez a mennyiség
--   termek cl || 0 HACK: keszlet \* cl-ból vonódik ez a mennyiség
+- kevert ital osszetevo
+- xkimeresnev urtartalom || 0 HACK: keszlet \* cl-ból vonódik ez a mennyiség
+- termek cl || 0 HACK: keszlet \* cl-ból vonódik ez a mennyiség
 
 ...NOTE: átgondolni még, hogy mi kell
 ...NOTE: cl vagy darab készletcsökkentése !!! ha 2 vagy 1 vonja a cl-t
