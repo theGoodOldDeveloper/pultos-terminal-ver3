@@ -460,6 +460,7 @@ app.post("/api/updateKosarak", (req, res) => {
 
           if (item.kosarMegnevezes) {
             // Frissítés (UPDATE)
+
             updateStmt.run(
               item.db,
               item.eladottbeszar,
@@ -471,15 +472,15 @@ app.post("/api/updateKosarak", (req, res) => {
               item.aId,
               item.sumcl,
               item.cl,
+              item.termekId,
               item.kosarMegnevezes,
               item.nev,
-              item.termekId,
               function (err) {
                 if (err) {
                   console.error("Hiba a kosár frissítésekor:", err);
                 } else {
                   updateCount++;
-                  //console.log(`Frissítve: ${this.changes} sor`); // Debugging
+                  console.log(`Frissítve: ${this.changes} sor`);
                 }
               }
             );

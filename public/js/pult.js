@@ -684,7 +684,7 @@ $(".kosarak").click(function () {
             console.error("Hiba a kosarak lekérésekor:", error)
           );
       }
-      //NOTE innen
+      //NOTE innen -----------------------------
       function renderKosarak() {
         const tableBody = document.getElementById("kosarakTableBody");
         tableBody.innerHTML = "";
@@ -720,23 +720,28 @@ $(".kosarak").click(function () {
           tableBody.appendChild(row);
         });
 
-        //NOTE eddig
-
-        // Eseménykezelők hozzáadása
+        //BUG Eseménykezelők hozzáadása
         document.querySelectorAll(".kosarNevBtn").forEach((btn) => {
           btn.addEventListener("click", function () {
             const kosarMegnevezes = this.getAttribute("data-megnevezes");
             const aktualKosarNev = state.kosarNevek.find(
               (k) => k.kosarMegnevezes === kosarMegnevezes
             );
+            //console.log("kosarMegnevezes", kosarMegnevezes);
             const aktualKosarak = state.kosarak.filter(
               (k) => k.kosarMegnevezes === kosarMegnevezes
             );
+            //console.log("aktualKosarak", aktualKosarak);
+            kosarbolVisszatoltottId = state.kosarak.findIndex(
+              (k) => k.kosarMegnevezes === kosarMegnevezes
+            );
+            //console.log("kosarbolVisszatoltottId 😊", kosarbolVisszatoltottId);
             $("#kosarakModal").modal("hide");
             renderPult(aktualKosarNev, aktualKosarak);
             //console.log(aktualKosarak);
           });
         });
+        //BUG Eseménykezelők hozzáadása
 
         document.querySelectorAll(".kosaradatokBtn").forEach((btn) => {
           btn.addEventListener("click", function () {
@@ -752,7 +757,7 @@ $(".kosarak").click(function () {
           });
         });
       }
-      //NOTE innen
+      //NOTE innen -----------------------------
       function renderKosaradatok(kosarak, kosarNev) {
         const modalTitle = document.getElementById("kosaradatokModalLabel");
         modalTitle.textContent = `Kosár adatai - ${kosarNev.kosarMegnevezes}`;
@@ -1083,7 +1088,7 @@ async function insertForgalomData(
     kosarbolVisszatoltott = false;
     state.kosarak.splice(kosarbolVisszatoltottId, 1);
     state.kosarNevek.splice(kosarbolVisszatoltottId, 1);
-    kosarbolVisszatoltottId = -1;
+    kosarbolVisszatoltottId = -111;
   }
   if (foundKosar.length == 0) {
     foundKosar = false;
