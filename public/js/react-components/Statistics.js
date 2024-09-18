@@ -19,7 +19,7 @@ const Statistics = () => {
       </div>
       <SummaryTable />
       <hr />
-      <h2>Intervallum szerinti lekérdezés</h2>
+      {/* <h2>Intervallum szerinti lekérdezés</h2> */}
       <IntervalSummaryTable />
     </div>
   );

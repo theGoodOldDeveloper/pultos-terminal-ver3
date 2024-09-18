@@ -97,49 +97,94 @@ const IntervalSummaryTable = () => {
   };
 
   return (
-    <div>
-      <div className="mb-3">
-        <label htmlFor="startDate" className="form-label">
-          Kezdő dátum:
-        </label>
-        <input
-          type="date"
-          id="startDate"
-          className="form-control"
-          value={startDate}
-          onChange={(e) => setStartDate(e.target.value)}
-        />
+    <div className="container">
+      <h2 className="text-center mb-4">Intervallum szerinti lekérdezés</h2>
+      <div className="container">
+        <div className="row justify-content-center">
+          <div className="col-auto">
+            <div className="d-flex align-items-center gap-2">
+              <div className="d-flex align-items-center">
+                <label htmlFor="startDate" className="me-2 mb-0">
+                  START:
+                </label>
+                <input
+                  type="date"
+                  id="startDate"
+                  className="form-control form-control-sm"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                />
+              </div>
+              <div className="d-flex align-items-center">
+                <label htmlFor="endDate" className="me-2 mb-0">
+                  END:
+                </label>
+                <input
+                  type="date"
+                  id="endDate"
+                  className="form-control form-control-sm"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                />
+              </div>
+              <button
+                className="btn btn-secondary btn-sm"
+                onClick={fetchIntervalData}
+              >
+                mehet
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
-      <div className="mb-3">
-        <label htmlFor="endDate" className="form-label">
-          Végdátum:
-        </label>
-        <input
-          type="date"
-          id="endDate"
-          className="form-control"
-          value={endDate}
-          onChange={(e) => setEndDate(e.target.value)}
-        />
+      {/* <div className="row mb-3 g-3 align-items-end">
+        <div className="col-md-4">
+          <label htmlFor="startDate" className="form-label">
+            Kezdő dátum:
+          </label>
+          <input
+            type="date"
+            id="startDate"
+            className="form-control"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+          />
+        </div>
+        <div className="col-md-4">
+          <label htmlFor="endDate" className="form-label">
+            Végdátum:
+          </label>
+          <input
+            type="date"
+            id="endDate"
+            className="form-control"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+          />
+        </div>
+        <div className="col-md-4">
+          <button className="btn btn-primary w-100" onClick={fetchIntervalData}>
+            Lekérdezés
+          </button>
+        </div>
+      </div> */}
+      <div className="table-responsive">
+        <table className="table table-striped">
+          <thead>
+            <tr>
+              <th>Időszak</th>
+              <th className="text-right">Kp 1</th>
+              <th className="text-right">Kp 2</th>
+              <th className="text-right">Kártya</th>
+              <th className="text-right">Mindösszesen</th>
+              <th className="text-right">Kivét</th>
+              <th className="text-right">Nettó</th>
+              <th className="text-right">Haszon</th>
+            </tr>
+          </thead>
+          <tbody>{renderRow(summaryData)}</tbody>
+        </table>
       </div>
-      <button className="btn btn-primary mb-3" onClick={fetchIntervalData}>
-        Lekérdezés
-      </button>
-      <table className="table table-striped">
-        <thead>
-          <tr>
-            <th>Időszak</th>
-            <th className="text-right">Kp 1</th>
-            <th className="text-right">Kp 2</th>
-            <th className="text-right">Kártya</th>
-            <th className="text-right">Mindösszesen</th>
-            <th className="text-right">Kivét</th>
-            <th className="text-right">Nettó</th>
-            <th className="text-right">Haszon</th>
-          </tr>
-        </thead>
-        <tbody>{renderRow(summaryData)}</tbody>
-      </table>
     </div>
   );
 };
