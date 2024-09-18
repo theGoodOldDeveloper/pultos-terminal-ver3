@@ -4,6 +4,8 @@ const dotenv = require("dotenv");
 const conf = dotenv.config();
 const fs = require("fs");
 const path = require("path");
+const sqlite3 = require("sqlite3").verbose();
+const util = require("util");
 
 var port = conf.parsed.ADMINPORT;
 var mysql = require("mysql");
@@ -29,6 +31,109 @@ con.connect(function (err) {
   if (err) throw err;
 });
 /* ***************************************** */
+/* ***************************************** */
+
+async function startSQLiteServer() {
+  try {
+    await openDatabase();
+    await initializeDatabase();
+  } catch (error) {
+    console.error("Nem sikerült elindítani a szervert:", error);
+    process.exit(1);
+  }
+}
+/* ***************************************** */
+/* FIXME:FIXME SQLITE counters.db */
+const dbPath = path.resolve(__dirname, "counters.db");
+let db;
+startSQLiteServer();
+function openDatabase() {
+  return new Promise((resolve, reject) => {
+    db = new sqlite3.Database(
+      dbPath,
+      sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE,
+      (err) => {
+        if (err) {
+          console.error("Hiba az adatbázis megnyitásakor:", err.message);
+          reject(err);
+        } else {
+          //console.log("Kapcsolódva a counters.db adatbázishoz.");
+          resolve(db);
+        }
+      }
+    );
+  });
+}
+
+function initializeDatabase() {
+  return new Promise((resolve, reject) => {
+    db.serialize(() => {
+      db.run(
+        `CREATE TABLE IF NOT EXISTS counters (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        type TEXT UNIQUE,
+        count INTEGER,
+        date TEXT
+      )`,
+        (err) => {
+          if (err) {
+            console.error("Hiba a tábla létrehozásakor:", err.message);
+            reject(err);
+            return;
+          }
+          //console.log("A counters tábla ellenőrizve/létrehozva.");
+
+          const types = ["KÁV", "JÁT", "CSO", "BIL", "SÖR"];
+          const stmt = db.prepare(
+            "INSERT OR IGNORE INTO counters (type, count, date) VALUES (?, ?, ?)"
+          );
+
+          types.forEach((type) => {
+            stmt.run(type, 0, new Date().toISOString());
+          });
+
+          stmt.finalize((err) => {
+            if (err) {
+              console.error("Hiba az adatok inicializálásakor:", err.message);
+              reject(err);
+            } else {
+              //console.log("A counters tábla inicializálva.");
+              resolve();
+            }
+          });
+        }
+      );
+    });
+  });
+}
+
+app.get("/api/counters", async (req, res) => {
+  db.all("SELECT * FROM counters", [], (err, rows) => {
+    if (err) {
+      console.error("Hiba a lekérdezés során:", err.message);
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    //console.log("Lekért adatok:", rows);
+    res.json(rows);
+  });
+});
+
+app.post("/api/update", async (req, res) => {
+  const { type, count } = req.body;
+  db.run(
+    "UPDATE counters SET count = ?, date = ? WHERE type = ?",
+    [count, new Date().toISOString(), type],
+    function (err) {
+      if (err) {
+        console.error("Hiba a frissítés során:", err.message);
+        res.status(500).json({ error: err.message });
+        return;
+      }
+      res.json({ message: "Számláló sikeresen frissítve" });
+    }
+  );
+});
 /* INFO:INFO: DATABESE connection INFO:INFO: */
 
 /* INFO: induló login képernyő */
@@ -56,6 +161,18 @@ app.get("/laststockdata", (req, res) => {
   res.sendFile(path.join(__dirname, "/lastLeltar.txt"));
 });
 
+/* INFO: számlálók */
+app.get("/api/counters", async (req, res) => {
+  db.all("SELECT * FROM counters", [], (err, rows) => {
+    if (err) {
+      console.error("Hiba a lekérdezés során:", err.message);
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    //console.log("Lekért adatok:", rows);
+    res.json(rows);
+  });
+});
 /* INFO: kosarak */
 app.get("/getStoreDataKosarak", (req, res) => {
   try {

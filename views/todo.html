@@ -1,140 +1,249 @@
 <!DOCTYPE html>
 <html lang="hu">
-
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Termekek</title>
-    <link href="bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="style-admin.css">
-</head>
+    <link href="bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="style-admin.css" />
+  </head>
 
-<body>
-
+  <body>
     <!-- NOTE: felső fix sav -->
     <div class="container-fluid">
-        <nav class="fixed-top navbar navbar-expand-sm bg-light navbar-dark d-flex justify-content-around">
-            <div>
-                <form action="/alapanyagok">
-                    <button type="submit" class="btn btn-info ">Alapanyagok</button>
-                </form>
-                <!-- <form action=""> -->
-            </div>
-            <div>
-                <!-- <form action="/termekek" method="get"> -->
-                <form action="/termekek-adatlap" method="get">
-                    <button type="submit" class="btn btn-info ">Termék adatok
-                    </button>
-                </form>
-            </div>
-            <div>
-                <form action="/admin" method="get">
-                    <button type="submit" class="btn btn-danger">Teendők</button>
-                </form>
-            </div>
-            <div>
-                <form action="/statistics" method="get">
-                    <button type="submit" class="btn btn-info">Statisztikák</button>
-                </form>
-            </div>
-            <div>
-                <form action="/forgalom" method="get">
-                    <button type="submit" class="btn btn-info ">Forgalom</button>
-                </form>
-            </div>
+      <nav
+        class="fixed-top navbar navbar-expand-sm bg-light navbar-dark d-flex justify-content-around"
+      >
+        <div>
+          <form action="/alapanyagok">
+            <button type="submit" class="btn btn-info">Alapanyagok</button>
+          </form>
+          <!-- <form action=""> -->
+        </div>
+        <div>
+          <!-- <form action="/termekek" method="get"> -->
+          <form action="/termekek-adatlap" method="get">
+            <button type="submit" class="btn btn-info">Termék adatok</button>
+          </form>
+        </div>
+        <div>
+          <form action="/admin" method="get">
+            <button type="submit" class="btn btn-danger">Teendők</button>
+          </form>
+        </div>
+        <div>
+          <form action="/statistics" method="get">
+            <button type="submit" class="btn btn-info">Statisztikák</button>
+          </form>
+        </div>
+        <div>
+          <form action="/forgalom" method="get">
+            <button type="submit" class="btn btn-info">Forgalom</button>
+          </form>
+        </div>
 
-            <div>
-                <form action="/visibleOrder" method="get">
-
-                    <button class="btn btn-dark " id="visibleOrder">Sorrend változtatás</button>
-                </form>
-            </div>
-            <div>
-                <form action="/pultosokadmin" method="get">
-                    <button type="submit" class="btn btn-dark ">Pultos admin</button>
-                </form>
-            </div>
-            <div>
-                <form action="/" method="get">
-                    <button type="submit" class="btn btn-danger ">Kilépés</button>
-                </form>
-            </div>
-        </nav>
-        <br><br><br><br>
-        <div id="adatok"></div>
+        <div>
+          <form action="/visibleOrder" method="get">
+            <button class="btn btn-dark" id="visibleOrder">
+              Sorrend változtatás
+            </button>
+          </form>
+        </div>
+        <div>
+          <form action="/pultosokadmin" method="get">
+            <button type="submit" class="btn btn-dark">Pultos admin</button>
+          </form>
+        </div>
+        <div>
+          <form action="/" method="get">
+            <button type="submit" class="btn btn-danger">Kilépés</button>
+          </form>
+        </div>
+      </nav>
+      <br /><br /><br /><br />
+      <div id="adatok"></div>
     </div>
     <!-- VERSION-2: -->
 
     <div id="newTermek">
-        <!-- FIXME:FIXME:FIXME:FIXME:FIXME: -->
-        <div class="container text-center">
-            <h2>Napi teendők hozzáadása</h2>
-            <table class="table table-striped table-bordered text-center" style="table-layout: fixed;
-            width: 100%; ">
-                <br>
-                <br>
-                <thead>
-                    <tr>
-                        <th><button type="button" class="btn btn-secondary zizi" id="1">HÉTFŐ</button></th>
-                        <th><button type="button" class="btn btn-secondary zizi" id="2">KEDD</button></th>
-                        <th><button type="button" class="btn btn-secondary zizi" id="3">SZERDA</button></th>
-                        <th><button type="button" class="btn btn-secondary zizi" id="4">CSÜTÖRTÖK</button></th>
-                        <th><button type="button" class="btn btn-secondary zizi" id="5">PÉNTEK</button></th>
-                        <th><button type="button" class="btn btn-secondary zizi" id="6">SZOMBAT</button></th>
-                        <th><button type="button" class="btn btn-secondary zizi" id="0">VASÁRNAP</button></th>
-                    </tr>
-                </thead>
-                <tbody id="todoData" style="width: 50px">
-                </tbody>
-            </table>
-            <div id="todoDataxxx"></div>
-        </div>
-        <!-- FIXME:FIXME:FIXME:FIXME:FIXME: -->
-        <!-- The Modal -->
-        <div class="modal fade" id="myModal">
-            <div class="modal-dialog">
-                <div class="modal-content">
-
-                    <!-- Modal Header -->
-                    <div class="modal-header">
-                        <h4 class="modal-title">Ird be a napi teendőt!</h4>
-                        <button type="button" class="close" data-dismiss="modal">×</button>
-                    </div>
-
-                    <!-- Modal body -->
-                    <div class="modal-body">
-                        <input type="text" id="todoDayData">
-                    </div>
-
-                    <!-- Modal footer -->
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-danger" data-dismiss="modal"
-                            onclick="newTodoDayData()">Close</button>
-                    </div>
-
-                </div>
+      <!-- FIXME:FIXME:FIXME:FIXME:FIXME: -->
+      <div class="container text-center">
+        <h2>Napi teendők hozzáadása</h2>
+        <table
+          class="table table-striped table-bordered text-center"
+          style="table-layout: fixed; width: 100%"
+        >
+          <br />
+          <br />
+          <thead>
+            <tr>
+              <th>
+                <button type="button" class="btn btn-secondary zizi" id="1">
+                  HÉTFŐ
+                </button>
+              </th>
+              <th>
+                <button type="button" class="btn btn-secondary zizi" id="2">
+                  KEDD
+                </button>
+              </th>
+              <th>
+                <button type="button" class="btn btn-secondary zizi" id="3">
+                  SZERDA
+                </button>
+              </th>
+              <th>
+                <button type="button" class="btn btn-secondary zizi" id="4">
+                  CSÜTÖRTÖK
+                </button>
+              </th>
+              <th>
+                <button type="button" class="btn btn-secondary zizi" id="5">
+                  PÉNTEK
+                </button>
+              </th>
+              <th>
+                <button type="button" class="btn btn-secondary zizi" id="6">
+                  SZOMBAT
+                </button>
+              </th>
+              <th>
+                <button type="button" class="btn btn-secondary zizi" id="0">
+                  VASÁRNAP
+                </button>
+              </th>
+            </tr>
+          </thead>
+          <tbody id="todoData" style="width: 50px"></tbody>
+        </table>
+        <div id="todoDataxxx"></div>
+        <h3>A söröshordók felsorolása:</h3>
+        <div id="sorosHordoData"></div>
+      </div>
+      <!-- FIXME:FIXME:FIXME:FIXME:FIXME: -->
+      <!-- The Modal -->
+      <div class="modal fade" id="myModal">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+              <h4 class="modal-title">Ird be a napi teendőt!</h4>
+              <button type="button" class="close" data-dismiss="modal">
+                ×
+              </button>
             </div>
-        </div>
 
+            <!-- Modal body -->
+            <div class="modal-body">
+              <input type="text" id="todoDayData" />
+            </div>
+
+            <!-- Modal footer -->
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-danger"
+                data-dismiss="modal"
+                onclick="newTodoDayData()"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="container">
-        <br><br><br><br><br>
-        <table class="table table-striped table-bordered text-center">
-            <thead>
-                <tr>
-                    <th>Elnevezés</th>
-                    <th>Jelenlegi</th>
-                    <th>Előző</th>
-                    <th>Különbség</th>
-                </tr>
-            </thead>
-            <tbody id="otherData" style="width: 50px">
-            </tbody>
+      <br /><br /><br /><br /><br />
+      <table class="table table-striped table-bordered text-center">
+        <thead>
+          <tr>
+            <th>Elnevezés</th>
+            <th>Darab</th>
+            <th>Dátum</th>
+            <!-- <th>Különbség</th> -->
+          </tr>
+        </thead>
+        <tbody id="otherData" style="width: 50px"></tbody>
 
-            <!-- <div id="otherData"></div> -->
-        </table>
+        <!-- <div id="otherData"></div> -->
+      </table>
+    </div>
+
+    <!--//HACK: Modal -->
+    <div
+      id="egyebModal"
+      class="modal fade"
+      tabindex="-1"
+      aria-labelledby="egyebModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="egyebModalLabel">Számlálók</h5>
+            <!-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> -->
+            <button type="button" class="close" data-dismiss="modal">
+              &times;
+            </button>
+          </div>
+          <div class="modal-body">
+            <div id="counterButtons" class="text-center"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="counterModal"
+      class="modal fade"
+      tabindex="-1"
+      aria-labelledby="counterModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="counterModalLabel">
+              Számláló Frissítése
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="counterForm">
+              <div class="mb-3">
+                <label for="counterValue" class="form-label">Új érték:</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="counterValue"
+                  required
+                />
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              id="closeCounter"
+              data-bs-dismiss="modal"
+            >
+              Bezárás
+            </button>
+            <button type="button" class="btn btn-primary" id="saveCounter">
+              Mentés
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <script src="jquery.slim.min.js"></script>
@@ -142,6 +251,5 @@
     <script src="bootstrap.bundle.min.js"></script>
     <!-- INFO: EZ A JS NEM UZEMEL 😁 <script src="admin.js"></script> -->
     <script src="todo.js"></script>
-</body>
-
+  </body>
 </html>
