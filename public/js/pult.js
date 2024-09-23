@@ -119,6 +119,7 @@ const state = {
   pult: [],
   kosarak: [],
   kosarNevek: [],
+  kosarNevekOnly: [],
   fullTransactionsHitel: [],
   osszetevok: [],
   alapanyagok: [],
@@ -139,7 +140,7 @@ var foundKosar = false;
 var kosarbolVisszatoltott = false;
 var cantBeZeroValue = false;
 var kosarbolVisszatoltottId = -1;
-var kosarMegnevezes = "*";
+var kosarMegnevezes = "";
 
 getdata();
 
@@ -528,28 +529,89 @@ function naTegyukEgyUjKosarba() {
       kosarbolVisszatoltott = false;
       kosarbolVisszatoltottId = -1;
     } else {
+      //BUG-----------------------------------------------------
+
+      // Function to fetch data from the server
+      async function fetchKosarNevek() {
+        try {
+          const response = await fetch("/api/onlykosarnevek");
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          const data = await response.json();
+          return data;
+        } catch (error) {
+          console.error("There was a problem with the fetch operation:", error);
+        }
+      }
+
+      // Function to show the modal with fetched data
+      async function showKosarMegnevezesModal() {
+        // Fetch data from the server
+        const kosarNevek = await fetchKosarNevek();
+        if (kosarNevek) {
+          // Update the state with fetched data
+          state.kosarNevekOnly = kosarNevek;
+
+          // Update the modal body with fetched data
+          const kosarNevekDiv = document.getElementById(
+            "kosarMegnevezesModalNev"
+          );
+          kosarNevekDiv.innerHTML = state.kosarNevekOnly.join(" - ");
+
+          // Show the modal
+          $("#kosarMegnevezesModal").modal();
+        }
+      }
+
+      // Function to handle keyboard clicks
+      function handleKeyboardClick() {
+        const closeButton = document.getElementById(
+          "closeKosarMegnevezesButton"
+        );
+        if (kosarMegnevezes === "") {
+          closeButton.disabled = true;
+          console.log("kosarMegnevezes 🤔🤔🤔", kosarMegnevezes);
+        }
+        $(".keyboard").off("click");
+        $(".keyboard").on("click", function () {
+          const inputKey = this.value;
+
+          if (inputKey === "") {
+            kosarMegnevezes = kosarMegnevezes.substring(
+              0,
+              kosarMegnevezes.length - 1
+            );
+            console.log("kosarMegnevezes 🤔🤔", kosarMegnevezes);
+          } else {
+            kosarMegnevezes += inputKey;
+            console.log("kosarMegnevezes 🤔", kosarMegnevezes);
+          }
+
+          console.log("kosarMegnevezes:", kosarMegnevezes);
+
+          document.querySelector("#kosarMegnevezesId").value = kosarMegnevezes;
+
+          // Check if the button should be enabled or disabled
+          if (
+            kosarMegnevezes === "" ||
+            state.kosarNevekOnly.includes(kosarMegnevezes)
+          ) {
+            closeButton.disabled = true;
+          } else {
+            closeButton.disabled = false;
+          }
+        });
+      }
+
+      // Call the function to show the modal and handle keyboard clicks
       document.querySelector("#kosarMegnevezesId").value = "";
       kosarMegnevezes = "";
-      $("#kosarMegnevezesModal").modal();
       document.getElementById("keyboardTemplateKosar").innerHTML =
         keyboardTemplateHTML;
-      $(".keyboard").off("click");
-      $(".keyboard").on("click", function () {
-        inputKey = "";
-        inputKey = this.id;
-        inputKey = this.value;
-        //VERSION-2:
-        if (inputKey == "") {
-          kosarMegnevezes = kosarMegnevezes.substring(
-            0,
-            kosarMegnevezes.length - 1
-          );
-        } else {
-          kosarMegnevezes += inputKey;
-        }
-        //VERSION-2:
-        document.querySelector("#kosarMegnevezesId").value = kosarMegnevezes;
-      });
+      showKosarMegnevezesModal().then(handleKeyboardClick);
+
+      //BUG-----------------------------------------------------
     }
   }
 
@@ -558,6 +620,7 @@ function naTegyukEgyUjKosarba() {
 
 /* TODO:TODO:TODO: KOSAR NEVET KAP ES TAROL TODO:TODO:TODO: */
 function kosarNevSzerintiTarolas() {
+  console.log("kosarMegnevezes: 😈", kosarMegnevezes);
   const validKosarak = state.pult.filter((item) => item !== null);
   if (validKosarak.length > 0) {
     const newKosarNev = {

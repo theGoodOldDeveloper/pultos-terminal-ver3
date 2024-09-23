@@ -234,23 +234,34 @@
                         <!-- Modal Header -->
                         <div class="modal-header">
                             <h4 class="modal-title">Mi legyen a neve a kosárnak_</h4>
+                            
                             <button type="button" class="close" data-dismiss="modal">&times;</button>
                         </div>
-
+                        
                         <!-- Modal body -->
                         <div class="modal-body">
+                            <div>
+                                <h6 id="kosarMegnevezesModalNev">kosarMegnevezesModalNev</h6>
+                            </div>
                             <label for="kosarMegnevezes">Kosárnév :</label><br>
                             <input type="text" id="kosarMegnevezesId" name="kosarMegnevezes">
+                            
                             <div>
                                 <div id="keyboardTemplateKosar"></div>
                             </div>
                         </div>
-
+                        <!-- //BUG----------------------------------------------------- -->
                         <!-- Modal footer -->
                         <div class="modal-footer">
-                            <button type="submit" class="btn btn-success" data-dismiss="modal" id=""
-                                onclick="kosarNevSzerintiTarolas()">Close</button>
-                        </div>
+                            <button type="submit" class="btn btn-success" data-dismiss="modal" id="closeKosarMegnevezesButton"
+                              onclick="kosarNevSzerintiTarolas()">Kosarat menteni</button>
+                          </div>
+                        <!-- <div class="modal-footer">
+                            
+                            <button type="submit" class="btn btn-success" data-dismiss="modal" id="closeKosarMegnevezesButton"
+                            onclick="kosarNevSzerintiTarolas()"  >Kosarat menteni</button>
+                        </div> -->
+                        <!-- //BUG----------------------------------------------------- -->
 
                     </div>
                 </div>

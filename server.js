@@ -226,7 +226,16 @@ kosarakDb.serialize(() => {
 });
 /* FIXME:FIXME SQLITE kosarak.db */
 
-// POST: Kosárnév létrehozása kosarakkal együtt
+// GET: Csak kosárnevek lekérése
+app.get("/api/onlykosarnevek", (req, res) => {
+  kosarakDb.all("SELECT kosarMegnevezes FROM kosarnevek", (err, rows) => {
+    if (err) {
+      console.error("Hiba a kosárnevek lekérdezésekor:", err.message);
+      return res.status(500).json({ error: err.message });
+    }
+    res.json(rows.map((row) => row.kosarMegnevezes));
+  });
+});
 app.post("/api/kosarnevek", (req, res) => {
   //console.log("Beérkező teljes request body:");
   //console.log(JSON.stringify(req.body, null, 2));
@@ -407,9 +416,11 @@ app.get("/api/kosarnevek", (req, res) => {
   );
 });
 
+//BUG-----------------------------------------------------
 // PUT: Kosárnév és kosarak frissítése
 aktualKosarThisIdGlobal = [56];
 aktualKosarNevThisIdGlobal = 28;
+//BUG-----------------------------------------------------
 
 app.post("/api/updateKosarak", (req, res) => {
   const { state, aktualKosarThisIdGlobal, aktualKosarNevThisIdGlobal } =

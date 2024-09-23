@@ -1,3 +1,8 @@
+###########
+# psw.txt #
+# env     #
+###########
+
 ## (BAF) SSH pultos terminal
 
 # database: alapanyagok.emailsend -> betétdíjas-e 😊

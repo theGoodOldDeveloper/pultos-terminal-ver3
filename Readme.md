@@ -1,3 +1,13 @@
+######################
+
+# psw.txt
+
+# env
+
+# kosarakdb.sqlite
+
+######################
+
 pult.js 488
 admin.js 9
 pultosok-admin.js 64
