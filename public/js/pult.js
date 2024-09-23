@@ -440,9 +440,9 @@ function renderPult(aktualKosarNev, aktualKosarak) {
 function termekKeszletModositas(sendData, muvelet) {
   //console.log("sendData, muvelet", sendData, muvelet);
   for (osszetevo of state.osszetevok) {
-    //BUG- termekId
+    //HACK - termekId
     if (osszetevo.termek_id == sendData.termekId) {
-      //BUG
+      //HACK
       sendData.aId = osszetevo.alapanyag_id; //HACK:
       sendData.sumcl =
         Math.round(aKeszletsum[osszetevo.alapanyag_id] * 100) / 100; //HACK:
@@ -529,7 +529,7 @@ function naTegyukEgyUjKosarba() {
       kosarbolVisszatoltott = false;
       kosarbolVisszatoltottId = -1;
     } else {
-      //BUG-----------------------------------------------------
+      //HACK-----------------------------------------------------
 
       // Function to fetch data from the server
       async function fetchKosarNevek() {
@@ -571,7 +571,6 @@ function naTegyukEgyUjKosarba() {
         );
         if (kosarMegnevezes === "") {
           closeButton.disabled = true;
-          console.log("kosarMegnevezes 🤔🤔🤔", kosarMegnevezes);
         }
         $(".keyboard").off("click");
         $(".keyboard").on("click", function () {
@@ -582,13 +581,9 @@ function naTegyukEgyUjKosarba() {
               0,
               kosarMegnevezes.length - 1
             );
-            console.log("kosarMegnevezes 🤔🤔", kosarMegnevezes);
           } else {
             kosarMegnevezes += inputKey;
-            console.log("kosarMegnevezes 🤔", kosarMegnevezes);
           }
-
-          console.log("kosarMegnevezes:", kosarMegnevezes);
 
           document.querySelector("#kosarMegnevezesId").value = kosarMegnevezes;
 
@@ -611,7 +606,7 @@ function naTegyukEgyUjKosarba() {
         keyboardTemplateHTML;
       showKosarMegnevezesModal().then(handleKeyboardClick);
 
-      //BUG-----------------------------------------------------
+      //HACK-----------------------------------------------------
     }
   }
 
@@ -620,7 +615,6 @@ function naTegyukEgyUjKosarba() {
 
 /* TODO:TODO:TODO: KOSAR NEVET KAP ES TAROL TODO:TODO:TODO: */
 function kosarNevSzerintiTarolas() {
-  console.log("kosarMegnevezes: 😈", kosarMegnevezes);
   const validKosarak = state.pult.filter((item) => item !== null);
   if (validKosarak.length > 0) {
     const newKosarNev = {
@@ -656,7 +650,7 @@ function createKosarWithItems(kosarnev, termekek) {
     kosarMegnevezesPultosKod: kosarnev.kosarMegnevezesPultosKod,
     termekek: termekek,
   };
-  //BUG - alarm -> fetch("/api/kosarnevek" vs. lásd egy sorral lejjebb
+
   fetch("/api/kosarak", {
     method: "POST",
     headers: {
@@ -783,7 +777,7 @@ $(".kosarak").click(function () {
           tableBody.appendChild(row);
         });
 
-        //BUG Eseménykezelők hozzáadása
+        //HACK Eseménykezelők hozzáadása
         document.querySelectorAll(".kosarNevBtn").forEach((btn) => {
           btn.addEventListener("click", function () {
             const kosarMegnevezes = this.getAttribute("data-megnevezes");
@@ -804,7 +798,7 @@ $(".kosarak").click(function () {
             //console.log(aktualKosarak);
           });
         });
-        //BUG Eseménykezelők hozzáadása
+        //HACK Eseménykezelők hozzáadása
 
         document.querySelectorAll(".kosaradatokBtn").forEach((btn) => {
           btn.addEventListener("click", function () {
@@ -921,7 +915,7 @@ function visszajaro(trFizetesMod, saldo, alkotmanyosToday) {
   ).toLocaleString("hu-HU")}</h3>`;
 }
 
-//BUG:BUG:BUG:BUG:BUG:BUG: -
+//HACK -
 async function hogyanTovabb(trFizetesMod, megjegyzes) {
   const buttonPressed = await waitForButtonPress();
   if (buttonPressed == 2) {
@@ -959,7 +953,7 @@ async function example() {
   const buttonPressed = await waitForButtonPress();
 }
 
-//BUG:BUG:BUG:BUG:BUG:BUG: -
+//HACK -
 
 function reset() {
   location.reload();
@@ -1081,7 +1075,7 @@ function createTranactionData(
     });
     renderGetdata();
     hitelStateRender();
-    renderPult(); //BUG
+    renderPult();
   }
   async function updateLastId() {
     var response = await fetch("/lasttransactionid");
