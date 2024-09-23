@@ -2,12 +2,13 @@
 
 # psw.txt
 
-# env
+# .env
 
 # kosarakdb.sqlite
 
 ######################
 
+$(".kosarak").click(function ()
 pult.js 488
 admin.js 9
 pultosok-admin.js 64

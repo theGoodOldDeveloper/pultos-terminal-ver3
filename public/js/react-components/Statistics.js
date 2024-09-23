@@ -2,6 +2,7 @@ import React from "react";
 import Navbar from "./Navbar";
 import SummaryTable from "./SummaryTable";
 import IntervalSummaryTable from "./IntervalSummaryTable";
+import KosarakForgalom from "./KosarakForgalom";
 
 const Statistics = () => {
   return (
@@ -21,6 +22,7 @@ const Statistics = () => {
       <hr />
       {/* <h2>Intervallum szerinti lekérdezés</h2> */}
       <IntervalSummaryTable />
+      <KosarakForgalom />
     </div>
   );
 };

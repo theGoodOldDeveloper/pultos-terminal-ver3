@@ -689,6 +689,7 @@ $(".kosarak").click(function () {
       "Előbb a pulton lévő termékeket vagy fizettesd ki, vagy tedd a kosárba, de a pultnak üresnek kell lenni, hogy visszatölts egy kosarat!"
     );
   } else {
+    //BUG COPY PASTE
     foundKosar = state.kosarak.length > 0 ? true : false;
     if (foundKosar) {
       oldKosarNevek = [];
@@ -858,6 +859,7 @@ $(".kosarak").click(function () {
 
       showKosarakModal();
     }
+    //BUG COPY PASTE
   }
   foundKosar = state.kosarak.length > 0 ? true : false;
 });

@@ -10,6 +10,7 @@ const util = require("util");
 var port = conf.parsed.ADMINPORT;
 var mysql = require("mysql");
 const app = express();
+const kosarakDb = new sqlite3.Database("./kosarakdb.sqlite");
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -18,6 +19,11 @@ app.use(express.static("public"));
 app.use(express.static("public/js"));
 app.use(express.static("public/css"));
 app.use(express.static("public/img"));
+app.use(express.urlencoded({ extended: true }));
+/* app.use((req, res, next) => {
+  console.log(`${req.method} kérés érkezett a ${req.url} útvonalra`);
+  next();
+}); */
 
 /* INFO:INFO: DATABESE connection INFO:INFO: */
 /* ***************************************** */
@@ -43,6 +49,76 @@ async function startSQLiteServer() {
   }
 }
 /* ***************************************** */
+/* BUG: SQLITE kosarakdb.sqlite */
+// DELETE: Kosárnév és hozzá tartozó kosarak törlése
+/* app.delete("/api/kosarnevek/:id", (req, res) => {
+  const kosarId = req.params.id;
+
+  kosarakDb.run("DELETE FROM kosarnevek WHERE id = ?", kosarId, function (err) {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    // Ha vannak kapcsolódó rekordok a kosarak táblában, azokat is törölni kell
+    kosarakDb.run(
+      "DELETE FROM kosarak WHERE kosarnev_id = ?",
+      kosarId,
+      function (err) {
+        if (err) {
+          return res.status(500).json({ error: err.message });
+        }
+        res.json({ message: "Kosár sikeresen törölve", changes: this.changes });
+      }
+    );
+  });
+}); */
+/* BUG: SQLITE kosarakdb.sqlite */
+app.get("/api/kosarnevek", (req, res) => {
+  kosarakDb.all(
+    `SELECT kn.*, k.* 
+          FROM kosarnevek kn 
+          LEFT JOIN kosarak k ON kn.id = k.kosarnev_id`,
+    (err, rows) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      const result = rows.reduce((acc, row) => {
+        if (!acc[row.id]) {
+          acc[row.id] = {
+            id: row.id,
+            kosarMegnevezes: row.kosarMegnevezes,
+            kosarMegnevezesIndex: row.kosarMegnevezesIndex,
+            kosarMegnevezesPultosNeve: row.kosarMegnevezesPultosNeve,
+            kosarMegnevezesPultosKod: row.kosarMegnevezesPultosKod,
+            thisId: row.kosarnev_id,
+            kosarak: [],
+          };
+        }
+        if (row.kosarnev_id) {
+          acc[row.id].kosarak.push({
+            id: row.kosarnev_id, // Ez a kosár egyedi azonosítója
+            nev: row.nev,
+            db: row.db,
+            eladottbeszar: row.eladottbeszar,
+            eladottelar: row.eladottelar,
+            fizetesmod: row.fizetesmod,
+            transactionnumber: row.transactionnumber,
+            megjegyzes: row.megjegyzes,
+            datum: row.datum,
+            aId: row.aId,
+            sumcl: row.sumcl,
+            cl: row.cl,
+            thisId: row.id,
+            termekId: row.termekId,
+          });
+        }
+        return acc;
+      }, {});
+
+      res.json(Object.values(result));
+    }
+  );
+});
+/* BUG: SQLITE kosarakdb.sqlite */
 /* FIXME:FIXME SQLITE counters.db */
 const dbPath = path.resolve(__dirname, "counters.db");
 let db;
