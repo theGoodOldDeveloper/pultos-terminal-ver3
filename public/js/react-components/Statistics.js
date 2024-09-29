@@ -3,6 +3,7 @@ import Navbar from "./Navbar";
 import SummaryTable from "./SummaryTable";
 import IntervalSummaryTable from "./IntervalSummaryTable";
 import KosarakForgalom from "./KosarakForgalom";
+import WorkTime from "./WorkTime";
 
 const Statistics = () => {
   return (
@@ -20,9 +21,9 @@ const Statistics = () => {
       </div>
       <SummaryTable />
       <hr />
-      {/* <h2>Intervallum szerinti lekérdezés</h2> */}
       <IntervalSummaryTable />
       <KosarakForgalom />
+      <WorkTime />
     </div>
   );
 };

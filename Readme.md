@@ -6,6 +6,10 @@
 
 # kosarakdb.sqlite
 
+# counters.db
+
+npm install axios
+
 ######################
 
 $(".kosarak").click(function ()
@@ -44,6 +48,7 @@ termék (transaction) :HACK:
   --- b: beszállító kifizetés (info: kinek let kifizetve) NOTE:
   --- o: pultos beléptetése
   --- f: pultos kiléptetése
+  --- s: hordó csere !!! beégetve termék 1, 2, 3 (500cl, 300cl, 200cl: korsó, pohár, pikolo) !!!
 - info FIXME:
   q======================================================================
   termék (transaction item) :HACK:

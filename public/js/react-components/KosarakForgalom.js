@@ -46,7 +46,7 @@ function KosarakForgalom() {
   };
 
   return (
-    <div className="text-center">
+    <div className="text-center m-4">
       <Button onClick={handleKosarakForgalom}>Kosarak forgalom</Button>
       <KosarakModal
         show={showKosarakModal}

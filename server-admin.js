@@ -49,7 +49,88 @@ async function startSQLiteServer() {
   }
 }
 /* ***************************************** */
-/* BUG: SQLITE kosarakdb.sqlite */
+//BUG: Hordócsere
+// Hordócsere API útvonal
+app.get("/api/hordocsere", (req, res) => {
+  const query = `
+    SELECT * FROM transactions 
+    WHERE trfizetesmod = 's'
+    ORDER BY id DESC
+    LIMIT 10
+  `;
+
+  con.query(query, (err, data) => {
+    if (err) {
+      console.error("Database error:", err);
+      res.status(500).json({ error: "Database error" });
+    } else {
+      res.json(data);
+    }
+  });
+});
+// API útvonal a csapolt termékek lekérdezéséhez
+app.get("/api/csapolttermekek", (req, res) => {
+  const oneYearAgo = new Date();
+  oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
+  const query = `
+    SELECT * FROM forgalom 
+    WHERE termekid IN (1, 2, 3)
+    AND STR_TO_DATE(eladottdate, '%Y. %m. %d. %H:%i:%s') >= ?
+    ORDER BY eladottdate DESC
+  `;
+
+  con.query(query, [oneYearAgo], (err, data) => {
+    if (err) {
+      console.error("Database error:", err);
+      res.status(500).json({ error: "Database error" });
+    } else {
+      res.json(data);
+    }
+  });
+});
+
+//BUG: Hordócsere
+/* ***************************************** */
+// HACK: WorkTime
+// Új útvonal a WorkTime adatok lekéréséhez
+app.get("/api/worktime", (req, res) => {
+  const currentDate = new Date();
+  const firstDayOfLastMonth = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth() - 1,
+    1
+  );
+  const lastDayOfCurrentMonth = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth() + 1,
+    0
+  );
+
+  const query = `
+    SELECT * FROM transactions 
+    WHERE megjegyzes = 'workTime' 
+    AND STR_TO_DATE(trdate, '%Y. %m. %d. %H:%i:%s') >= ?
+    AND STR_TO_DATE(trdate, '%Y. %m. %d. %H:%i:%s') <= ?
+    ORDER BY trdate ASC
+  `;
+
+  con.query(
+    query,
+    [firstDayOfLastMonth, lastDayOfCurrentMonth],
+    (err, data) => {
+      if (err) {
+        console.error("Database error:", err);
+        res.status(500).json({ error: "Database error" });
+      } else {
+        res.json(data);
+      }
+    }
+  );
+});
+// HACK: WorkTime
+/* ***************************************** */
+/* HACK: SQLITE kosarakdb.sqlite */
 // DELETE: Kosárnév és hozzá tartozó kosarak törlése
 /* app.delete("/api/kosarnevek/:id", (req, res) => {
   const kosarId = req.params.id;
@@ -71,7 +152,7 @@ async function startSQLiteServer() {
     );
   });
 }); */
-/* BUG: SQLITE kosarakdb.sqlite */
+/* HACK: SQLITE kosarakdb.sqlite */
 app.get("/api/kosarnevek", (req, res) => {
   kosarakDb.all(
     `SELECT kn.*, k.* 
@@ -118,7 +199,7 @@ app.get("/api/kosarnevek", (req, res) => {
     }
   );
 });
-/* BUG: SQLITE kosarakdb.sqlite */
+/* HACK: SQLITE kosarakdb.sqlite */
 /* FIXME:FIXME SQLITE counters.db */
 const dbPath = path.resolve(__dirname, "counters.db");
 let db;

@@ -299,6 +299,7 @@ cron.schedule("0 9 * * 1", () => {
     //sendMailDataCopy(sendTextRequired, sendHTML, templateTime);
 });
 /* =========================================================================== */
+/*BUG =========================================================================== */
 /* ================= minden hónap 1. napja 09 órakor INFO: HAVI INFO: ================= */
 cron.schedule("5 8 1 * *", () => {
     //VERSION-2:INFO:TODO:INFO:VERSION-2:
@@ -333,7 +334,7 @@ cron.schedule("5 9 1 * *", () => {
     let sendHTML = `<strong>madeIn SUSUSOFT with Node.js C2022</strong><br>emilsender is OK😊${templateText}😊`
     sendMailData(sendTextRequired, sendHTML, templateTime);
 }); */
-/* =========================================================================== */
+/*BUG =========================================================================== */
 
 function sendMailData(sendTextRequired, sendHTML, templateTime) {
     //var sendTextRequired = "required";
@@ -609,12 +610,13 @@ function dailyCriticCalculation() {
     </div>`
     return sendDailyHTML
 }
-
+//BUG =========================================================================== */
 function monthlySalesCalculation() {
     let sendMonthlyHTML = beforeMonthSales()
     return sendMonthlyHTML
 }
 
+//BUG =========================================================================== */
 function beforeMonthSales() {
     var fullWorkTimeARRAY = []
     var pultosHTML = ''
