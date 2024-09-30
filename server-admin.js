@@ -68,14 +68,14 @@ app.get("/api/hordocsere", (req, res) => {
     }
   });
 });
-// API útvonal a csapolt termékek lekérdezéséhez
+// API útvonal a csapolt termékek lekérdezéséhez...
 app.get("/api/csapolttermekek", (req, res) => {
   const oneYearAgo = new Date();
   oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
 
   const query = `
     SELECT * FROM forgalom 
-    WHERE termekid IN (1, 2, 3)
+    WHERE termekid IN (1, 2, 3, 19, 20, 21, 230)
     AND STR_TO_DATE(eladottdate, '%Y. %m. %d. %H:%i:%s') >= ?
     ORDER BY eladottdate DESC
   `;

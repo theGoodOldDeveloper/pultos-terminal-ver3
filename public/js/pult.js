@@ -78,6 +78,8 @@ var fizetoHitelesId = -1;
 var fizetoHitelesMegjegyzes = "";
 var fizetoHitelesIndex = -1;
 
+var errorLog = "unknown";
+
 var visiblesequenceIndex = -1;
 var oldTodolist = JSON.parse(localStorage.getItem("todolist"));
 var weekNumber = trNumberDatum.getDay();
@@ -921,6 +923,7 @@ function visszajaro(trFizetesMod, saldo, alkotmanyosToday) {
 async function hogyanTovabb(trFizetesMod, megjegyzes) {
   const buttonPressed = await waitForButtonPress();
   if (buttonPressed == 2) {
+    errorLog = "hogyanTovabb";
     renderPult();
     createTranactionData(
       trNumber,
@@ -994,6 +997,7 @@ function trCard() {
   let trFizetesMod = "c";
   trNumber = createTrNumber();
   let megjegyzes = "+";
+  errorLog = "trCard";
   createTranactionData(
     trNumber,
     trFizetesMod,
@@ -1023,6 +1027,7 @@ function torolFeldolgozottKosarat(kosarId) {
     });
 }
 function trHitel() {
+  errorLog = "trHitel";
   createTranactionData(
     trNumber,
     trFizetesMod,
@@ -1038,7 +1043,7 @@ function createTranactionData(
   trFizetesMod,
   megjegyzes,
   osszeg,
-  ossegBeszar
+  osszegBeszar
 ) {
   try {
     updateMySQL();
@@ -1072,7 +1077,8 @@ function createTranactionData(
         megjegyzes: megjegyzes,
         pultos: pultos,
         kibeosszeg: osszeg,
-        kibeosszegbeszar: ossegBeszar,
+        kibeosszegbeszar: osszegBeszar,
+        errorLog: errorLog,
       }),
     });
     renderGetdata();
@@ -1107,6 +1113,7 @@ function trKivet() {
   trNumber = createTrNumber();
   let megjegyzes = kivet;
   let trKivetNincsBeszar = 0;
+  errorLog = "trKivet";
   createTranactionData(
     trNumber,
     trFizetesMod,

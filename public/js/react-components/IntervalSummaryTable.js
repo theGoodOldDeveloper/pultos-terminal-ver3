@@ -57,10 +57,22 @@ const IntervalSummaryTable = () => {
 
     transactions.forEach((transaction) => {
       const amount = parseFloat(transaction.kibeosszeg);
-      const profit =
-        parseFloat(transaction.kibeosszeg) -
-        parseFloat(transaction.kibeosszegbeszar);
-
+      /* BUG  */
+      var profit = 0;
+      if (parseFloat(transaction.kibeosszegbeszar) < 1) {
+        profit =
+          parseFloat(transaction.kibeosszeg) -
+          parseFloat(transaction.kibeosszeg / 2);
+      } else {
+        profit =
+          parseFloat(transaction.kibeosszeg) -
+          parseFloat(transaction.kibeosszegbeszar);
+      }
+      /* const profit =
+      parseFloat(transaction.kibeosszeg) -
+      parseFloat(transaction.kibeosszegbeszar);
+      */
+      /* BUG  */
       if (transaction.trfizetesmod === "k") summary.kp1 += amount;
       else if (transaction.trfizetesmod === "m") summary.kp2 += amount;
       else if (transaction.trfizetesmod === "c") summary.card += amount;

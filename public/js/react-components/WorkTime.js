@@ -77,30 +77,37 @@ const WorkTime = () => {
     }
   };
 
-  const calculateWorkHours = (entries) => {
-    let totalMinutes = 0;
-    let lastEntry = null;
+  const getWorkDayEntries = (entries, startDate) => {
+    const endDate = new Date(startDate);
+    endDate.setDate(endDate.getDate() + 1);
 
-    for (let i = 0; i < entries.length; i++) {
-      if (entries[i].trfizetesmod === "o") {
-        lastEntry = new Date(entries[i].newDate);
-      } else if (entries[i].trfizetesmod === "f" && lastEntry) {
-        const exitTime = new Date(entries[i].newDate);
-        const diff = exitTime - lastEntry;
-        totalMinutes += diff / (1000 * 60);
-        lastEntry = null;
-      }
+    const dayEntries = entries.filter(
+      (entry) => entry.newDate >= startDate && entry.newDate < endDate
+    );
+
+    const firstEntry = dayEntries.find((entry) => entry.trfizetesmod === "o");
+    const lastExit = [...dayEntries]
+      .reverse()
+      .find((entry) => entry.trfizetesmod === "f");
+
+    return { firstEntry, lastExit };
+  };
+
+  const calculateWorkHours = (firstEntry, lastExit) => {
+    if (!firstEntry) return 0;
+
+    const startTime = new Date(firstEntry.newDate);
+    let endTime;
+
+    if (lastExit) {
+      endTime = new Date(lastExit.newDate);
+    } else {
+      endTime = new Date(startTime);
+      endTime.setHours(23, 0, 0, 0);
     }
 
-    if (lastEntry) {
-      // Ha nincs kilépés, számoljunk 23:00-ig
-      const endOfDay = new Date(lastEntry);
-      endOfDay.setHours(23, 0, 0, 0);
-      const diff = endOfDay - lastEntry;
-      totalMinutes += diff / (1000 * 60);
-    }
-
-    return totalMinutes / 60; // Convert to hours
+    const diffMinutes = (endTime - startTime) / (1000 * 60);
+    return diffMinutes / 60; // Convert to hours
   };
 
   const renderTable = (year, month) => {
@@ -122,44 +129,41 @@ const WorkTime = () => {
           {[...Array(daysInMonth)].map((_, index) => {
             const day = index + 1;
             const currentDay = new Date(year, month, day, 6, 30);
-            const nextDay = new Date(year, month, day + 1, 6, 30);
-
-            const dayData = workTimeData.filter((item) => {
-              const itemDate = new Date(item.newDate);
-              return itemDate >= currentDay && itemDate < nextDay;
-            });
-
-            const dailyHours = pultosok.map((pultos) => {
-              const pultosEntries = dayData.filter(
-                (item) => parseInt(item.pultos) === pultos
-              );
-              const hours = calculateWorkHours(pultosEntries);
-              totalHours[pultos] += hours;
-              return hours;
-            });
 
             return (
               <tr key={day}>
                 <td>{day}</td>
-                {pultosok.map((pultos, index) => (
-                  <td key={`${day}-${pultos}`}>
-                    {dayData
-                      .filter((item) => parseInt(item.pultos) === pultos)
-                      .map((item) => (
-                        <div key={item.id}>
-                          {getStatusText(item.trfizetesmod)} -{" "}
-                          {formatTime(new Date(item.newDate))}
+                {pultosok.map((pultos) => {
+                  const pultosEntries = workTimeData.filter(
+                    (item) => parseInt(item.pultos) === pultos
+                  );
+                  const { firstEntry, lastExit } = getWorkDayEntries(
+                    pultosEntries,
+                    currentDay
+                  );
+                  const hours = calculateWorkHours(firstEntry, lastExit);
+                  totalHours[pultos] += hours;
+
+                  return (
+                    <td key={`${day}-${pultos}`}>
+                      {firstEntry && (
+                        <div>
+                          Belépés: {formatTime(new Date(firstEntry.newDate))}
                         </div>
-                      ))}
-                    {dailyHours[index] > 0 && (
-                      <div>
-                        <strong>
-                          Munkaidő: {dailyHours[index].toFixed(2)} óra
-                        </strong>
-                      </div>
-                    )}
-                  </td>
-                ))}
+                      )}
+                      {lastExit && (
+                        <div>
+                          Kilépés: {formatTime(new Date(lastExit.newDate))}
+                        </div>
+                      )}
+                      {hours > 0 && (
+                        <div>
+                          <strong>Munkaidő: {hours.toFixed(2)} óra</strong>
+                        </div>
+                      )}
+                    </td>
+                  );
+                })}
               </tr>
             );
           })}

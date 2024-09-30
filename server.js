@@ -602,7 +602,53 @@ app.delete("/api/kosarnevek/:id", (req, res) => {
 /* INFO: SQLITE */
 
 /* NOTE: inserttransactions */
-app.post("/inserttransactions", bodyParser.json(), (req, res) => {
+/* BUG - BUG - BUG - BUG - BUG */
+app.post("/inserttransactions", bodyParser.json(), async (req, res) => {
+  const insertData = [
+    req.body.trnumber,
+    req.body.trdate,
+    req.body.trfizetesmod,
+    req.body.megjegyzes,
+    req.body.pultos,
+    req.body.kibeosszeg,
+    req.body.kibeosszegbeszar,
+  ];
+  const errorLog = req.body.errorLog;
+  try {
+    const data = await new Promise((resolve, reject) => {
+      con.query(
+        "INSERT INTO transactions (trnumber, trdate, trfizetesmod, megjegyzes, pultos, kibeosszeg, kibeosszegbeszar) VALUES (?)",
+        [insertData],
+        (err, result) => {
+          if (err) reject(err);
+          else resolve(result);
+        }
+      );
+    });
+
+    res.send(data);
+  } catch (err) {
+    console.error("Hiba a tranzakció beszúrásakor:", err);
+
+    // Naplózás fájlba
+    const logMessage = `
+Időpont: ${new Date().toISOString()}
+Küldő app: ${errorLog}
+Hiba: ${err.message}
+Beillesztendő adatok: ${JSON.stringify(insertData, null, 2)}
+    `;
+
+    try {
+      await fs.appendFile(path.join(__dirname, "error_log.txt"), logMessage);
+      console.log("Hiba naplózva a fájlba.");
+    } catch (logError) {
+      console.error("Hiba a naplózás során:", logError);
+    }
+
+    res.status(500).send("Hiba történt a tranzakció feldolgozása során");
+  }
+});
+/* app.post("/inserttransactions", bodyParser.json(), (req, res) => {
   const insertData = [
     req.body.trnumber,
     req.body.trdate,
@@ -623,7 +669,8 @@ app.post("/inserttransactions", bodyParser.json(), (req, res) => {
       }
     }
   );
-});
+}); */
+/* BUG - BUG - BUG - BUG - BUG */
 
 app.post("/backupkosarak", bodyParser.json(), (req, res) => {
   const content = req.body.data;

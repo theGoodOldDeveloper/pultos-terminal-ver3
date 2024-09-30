@@ -41,6 +41,7 @@ async function getdata() {
   //BUG
   var response = await fetch("/api/csapolttermekek");
   let csapoltTermekekData = await response.json();
+  //console.log("csapoltTermekekData: ",csapoltTermekekData)
   state.csapoltTermekek = csapoltTermekekData.map((item) => {
     //console.log("Raw eladottdate:", item.eladottdate);
     const parsedDate = parseHungarianDate(item.eladottdate);
@@ -50,7 +51,7 @@ async function getdata() {
       eladottdate: parsedDate,
     };
   });
-  //  console.log("csapoltTermekek:", state.csapoltTermekek);
+    console.log("csapoltTermekek:", state.csapoltTermekek);
 
   renderTodo();
   //BUG
@@ -241,6 +242,14 @@ function calculateTotalLiters(startDate, endDate) {
           return total + 0.3 * termek.db;
         case 3:
           return total + 0.2 * termek.db;
+        case 19:
+          return total + 0.4 * termek.db;
+        case 20:
+          return total + 0.2 * termek.db;
+        case 21:
+          return total + 0.1 * termek.db;
+        case 230:
+          return total + 0.1 * termek.db;
         default:
           return total;
       }

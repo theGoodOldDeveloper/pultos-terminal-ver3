@@ -85,9 +85,18 @@ const SummaryTable = () => {
         trDate >= startOfPreviousMonth && trDate < endOfPreviousMonth;
 
       const amount = parseFloat(transaction.kibeosszeg);
-      const profit =
-        parseFloat(transaction.kibeosszeg) -
-        parseFloat(transaction.kibeosszegbeszar);
+      /* BUG  */
+      var profit = 0;
+      if (parseFloat(transaction.kibeosszegbeszar) < 1) {
+        profit =
+          parseFloat(transaction.kibeosszeg) -
+          parseFloat(transaction.kibeosszeg / 2);
+      } else {
+        profit =
+          parseFloat(transaction.kibeosszeg) -
+          parseFloat(transaction.kibeosszegbeszar);
+      }
+      /* BUG  */
 
       const updateSummary = (period) => {
         if (transaction.trfizetesmod === "k") summary[period].kp1 += amount;
