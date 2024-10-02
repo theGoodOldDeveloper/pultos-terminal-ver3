@@ -6,6 +6,10 @@ const WorkTime = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [pultosNames, setPultosNames] = useState([]);
 
+  const boldCellStyle = {
+    fontWeight: "bold",
+  };
+
   useEffect(() => {
     fetchWorkTimeData();
     fetchPultosNames();
@@ -181,27 +185,86 @@ const WorkTime = () => {
       </table>
     );
 
-    return table;
+    return { table, totalHours };
+  };
+
+  const renderSummaryTable = () => {
+    const currentMonthData = renderTable(
+      currentDate.getFullYear(),
+      currentDate.getMonth()
+    );
+    const prevMonthData = renderTable(
+      currentDate.getMonth() === 0
+        ? currentDate.getFullYear() - 1
+        : currentDate.getFullYear(),
+      currentDate.getMonth() === 0 ? 11 : currentDate.getMonth() - 1
+    );
+
+    return (
+      <div>
+        <h2 className="text-center mb-4 bg-info p-2">Munkaidő Összesítés</h2>
+        <table className="table table-bordered">
+          <thead className="bg-info text-white">
+            <tr>
+              <th>Időszak</th>
+              {pultosNames.map((name, index) => (
+                <th key={index}>{name || `Pultos ${index}`}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            <tr className="p-2">
+              <td style={boldCellStyle}>
+                {currentDate.getFullYear()}. {currentDate.getMonth() + 1}. hónap
+              </td>
+              {currentMonthData.totalHours.map((hours, index) => (
+                <td key={index} style={boldCellStyle}>
+                  {hours.toFixed(2)} óra
+                </td>
+              ))}
+            </tr>
+            <tr>
+              <td style={boldCellStyle}>
+                {currentDate.getMonth() === 0
+                  ? currentDate.getFullYear() - 1
+                  : currentDate.getFullYear()}
+                . {currentDate.getMonth() === 0 ? 12 : currentDate.getMonth()}.
+                hónap (előző)
+              </td>
+              {prevMonthData.totalHours.map((hours, index) => (
+                <td key={index} style={boldCellStyle}>
+                  {hours.toFixed(2)} óra
+                </td>
+              ))}
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    );
   };
 
   return (
     <div>
+      {renderSummaryTable()}
+
       <h2 className="text-center mb-4 bg-info p-2">
         Munkaidő Táblázat - {currentDate.getFullYear()}.{" "}
         {currentDate.getMonth() + 1}. hónap
       </h2>
-      {renderTable(currentDate.getFullYear(), currentDate.getMonth())}
+      {renderTable(currentDate.getFullYear(), currentDate.getMonth()).table}
 
       <h2 className="text-center mb-4 bg-info p-2">
         Munkaidő Táblázat - Előző hónap ({currentDate.getFullYear()}.{" "}
         {currentDate.getMonth()}. hónap)
       </h2>
-      {renderTable(
-        currentDate.getMonth() === 0
-          ? currentDate.getFullYear() - 1
-          : currentDate.getFullYear(),
-        currentDate.getMonth() === 0 ? 11 : currentDate.getMonth() - 1
-      )}
+      {
+        renderTable(
+          currentDate.getMonth() === 0
+            ? currentDate.getFullYear() - 1
+            : currentDate.getFullYear(),
+          currentDate.getMonth() === 0 ? 11 : currentDate.getMonth() - 1
+        ).table
+      }
     </div>
   );
 };
