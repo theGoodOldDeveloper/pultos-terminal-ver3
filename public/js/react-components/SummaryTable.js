@@ -43,6 +43,13 @@ const SummaryTable = () => {
       ? new Date(today6_30.getTime() + oneDay)
       : today6_30;
 
+    // Hét kezdetének helyes meghatározása
+    const startOfWeek = new Date(startOfDay);
+    startOfWeek.setDate(
+      startOfWeek.getDate() - ((startOfWeek.getDay() + 6) % 7)
+    );
+    startOfWeek.setHours(6, 30, 0, 0);
+
     const summary = {
       daily: { kp1: 0, kp2: 0, card: 0, kivet: 0, haszon: 0 },
       weekly: { kp1: 0, kp2: 0, card: 0, kivet: 0, haszon: 0 },
@@ -50,7 +57,6 @@ const SummaryTable = () => {
       previousMonth: { kp1: 0, kp2: 0, card: 0, kivet: 0, haszon: 0 },
     };
 
-    const startOfWeek = new Date(today6_30.getTime() - 6 * oneDay);
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1, 6, 30);
 
     // Előző hónap kezelése, figyelembe véve az év váltását
@@ -74,10 +80,22 @@ const SummaryTable = () => {
       999
     );
 
-    transactions.forEach((transaction) => {
-      const trDate = new Date(transaction.trdate);
+    console.log("Start of week:", startOfWeek);
+    console.log("End of day:", endOfDay);
 
-      // Módosítás: A napi adatok ellenőrzése az új időintervallummal
+    transactions.forEach((transaction) => {
+      const [year, month, day, hour, minute, second, millisecond] =
+        transaction.trnumber.split(".").map(Number);
+      const trDate = new Date(
+        year,
+        month - 1,
+        day,
+        hour,
+        minute,
+        second,
+        millisecond
+      );
+
       const isToday = trDate >= startOfDay && trDate < endOfDay;
       const isThisWeek = trDate >= startOfWeek && trDate < endOfDay;
       const isThisMonth = trDate >= startOfMonth && trDate < endOfDay;
@@ -98,13 +116,23 @@ const SummaryTable = () => {
       }
       /* BUG  */
 
+      if (transaction.trfizetesmod === "c" && isThisWeek) {
+        console.log("Card transaction in this week:", transaction);
+        console.log("Transaction date:", trDate);
+        console.log("Amount:", amount);
+      }
+
       const updateSummary = (period) => {
         if (transaction.trfizetesmod === "k") summary[period].kp1 += amount;
         else if (transaction.trfizetesmod === "m")
           summary[period].kp2 += amount;
-        else if (transaction.trfizetesmod === "c")
+        else if (transaction.trfizetesmod === "c") {
           summary[period].card += amount;
-        else if (transaction.trfizetesmod === "b")
+          if (period === "weekly") {
+            console.log("Adding to weekly card total:", amount);
+            console.log("New weekly card total:", summary[period].card);
+          }
+        } else if (transaction.trfizetesmod === "b")
           summary[period].kivet += amount;
 
         if (["k", "m", "c"].includes(transaction.trfizetesmod)) {
@@ -118,11 +146,15 @@ const SummaryTable = () => {
       if (isPreviousMonth) updateSummary("previousMonth");
     });
 
+    console.log("Final summary:", summary);
+
     setSummaryData(summary);
   };
 
   const formatNumber = (num) =>
-    new Intl.NumberFormat("hu-HU").format(Math.round(num));
+    new Intl.NumberFormat("hu-HU", { maximumFractionDigits: 0 }).format(
+      Math.round(num)
+    );
 
   const renderRow = (label, data) => {
     const total = data.kp1 + data.kp2 + data.card;

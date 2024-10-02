@@ -56,6 +56,19 @@ const IntervalSummaryTable = () => {
     };
 
     transactions.forEach((transaction) => {
+      // Módosítás: trnumber használata és átalakítása Date objektummá
+      const [year, month, day, hour, minute, second, millisecond] =
+        transaction.trnumber.split(".").map(Number);
+      const trDate = new Date(
+        year,
+        month - 1,
+        day,
+        hour,
+        minute,
+        second,
+        millisecond
+      );
+
       const amount = parseFloat(transaction.kibeosszeg);
       /* BUG  */
       var profit = 0;
@@ -68,11 +81,8 @@ const IntervalSummaryTable = () => {
           parseFloat(transaction.kibeosszeg) -
           parseFloat(transaction.kibeosszegbeszar);
       }
-      /* const profit =
-      parseFloat(transaction.kibeosszeg) -
-      parseFloat(transaction.kibeosszegbeszar);
-      */
       /* BUG  */
+
       if (transaction.trfizetesmod === "k") summary.kp1 += amount;
       else if (transaction.trfizetesmod === "m") summary.kp2 += amount;
       else if (transaction.trfizetesmod === "c") summary.card += amount;

@@ -933,12 +933,15 @@ app.post("/api/transactions/interval", (req, res) => {
 
   const query = `
     SELECT * FROM transactions 
-    WHERE STR_TO_DATE(trdate, '%Y. %m. %d. %H:%i:%s') >= ? AND STR_TO_DATE(trdate, '%Y. %m. %d. %H:%i:%s') < ?
+    WHERE STR_TO_DATE(SUBSTRING_INDEX(trnumber, '.', 6), '%Y.%m.%d.%H.%i.%s') >= ? 
+    AND STR_TO_DATE(SUBSTRING_INDEX(trnumber, '.', 6), '%Y.%m.%d.%H.%i.%s') < ?
   `;
 
+  // Állítsd be a kezdő dátumot az adott nap 6:30-ra
   const adjustedStartDate = new Date(startDate);
   adjustedStartDate.setUTCHours(6, 30, 0, 0);
 
+  // Állítsd be a végdátumot a következő nap 6:30-ra
   const adjustedEndDate = new Date(endDate);
   adjustedEndDate.setUTCDate(adjustedEndDate.getUTCDate() + 1);
   adjustedEndDate.setUTCHours(6, 30, 0, 0);
