@@ -11,6 +11,53 @@ const IntervalSummaryTable = () => {
     haszon: 0,
   });
 
+  const calculateCreditRepayments = (transactions) => {
+    return transactions.reduce((total, transaction) => {
+      if (!transaction || !transaction.trnumber) {
+        console.warn("Invalid transaction:", transaction);
+        return total;
+      }
+
+      const [trYear, trMonth, trDay, trHour, trMinute, trSecond] =
+        transaction.trnumber.split(".").map(Number);
+      const trNumberDate = new Date(trYear, trMonth - 1, trDay, 6, 30, 0);
+
+      let trDate;
+      if (transaction.trdate) {
+        const [trDateYear, trDateMonth, trDateDay, trDateTime] =
+          transaction.trdate.split(". ");
+        const [trDateHour, trDateMinute, trDateSecond] = trDateTime
+          .split(":")
+          .map(Number);
+        trDate = new Date(
+          trDateYear,
+          parseInt(trDateMonth) - 1,
+          parseInt(trDateDay),
+          trDateHour,
+          trDateMinute,
+          trDateSecond
+        );
+      } else {
+        trDate = new Date(
+          trYear,
+          trMonth - 1,
+          trDay,
+          trHour,
+          trMinute,
+          trSecond
+        );
+      }
+
+      const nextDay = new Date(trNumberDate);
+      nextDay.setDate(nextDay.getDate() + 1);
+
+      if (trDate < trNumberDate || trDate >= nextDay) {
+        return total + parseFloat(transaction.kibeosszeg || 0);
+      }
+      return total;
+    }, 0);
+  };
+
   const fetchIntervalData = async () => {
     if (!startDate || !endDate) {
       alert("Kérjük, adja meg mind a kezdő, mind a végdátumot!");
@@ -53,35 +100,24 @@ const IntervalSummaryTable = () => {
       card: 0,
       kivet: 0,
       haszon: 0,
+      transactions: transactions,
     };
 
     transactions.forEach((transaction) => {
-      // Módosítás: trnumber használata és átalakítása Date objektummá
-      const [year, month, day, hour, minute, second, millisecond] =
-        transaction.trnumber.split(".").map(Number);
-      const trDate = new Date(
-        year,
-        month - 1,
-        day,
-        hour,
-        minute,
-        second,
-        millisecond
-      );
-
-      const amount = parseFloat(transaction.kibeosszeg);
-      /* BUG  */
-      var profit = 0;
-      if (parseFloat(transaction.kibeosszegbeszar) < 1) {
-        profit =
-          parseFloat(transaction.kibeosszeg) -
-          parseFloat(transaction.kibeosszeg / 2);
-      } else {
-        profit =
-          parseFloat(transaction.kibeosszeg) -
-          parseFloat(transaction.kibeosszegbeszar);
+      if (!transaction || !transaction.trnumber) {
+        console.warn("Invalid transaction:", transaction);
+        return;
       }
-      /* BUG  */
+
+      const amount = parseFloat(transaction.kibeosszeg) || 0;
+      let profit = 0;
+      const beszar = parseFloat(transaction.kibeosszegbeszar) || 0;
+
+      if (beszar < 1) {
+        profit = amount - amount / 2;
+      } else {
+        profit = amount - beszar;
+      }
 
       if (transaction.trfizetesmod === "k") summary.kp1 += amount;
       else if (transaction.trfizetesmod === "m") summary.kp2 += amount;
@@ -102,19 +138,29 @@ const IntervalSummaryTable = () => {
   const renderRow = (data) => {
     const total = data.kp1 + data.kp2 + data.card;
     const netto = total + data.kivet;
+    const creditRepayments = calculateCreditRepayments(data.transactions || []);
+
     return (
-      <tr>
-        <td>
-          {startDate} - {endDate}
-        </td>
-        <td className="text-right">{formatNumber(data.kp1)}</td>
-        <td className="text-right">{formatNumber(data.kp2)}</td>
-        <td className="text-right">{formatNumber(data.card)}</td>
-        <td className="text-right">{formatNumber(total)}</td>
-        <td className="text-right">{formatNumber(data.kivet)}</td>
-        <td className="text-right">{formatNumber(netto)}</td>
-        <td className="text-right">{formatNumber(data.haszon)}</td>
-      </tr>
+      <>
+        <tr>
+          <td>
+            {startDate} - {endDate}
+          </td>
+          <td className="text-right">{formatNumber(data.kp1)}</td>
+          <td className="text-right">{formatNumber(data.kp2)}</td>
+          <td className="text-right">{formatNumber(data.card)}</td>
+          <td className="text-right">{formatNumber(total)}</td>
+          <td className="text-right">{formatNumber(data.kivet)}</td>
+          <td className="text-right">{formatNumber(netto)}</td>
+          <td className="text-right">{formatNumber(data.haszon)}</td>
+        </tr>
+        <tr>
+          <td colSpan="7" className="text-right">
+            Ebből hitel visszafizetés:
+          </td>
+          <td className="text-right">{formatNumber(creditRepayments)}</td>
+        </tr>
+      </>
     );
   };
 

@@ -33,7 +33,6 @@ const SummaryTable = () => {
     );
     const oneDay = 24 * 60 * 60 * 1000;
 
-    // Módosítás: Ellenőrizzük, hogy a jelenlegi idő 6:30 előtt vagy után van-e
     const isAfter6_30 =
       now.getHours() > 6 || (now.getHours() === 6 && now.getMinutes() >= 30);
     const startOfDay = isAfter6_30
@@ -43,7 +42,6 @@ const SummaryTable = () => {
       ? new Date(today6_30.getTime() + oneDay)
       : today6_30;
 
-    // Hét kezdetének helyes meghatározása
     const startOfWeek = new Date(startOfDay);
     startOfWeek.setDate(
       startOfWeek.getDate() - ((startOfWeek.getDay() + 6) % 7)
@@ -59,7 +57,6 @@ const SummaryTable = () => {
 
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1, 6, 30);
 
-    // Előző hónap kezelése, figyelembe véve az év váltását
     const previousMonth = now.getMonth() === 0 ? 11 : now.getMonth() - 1;
     const previousYear =
       now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
@@ -80,9 +77,6 @@ const SummaryTable = () => {
       999
     );
 
-    console.log("Start of week:", startOfWeek);
-    console.log("End of day:", endOfDay);
-
     transactions.forEach((transaction) => {
       const [year, month, day, hour, minute, second, millisecond] =
         transaction.trnumber.split(".").map(Number);
@@ -102,24 +96,14 @@ const SummaryTable = () => {
       const isPreviousMonth =
         trDate >= startOfPreviousMonth && trDate < endOfPreviousMonth;
 
-      const amount = parseFloat(transaction.kibeosszeg);
-      /* BUG  */
-      var profit = 0;
-      if (parseFloat(transaction.kibeosszegbeszar) < 1) {
-        profit =
-          parseFloat(transaction.kibeosszeg) -
-          parseFloat(transaction.kibeosszeg / 2);
-      } else {
-        profit =
-          parseFloat(transaction.kibeosszeg) -
-          parseFloat(transaction.kibeosszegbeszar);
-      }
-      /* BUG  */
+      const amount = parseFloat(transaction.kibeosszeg) || 0;
+      let profit = 0;
+      const beszar = parseFloat(transaction.kibeosszegbeszar) || 0;
 
-      if (transaction.trfizetesmod === "c" && isThisWeek) {
-        console.log("Card transaction in this week:", transaction);
-        console.log("Transaction date:", trDate);
-        console.log("Amount:", amount);
+      if (beszar < 1) {
+        profit = amount - amount / 2;
+      } else {
+        profit = amount - beszar;
       }
 
       const updateSummary = (period) => {
@@ -128,10 +112,6 @@ const SummaryTable = () => {
           summary[period].kp2 += amount;
         else if (transaction.trfizetesmod === "c") {
           summary[period].card += amount;
-          if (period === "weekly") {
-            console.log("Adding to weekly card total:", amount);
-            console.log("New weekly card total:", summary[period].card);
-          }
         } else if (transaction.trfizetesmod === "b")
           summary[period].kivet += amount;
 
@@ -145,8 +125,6 @@ const SummaryTable = () => {
       if (isThisMonth) updateSummary("monthly");
       if (isPreviousMonth) updateSummary("previousMonth");
     });
-
-    console.log("Final summary:", summary);
 
     setSummaryData(summary);
   };

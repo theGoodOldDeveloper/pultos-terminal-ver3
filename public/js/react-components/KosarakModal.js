@@ -2,18 +2,13 @@ import React, { useState } from "react";
 import { Modal, Table, Button } from "react-bootstrap";
 import KosaradatokModal from "./KosaradatokModal";
 
-function KosarakModal({ show, onHide, kosarNevek, kosarak }) {
+function KosarakModal({ show, onHide, kosarNevek, kosarak, dailySales }) {
   const [showKosaradatokModal, setShowKosaradatokModal] = useState(false);
   const [selectedKosarNev, setSelectedKosarNev] = useState(null);
 
   const handleKosaradatokShow = (kosarNev) => {
     setSelectedKosarNev(kosarNev);
     setShowKosaradatokModal(true);
-  };
-
-  const handlePultraClick = (kosarMegnevezes) => {
-    // Implement the PULTRA functionality here
-    console.log("PULTRA clicked for:", kosarMegnevezes);
   };
 
   return (
@@ -32,7 +27,6 @@ function KosarakModal({ show, onHide, kosarNevek, kosarak }) {
                 <th>Pultos neve</th>
                 <th>Pultos kód</th>
                 <th>Összes eladási ár</th>
-                {/* <th>Művelet</th> */}
               </tr>
             </thead>
             <tbody>
@@ -65,19 +59,28 @@ function KosarakModal({ show, onHide, kosarNevek, kosarak }) {
                     <td className="text-right">
                       {osszesEladasiAr.toFixed(0)} Ft
                     </td>
-                    {/* <td>
-                      <Button
-                        variant="primary"
-                        onClick={() =>
-                          handlePultraClick(kosarNev.kosarMegnevezes)
-                        }
-                      >
-                        PULTRA
-                      </Button>
-                    </td> */}
                   </tr>
                 );
               })}
+            </tbody>
+          </Table>
+
+          {/* Új rész: Napi összesítések */}
+          <h5 className="mt-4">Napi összesítések:</h5>
+          <Table striped bordered hover size="sm">
+            <thead>
+              <tr>
+                <th>Dátum</th>
+                <th>Összeg</th>
+              </tr>
+            </thead>
+            <tbody>
+              {dailySales.map(({ date, amount }) => (
+                <tr key={date}>
+                  <td>{date}</td>
+                  <td className="text-right">{amount.toFixed(0)} Ft</td>
+                </tr>
+              ))}
             </tbody>
           </Table>
         </Modal.Body>

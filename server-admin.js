@@ -939,12 +939,12 @@ app.post("/api/transactions/interval", (req, res) => {
 
   // Állítsd be a kezdő dátumot az adott nap 6:30-ra
   const adjustedStartDate = new Date(startDate);
-  adjustedStartDate.setUTCHours(6, 30, 0, 0);
+  adjustedStartDate.setHours(6, 30, 0, 0);
 
   // Állítsd be a végdátumot a következő nap 6:30-ra
   const adjustedEndDate = new Date(endDate);
-  adjustedEndDate.setUTCDate(adjustedEndDate.getUTCDate() + 1);
-  adjustedEndDate.setUTCHours(6, 30, 0, 0);
+  adjustedEndDate.setDate(adjustedEndDate.getDate() + 1);
+  adjustedEndDate.setHours(6, 30, 0, 0);
 
   console.log("Adjusted dates:", adjustedStartDate, "-", adjustedEndDate);
 
@@ -954,6 +954,7 @@ app.post("/api/transactions/interval", (req, res) => {
       res.status(500).json({ error: "Database error" });
     } else {
       console.log("Found transactions:", data.length);
+      console.log("end of the function", data[0]);
       res.json(data);
     }
   });
