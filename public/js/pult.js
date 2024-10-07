@@ -879,7 +879,11 @@ async function trKp() {
 }
 //HACK: visszajaro
 function visszajaro(trFizetesMod, saldo, alkotmanyosToday) {
-  $("#visszajaroModal").modal();
+  $("#visszajaroModal").modal({
+    backdrop: "static",
+    keyboard: false,
+  });
+
   let cimletek = [500, 1000, 2000, 5000, 10000, 20000];
   let betetdijBontas = ``;
   if (trFizetesMod == "m") {
@@ -911,6 +915,7 @@ function visszajaro(trFizetesMod, saldo, alkotmanyosToday) {
     </tbody>
     </table>
     `;
+
   document.getElementById("cimletFelsorolas").innerHTML = visszajaroCimlet;
   document.getElementById("megHatraVan").innerHTML = `<h3>${(
     saldo -
@@ -1038,7 +1043,7 @@ function trHitel() {
 }
 
 /* TODO:TODO:TODO: TRANSACTIONS TODO:TODO:TODO: */
-function createTranactionData(
+async function createTranactionData(
   trNumber,
   trFizetesMod,
   megjegyzes,
@@ -1046,9 +1051,12 @@ function createTranactionData(
   osszegBeszar
 ) {
   try {
-    updateMySQL();
-    updateLastId();
-  } catch (e) {}
+    await updateMySQL();
+    await updateLastId();
+  } catch (e) {
+    console.error("Hiba történt a tranzakció létrehozása során:", e);
+  }
+
   async function updateMySQL() {
     datum = theTime();
     if (kosarbolVisszatoltott) {
@@ -1081,16 +1089,18 @@ function createTranactionData(
         errorLog: errorLog,
       }),
     });
-    renderGetdata();
-    hitelStateRender();
-    renderPult();
+    await renderGetdata();
+    await hitelStateRender();
+    await renderPult();
   }
+
   async function updateLastId() {
-    var response = await fetch("/lasttransactionid");
-    lastTransactionId = await response.json();
-    lastTransactionId = lastTransactionId[0]["max(id)"];
+    const response = await fetch("/lasttransactionid");
+    const data = await response.json();
+    lastTransactionId = data[0]["max(id)"];
+
     for (let pultItem of state.pult) {
-      insertForgalomData(
+      await insertForgalomData(
         lastTransactionId,
         pultItem.id,
         pultItem.db,
@@ -1102,7 +1112,7 @@ function createTranactionData(
       );
     }
     state.pult = [];
-    renderPult();
+    await renderPult();
   }
 }
 
@@ -1134,30 +1144,40 @@ async function insertForgalomData(
   xkimeresnevid,
   termekId
 ) {
-  const response = await fetch("/insertforgalom/", {
-    method: "POST",
-    headers: {
-      "Content-type": "application/json",
-    },
-    body: JSON.stringify({
-      transaction_id: lastTransactionId,
-      termekid: termekId,
-      db: db,
-      eladottbeszar: eladottbeszar,
-      eladottelar: eladottelar,
-      eladottdate: xDatum,
-      xkimeresnevid: xkimeresnevid,
-    }),
-  });
-  foundPult = false;
-  if (kosarbolVisszatoltott) {
-    kosarbolVisszatoltott = false;
-    state.kosarak.splice(kosarbolVisszatoltottId, 1);
-    state.kosarNevek.splice(kosarbolVisszatoltottId, 1);
-    kosarbolVisszatoltottId = -111;
-  }
-  if (foundKosar.length == 0) {
-    foundKosar = false;
+  try {
+    const response = await fetch("/insertforgalom/", {
+      method: "POST",
+      headers: {
+        "Content-type": "application/json",
+      },
+      body: JSON.stringify({
+        transaction_id: lastTransactionId,
+        termekid: termekId,
+        db: db,
+        eladottbeszar: eladottbeszar,
+        eladottelar: eladottelar,
+        eladottdate: xDatum,
+        xkimeresnevid: xkimeresnevid,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    foundPult = false;
+    if (kosarbolVisszatoltott) {
+      kosarbolVisszatoltott = false;
+      state.kosarak.splice(kosarbolVisszatoltottId, 1);
+      state.kosarNevek.splice(kosarbolVisszatoltottId, 1);
+      kosarbolVisszatoltottId = -111;
+    }
+    if (foundKosar.length == 0) {
+      foundKosar = false;
+    }
+  } catch (error) {
+    console.error("Hiba történt a forgalom adatok beszúrása során:", error);
+    // Itt kezelheti a hibát, például megjeleníthet egy hibaüzenetet a felhasználónak
   }
 }
 
