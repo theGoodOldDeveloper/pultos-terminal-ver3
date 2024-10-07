@@ -350,14 +350,26 @@ function renderPult(aktualKosarNev, aktualKosarak) {
   let betdijText = "";
   let betdij = 0;
   var mindosszesenBetdij = 0;
+
   for (var sorok of state.pult) {
     if (
+      (state.alapanyagok?.[sorok.aId - 1]?.emailsend ?? false) ||
+      (state.termekek?.[sorok.transactionnumber]?.emailsend ?? false)
+    ) {
+      betdij = sorok.db * betetdij;
+      betdijText = `<h4>Betétdíj összege: <span class="font-weight-bold">${betdij}</span> Ft</h4>`;
+    } else {
+      betdij = 0;
+      betdijText = "";
+    }
+    /*if (
       state.alapanyagok[sorok.aId - 1].emailsend ||
       state.termekek[sorok.transactionnumber].emailsend
     ) {
       betdij = sorok.db * betetdij;
       betdijText = `<h4>Betétdíj összege: <span class="font-weight-bold">${betdij}</span> Ft</h4>`;
-    }
+    }*/
+
     tetelSorokHTML += `
         <div class="card">
         <div class="font-weight-bold d-flex justify-content-between" style=" padding-right: 3em">
