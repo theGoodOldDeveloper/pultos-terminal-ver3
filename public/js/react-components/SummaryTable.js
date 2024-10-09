@@ -137,6 +137,7 @@ const SummaryTable = () => {
   const renderRow = (label, data) => {
     const total = data.kp1 + data.kp2 + data.card;
     const netto = total + data.kivet;
+    const totalWithoutCard = netto - data.card;
     return (
       <tr key={label}>
         <td>{label}</td>
@@ -146,6 +147,7 @@ const SummaryTable = () => {
         <td className="text-right">{formatNumber(total)}</td>
         <td className="text-right">{formatNumber(data.kivet)}</td>
         <td className="text-right">{formatNumber(netto)}</td>
+        <td className="text-right">{formatNumber(totalWithoutCard)}</td>
         <td className="text-right">{formatNumber(data.haszon)}</td>
       </tr>
     );
@@ -162,6 +164,7 @@ const SummaryTable = () => {
           <th className="text-right">Mindösszesen</th>
           <th className="text-right">Kivét</th>
           <th className="text-right">Nettó</th>
+          <th className="text-right">Nettó (kártya nélkül)</th>
           <th className="text-right">Haszon</th>
         </tr>
       </thead>

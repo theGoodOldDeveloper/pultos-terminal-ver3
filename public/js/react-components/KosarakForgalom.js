@@ -38,24 +38,46 @@ function KosarakForgalom() {
             };
             kosarakArray.push(kosarItem);
 
-            // Napi összesítés számítása
-            const [year, month, day, time] = kosar.datum.split(". ");
-            const [hour, minute] = time.split(":");
-            let kosarDate = new Date(
-              year,
-              month - 1,
-              parseInt(day),
-              parseInt(hour),
-              parseInt(minute)
-            );
+            // Dátum formátum kezelése
+            let kosarDate;
+            if (kosar.datum.includes(".")) {
+              // Magyar formátum: "2024. 09. 23. 15:32:05"
+              const [year, month, day, time] = kosar.datum.split(". ");
+              const [hour, minute] = time.split(":");
+              kosarDate = new Date(
+                year,
+                month - 1,
+                parseInt(day),
+                parseInt(hour),
+                parseInt(minute)
+              );
+            } else {
+              // Angol formátum: "10/7/2024, 6:34:29 PM"
+              kosarDate = new Date(kosar.datum);
+            }
 
             // Ha az idő 6:30 előtt van, akkor az előző naphoz tartozik
             if (
-              parseInt(hour) < 6 ||
-              (parseInt(hour) === 6 && parseInt(minute) < 30)
+              kosarDate.getHours() < 6 ||
+              (kosarDate.getHours() === 6 && kosarDate.getMinutes() < 30)
             ) {
               kosarDate.setDate(kosarDate.getDate() - 1);
             }
+
+            // Magyar formátumú dátum létrehozása a szervernek
+            const magyarDatum = `${kosarDate.getFullYear()}. ${String(
+              kosarDate.getMonth() + 1
+            ).padStart(2, "0")}. ${String(kosarDate.getDate()).padStart(
+              2,
+              "0"
+            )}. ${String(kosarDate.getHours()).padStart(2, "0")}:${String(
+              kosarDate.getMinutes()
+            ).padStart(2, "0")}:${String(kosarDate.getSeconds()).padStart(
+              2,
+              "0"
+            )}`;
+
+            kosarItem.datum = magyarDatum; // Frissítjük a kosár dátumát magyar formátumra
 
             const dateKey = kosarDate.toISOString().split("T")[0];
             if (!dailySalesObj[dateKey]) {

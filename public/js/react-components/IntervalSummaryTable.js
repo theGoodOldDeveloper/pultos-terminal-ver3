@@ -86,13 +86,40 @@ const IntervalSummaryTable = () => {
 
       const transactions = await response.json();
       console.log("Received transactions:", transactions);
-      processTransactionData(transactions);
+      // Dátumformátum ellenőrzése és konvertálása
+      const convertedTransactions = transactions.map((transaction) => {
+        if (transaction.trdate && !isHungarianDateFormat(transaction.trdate)) {
+          return {
+            ...transaction,
+            trdate: convertToHungarianFormat(transaction.trdate),
+          };
+        }
+        return transaction;
+      });
+
+      processTransactionData(convertedTransactions);
     } catch (error) {
       console.error("Error fetching interval data:", error);
       alert("Hiba történt az adatok lekérése során");
     }
   };
+  // Segédfüggvények a dátumformátum ellenőrzéséhez és konvertálásához
+  const isHungarianDateFormat = (dateString) => {
+    const regex = /^\d{4}\. \d{2}\. \d{2}\. \d{1,2}:\d{2}:\d{2}$/;
+    return regex.test(dateString);
+  };
 
+  const convertToHungarianFormat = (dateString) => {
+    const date = new Date(dateString);
+    return `${date.getFullYear()}. ${String(date.getMonth() + 1).padStart(
+      2,
+      "0"
+    )}. ${String(date.getDate()).padStart(2, "0")}. ${String(
+      date.getHours()
+    ).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}:${String(
+      date.getSeconds()
+    ).padStart(2, "0")}`;
+  };
   const processTransactionData = (transactions) => {
     const summary = {
       kp1: 0,
